@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a 'regression' in software engineering?",
+      "options": [
+        "A new feature that was never built",
+        "A bug where a change accidentally breaks something that previously worked correctly",
+        "A type of database query",
+        "A performance improvement"
+      ],
+      "correct": 1,
+      "explanation": "A regression specifically means previously working functionality broke because of a new change — automated tests exist largely to catch this class of bug immediately."
+    },
+    {
+      "stage": "check",
+      "question": "What is 'technical debt'?",
+      "options": [
+        "Money owed to a cloud provider for compute usage",
+        "The accumulated future cost of shortcuts taken to ship faster now, which make future changes slower or riskier if unaddressed",
+        "A type of bug that only appears in production",
+        "The time it takes to write documentation"
+      ],
+      "correct": 1,
+      "explanation": "Technical debt is a deliberate or accidental trade-off: shipping faster now at the cost of future changes being harder, similar to how financial debt trades present benefit for future cost (interest)."
+    },
+    {
+      "stage": "post",
+      "question": "A stakeholder asks why a feature that 'works when I tried it' can't ship today without more testing and review. Which question best reframes this productively?",
+      "options": [
+        "Can we just skip testing this one time?",
+        "What specific regression or edge-case failure would our current tests and review process catch that manual clicking wouldn't?",
+        "Why do engineers need to test anything ever?",
+        "Can we remove code review from the process permanently?"
+      ],
+      "correct": 1,
+      "explanation": "Testing and code review exist to catch specific failure modes (regressions, edge cases, single-author blind spots) that manual, happy-path testing typically misses — grounding the conversation in concrete risk rather than abstract process."
+    }
+  ]
+}

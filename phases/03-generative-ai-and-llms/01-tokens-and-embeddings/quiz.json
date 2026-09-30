@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a token in the context of LLMs?",
+      "options": [
+        "A whole sentence",
+        "A sub-word chunk of text, the basic unit LLMs process, bill on, and rate-limit against",
+        "A type of database record",
+        "A security credential for API access"
+      ],
+      "correct": 1,
+      "explanation": "Tokens are typically sub-word pieces of text produced by a tokenizer, and they are the actual unit of measurement for cost, rate limits, and context window size."
+    },
+    {
+      "stage": "check",
+      "question": "Why do embedding-based semantic search systems return documents that don't share exact keywords with a query?",
+      "options": [
+        "This is always a bug in the retrieval system",
+        "Embeddings represent meaning as vectors, and texts with similar meaning end up with similar vectors even without shared exact words",
+        "Semantic search ignores the query entirely",
+        "Embeddings only work for numeric data"
+      ],
+      "correct": 1,
+      "explanation": "Embeddings capture meaning rather than exact wording, so a query like 'cheap flights' can match a document saying 'affordable airfare' because their vectors are close, even with no overlapping keywords."
+    },
+    {
+      "stage": "post",
+      "question": "A product team is surprised that non-English queries cost more per request than similar-length English queries. Which question best explains this?",
+      "options": [
+        "Is this a billing error that needs to be reported immediately?",
+        "Have we measured actual token counts (not word or character counts) for our supported languages, since tokenization efficiency varies by language?",
+        "Should we just stop supporting non-English languages?",
+        "Is the API provider overcharging us on purpose?"
+      ],
+      "correct": 1,
+      "explanation": "Different languages and scripts often tokenize less efficiently than English, producing more tokens for a similar amount of content — a predictable, well-understood effect rather than a billing error."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a function in programming?",
+      "options": [
+        "A file containing an entire application",
+        "A named, reusable block of code that takes inputs and typically returns an output",
+        "A type of error message",
+        "A database table"
+      ],
+      "correct": 1,
+      "explanation": "A function packages a set of instructions under a name so it can be called repeatedly with different inputs (arguments), instead of rewriting the same logic each time."
+    },
+    {
+      "stage": "check",
+      "question": "When a Python script has a line like `import torch` or `from openai import OpenAI`, what is happening?",
+      "options": [
+        "The script is creating a new file called torch",
+        "The script is pulling in an existing library/module's already-written functionality to reuse it",
+        "The script is deleting the torch library",
+        "The script is renaming the OpenAI SDK"
+      ],
+      "correct": 1,
+      "explanation": "An import statement brings in functionality from an existing module, package, or library so the current script can reuse it without rewriting it from scratch."
+    },
+    {
+      "stage": "post",
+      "question": "Engineering debates whether to write custom retry logic or import an existing library like `tenacity`. Which question best helps a TPM evaluate this trade-off?",
+      "options": [
+        "Which option requires fewer lines of code today, regardless of anything else?",
+        "Is retry logic a well-solved, generic problem that an established library already handles well, and if we depend on it, who maintains that library?",
+        "Can we avoid making this decision entirely?",
+        "Does the library have a colorful logo?"
+      ],
+      "correct": 1,
+      "explanation": "The core trade-off is whether the problem is generic and well-solved (favoring a maintained library) versus specific to the product (favoring custom code), plus the ongoing risk of depending on an external maintainer."
+    }
+  ]
+}

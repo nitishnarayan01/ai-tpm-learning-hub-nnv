@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the effective leadership posture for an AI TPM, according to this lesson?",
+      "options": [
+        "Dictating specific implementation choices to the engineering team",
+        "Asking sharp, well-informed questions and ensuring good decisions get made, rather than personally making every technical decision or disengaging entirely",
+        "Never engaging with any technical substance and deferring on everything",
+        "Only focusing on deadlines and never discussing architecture or risk"
+      ],
+      "correct": 1,
+      "explanation": "Effective AI TPM leadership sits between two failure modes — technical over-reach (dictating solutions) and technical abdication (no substantive engagement) — favoring informed questions that surface real risks and trade-offs."
+    },
+    {
+      "stage": "check",
+      "question": "Why might the same identified risk (e.g. missing per-user authorization) have very different urgency scores at different program stages?",
+      "options": [
+        "Risk urgency is always identical regardless of context",
+        "The actual stakes differ — a small internal prototype with no sensitive data reasonably carries lower urgency than a general-availability feature at scale handling sensitive data",
+        "Missing authorization is never actually a real risk",
+        "Urgency scoring should ignore program stage entirely"
+      ],
+      "correct": 1,
+      "explanation": "Risk calibration accounts for actual stakes: program stage, data sensitivity, and scale all affect how urgently a given risk needs to be resolved, rather than applying identical rigor regardless of context."
+    },
+    {
+      "stage": "post",
+      "question": "A newly promoted AI TPM starts specifying exact implementation details ('use this embedding model') to an engineering team, who begin to disengage. Which question best reflects on this situation?",
+      "options": [
+        "Should the TPM double down and specify even more implementation details?",
+        "Is this technical over-reach — would asking 'walk me through why this approach was chosen' build more trust and surface more context than dictating a specific solution?",
+        "Should the TPM stop engaging with technical topics entirely going forward?",
+        "Is disengagement from the team an unavoidable outcome of any technical involvement?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario describes technical over-reach. The corrective is shifting from dictating solutions to asking informed questions, which builds trust and surfaces the team's existing reasoning and trade-off analysis rather than overriding it."
+    }
+  ]
+}

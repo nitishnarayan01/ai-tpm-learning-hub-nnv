@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does LLMOps need to monitor output quality, not just traditional metrics like uptime and latency?",
+      "options": [
+        "Uptime and latency are not real concerns for AI applications",
+        "An LLM response can have a healthy status code and fast latency while still being unhelpful, off-topic, or subtly wrong — a dimension traditional monitoring doesn't capture",
+        "LLM applications never experience uptime or latency issues",
+        "Quality monitoring replaces the need for uptime monitoring entirely"
+      ],
+      "correct": 1,
+      "explanation": "Traditional operational metrics can look perfectly healthy while output quality silently regresses, since a 'successful' response (200 status, fast) doesn't guarantee the content itself is actually good."
+    },
+    {
+      "stage": "check",
+      "question": "Why can a prompt or model change affect production behavior without showing up in a traditional code deployment log?",
+      "options": [
+        "Prompt and model changes are always tracked identically to code changes",
+        "Prompts can be edited independently of code deploys, and model providers can make updates on their end, both of which can change behavior without a traditional code deployment ever happening",
+        "This scenario is purely theoretical and never actually happens",
+        "Only code changes can ever affect an LLM application's behavior"
+      ],
+      "correct": 1,
+      "explanation": "Unlike traditional software where behavior changes are tied to code deploys, LLM application behavior can shift due to prompt edits or provider-side model updates, which traditional deployment tracking may not capture."
+    },
+    {
+      "stage": "post",
+      "question": "Users complain an AI feature's quality has declined, but all traditional dashboards (uptime, latency, error rate) look healthy. Which question best identifies the gap?",
+      "options": [
+        "Should we conclude the users are simply mistaken?",
+        "Do we have any continuous signal for output quality, and would we have noticed this regression before users started complaining?",
+        "Should we just restart the servers to fix this?",
+        "Is this definitely a rate-limiting issue?"
+      ],
+      "correct": 1,
+      "explanation": "This is a textbook case of a quality regression invisible to traditional monitoring — the fix is establishing continuous quality monitoring as a first-class operational signal, not just relying on traditional uptime/latency dashboards."
+    }
+  ]
+}

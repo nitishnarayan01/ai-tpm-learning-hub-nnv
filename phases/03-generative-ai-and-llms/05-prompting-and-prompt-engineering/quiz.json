@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between a system prompt and a user prompt?",
+      "options": [
+        "They are the same thing with different names",
+        "The system prompt sets persistent instructions, role, and rules across a conversation; the user prompt is the specific request for the current turn",
+        "The system prompt is only used for error messages",
+        "The user prompt is set by engineers, never by end users"
+      ],
+      "correct": 1,
+      "explanation": "A system prompt establishes ongoing behavior, tone, and constraints for the whole conversation, while the user prompt is the specific input or question for a given turn."
+    },
+    {
+      "stage": "check",
+      "question": "Why might few-shot prompting (providing example input/output pairs) produce more reliable output formatting than a written instruction alone?",
+      "options": [
+        "Few-shot examples are always ignored by the model",
+        "Showing the exact desired pattern through examples often demonstrates format and nuance more reliably than describing it in words alone",
+        "Few-shot prompting requires fine-tuning the model first",
+        "Few-shot prompting only works for image generation tasks"
+      ],
+      "correct": 1,
+      "explanation": "Concrete examples can convey subtle formatting, tone, and structural expectations more reliably than a written instruction, especially for tasks with a specific expected output pattern."
+    },
+    {
+      "stage": "post",
+      "question": "A feature produces inconsistent output and the team's first proposal is to fine-tune a custom model. Which question best evaluates whether that's the right first step?",
+      "options": [
+        "Should we start fine-tuning today without exploring anything else?",
+        "Have we tried improving the prompt — clearer instructions, few-shot examples, explicit format requests — before considering the more expensive and slower option of fine-tuning?",
+        "Why do we need prompts if we're going to fine-tune anyway?",
+        "Can we skip prompting entirely and only use fine-tuning?"
+      ],
+      "correct": 1,
+      "explanation": "Prompt engineering is the cheapest, fastest, most reversible lever on output quality, and is the standard first step to try before committing to the higher cost and longer timeline of fine-tuning or switching models."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What distinguishes a 'reasoning model' from a standard LLM?",
+      "options": [
+        "Reasoning models are always smaller than standard models",
+        "Reasoning models are trained to generate extended, explicit intermediate reasoning steps before producing a final answer, rather than answering directly",
+        "Reasoning models never make any mistakes",
+        "There is no real difference — it's purely a marketing term"
+      ],
+      "correct": 1,
+      "explanation": "Reasoning models have extended step-by-step thinking trained in more deeply, conceptually extending chain-of-thought prompting and ReAct's 'thought' step into a more systematic, trained capability."
+    },
+    {
+      "stage": "check",
+      "question": "What is the main trade-off of using a reasoning model?",
+      "options": [
+        "There is no trade-off — reasoning models are strictly better in every way",
+        "Extended reasoning generates many more tokens before the final answer, directly increasing cost and latency, which must be weighed against the accuracy improvement for a specific task",
+        "Reasoning models can only be used for image generation tasks",
+        "Reasoning models are always cheaper than standard models"
+      ],
+      "correct": 1,
+      "explanation": "The extended intermediate reasoning process means more output tokens, which increases both cost and latency — a real overhead that should be justified by a measurable accuracy improvement for the specific task."
+    },
+    {
+      "stage": "post",
+      "question": "A team switches their entire product to a reasoning model, including simple lookup and format-conversion tasks, and sees increased cost and latency with no measurable quality improvement. Which question best diagnoses this?",
+      "options": [
+        "Should we conclude reasoning models are never useful for anything?",
+        "Did we evaluate which specific tasks are complex enough to benefit from reasoning, rather than applying the reasoning model universally regardless of task complexity?",
+        "Should we just accept the increased cost since reasoning models are inherently better?",
+        "Is this an unavoidable cost of using any AI model?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario reflects applying a reasoning model to tasks that don't need extended reasoning, incurring cost and latency overhead with no accuracy benefit — the fix is matching model choice to actual task complexity rather than a blanket policy."
+    }
+  ]
+}

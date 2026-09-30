@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a gradient, in intuitive terms?",
+      "options": [
+        "A type of database index",
+        "A signal indicating the direction and magnitude to adjust a model's internal numbers (weights) to reduce error",
+        "A list of all possible model outputs",
+        "The total number of parameters in a model"
+      ],
+      "correct": 1,
+      "explanation": "A gradient tells the training process which way, and how much, to adjust each weight to make predictions less wrong — like feeling for 'downhill' in fog."
+    },
+    {
+      "stage": "check",
+      "question": "Why can the same prompt produce slightly different answers from an AI model each time it's run?",
+      "options": [
+        "The model secretly changes its weights after every request",
+        "The model outputs a probability distribution over possible answers rather than one guaranteed answer, and sampling from that distribution can vary",
+        "The internet connection introduces random errors",
+        "This never actually happens with modern models"
+      ],
+      "correct": 1,
+      "explanation": "Modern AI models output likelihoods over possible answers rather than a single fixed answer, and the selection process (influenced by settings like temperature) can pick different outputs across runs."
+    },
+    {
+      "stage": "post",
+      "question": "An engineer says training is 'stuck in a local minimum.' Which question best helps a TPM assess how serious this is?",
+      "options": [
+        "Can we just restart the computer?",
+        "Have we tried different learning rates, initializations, or architecture changes, or is this conclusion based on only one attempt?",
+        "Why does math have minimums at all?",
+        "Can we skip training entirely and ship the untrained model?"
+      ],
+      "correct": 1,
+      "explanation": "Being 'stuck in a local minimum' is a real phenomenon, but the practical question is whether the team has tried standard mitigations (different learning rates, initializations, architectures) before concluding it's a fundamental blocker."
+    }
+  ]
+}

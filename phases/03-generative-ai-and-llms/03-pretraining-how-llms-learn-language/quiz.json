@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the core training task during LLM pre-training?",
+      "options": [
+        "Answering trivia questions correctly",
+        "Predicting the next token given all previous tokens, repeated across massive amounts of text",
+        "Classifying images into categories",
+        "Translating between exactly two specific languages"
+      ],
+      "correct": 1,
+      "explanation": "Pre-training uses next-token prediction as its core objective. Grammar, facts, and reasoning patterns emerge as a side effect of getting very good at this single, simple-sounding task at massive scale."
+    },
+    {
+      "stage": "check",
+      "question": "Why might a freshly pre-trained 'base model' respond to a question by continuing it with more text rather than directly answering it?",
+      "options": [
+        "Base models are broken and unusable",
+        "Base models are trained purely on next-token prediction and haven't been specifically adapted to follow instructions or act as a helpful assistant",
+        "Base models can only output single words",
+        "Base models don't understand language at all"
+      ],
+      "correct": 1,
+      "explanation": "Pre-training alone produces a model good at plausible text continuation, not one aligned to helpfully follow instructions — that alignment typically comes from a subsequent fine-tuning step."
+    },
+    {
+      "stage": "post",
+      "question": "A team proposes pre-training their own foundation model from scratch to have full control. Which question best surfaces the real trade-off?",
+      "options": [
+        "Can we start this project today without further discussion?",
+        "Given the scale of compute, data, and cost typically required for pre-training, would fine-tuning an existing pre-trained model address our actual underlying concern at far lower cost and risk?",
+        "Why do we need any training at all?",
+        "Can we skip pre-training and go straight to production?"
+      ],
+      "correct": 1,
+      "explanation": "Pre-training from scratch is an extremely high-cost, high-risk undertaking realistic for only a small number of well-resourced organizations. Identifying the underlying concern (cost, privacy, capability) often reveals that fine-tuning or prompting an existing model addresses it far more practically."
+    }
+  ]
+}

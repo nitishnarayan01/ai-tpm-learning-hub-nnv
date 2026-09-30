@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is 'confidence signaling' in AI UX design?",
+      "options": [
+        "Making all AI responses look identical regardless of their reliability",
+        "Visually distinguishing higher-confidence or grounded output (e.g. with citations) from lower-confidence or unverified output",
+        "A technique for making a model generate faster",
+        "A backend-only concept with no effect on the user interface"
+      ],
+      "correct": 1,
+      "explanation": "Confidence signaling gives users visual cues (like citations or warning badges) to calibrate how much to trust a given AI response, rather than presenting every output with the same unearned authority."
+    },
+    {
+      "stage": "check",
+      "question": "Why does presenting every AI response with uniform, unqualified confidence tend to backfire?",
+      "options": [
+        "It doesn't backfire — uniform presentation is always the best approach",
+        "It sets users up to trust wrong answers exactly as much as right ones, so trust erodes suddenly and severely once a mistake is discovered, rather than being managed gradually and honestly",
+        "Users always ignore AI-generated content regardless of presentation",
+        "This only matters for image-generation features, not text"
+      ],
+      "correct": 1,
+      "explanation": "Without confidence signaling, users have no basis to be more skeptical of lower-confidence outputs, so when a mistake surfaces, it damages trust more severely than if uncertainty had been honestly communicated all along."
+    },
+    {
+      "stage": "post",
+      "question": "An AI feature is rate-limited and the UI simply shows a blank or broken-looking response with no explanation. Which question best addresses this UX gap?",
+      "options": [
+        "Should we just accept this as an unavoidable limitation?",
+        "Does our UI clearly communicate degraded states (like rate limiting) to users, or does it present a silently broken experience with no explanation?",
+        "Should we remove rate limiting entirely to avoid this issue?",
+        "Is this purely a backend engineering problem with no UX component?"
+      ],
+      "correct": 1,
+      "explanation": "This is a graceful degradation gap — the fix is ensuring degraded states are clearly communicated to users (e.g. 'high demand, please try again') rather than presenting an unexplained broken experience."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does an explicit planning stage add to an agent system?",
+      "options": [
+        "Nothing useful — planning is purely decorative",
+        "Breaking a complex goal into an ordered set of sub-tasks before or during execution, giving a scaffold to check progress against",
+        "It replaces the need for any tool use entirely",
+        "It guarantees the agent will never make mistakes"
+      ],
+      "correct": 1,
+      "explanation": "Planning breaks a large goal into ordered sub-tasks, giving both the agent and observers a structure to track progress against, rather than operating purely reactively with no sense of the overall goal's structure."
+    },
+    {
+      "stage": "check",
+      "question": "What is the key difference between 'upfront planning' and 'plan-and-execute'?",
+      "options": [
+        "They are identical approaches with different names",
+        "Upfront planning generates the full plan once before execution and doesn't adjust it; plan-and-execute re-evaluates the plan after each sub-task based on new information",
+        "Plan-and-execute never uses any planning at all",
+        "Upfront planning is always more expensive than plan-and-execute"
+      ],
+      "correct": 1,
+      "explanation": "Upfront planning commits to a fixed plan before execution begins, while plan-and-execute re-evaluates the remaining plan after each step, making it more adaptive at the cost of additional re-evaluation overhead."
+    },
+    {
+      "stage": "post",
+      "question": "An agent tasked with a multi-part research and reporting goal gets sidetracked and never completes the final report. Which question best diagnoses this?",
+      "options": [
+        "Should we conclude the underlying model is simply not capable enough?",
+        "Does this agent generate an explicit plan and track progress against it, or does it operate purely reactively without a structure to catch it wandering off-goal?",
+        "Should we increase the model's temperature to fix this?",
+        "Is this an unfixable limitation of all AI agents?"
+      ],
+      "correct": 1,
+      "explanation": "This is a classic symptom of an agent operating without an explicit plan and progress tracking — adding a planning stage (and monitoring progress against it) is the standard, addressable fix for an agent wandering off the actual goal."
+    }
+  ]
+}

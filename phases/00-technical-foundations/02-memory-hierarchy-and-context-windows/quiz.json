@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "In the memory hierarchy, what is the general trade-off as you move from CPU registers toward disk/network storage?",
+      "options": [
+        "Memory gets faster and smaller",
+        "Memory gets slower and larger",
+        "Memory gets faster and more expensive per GB",
+        "There is no consistent trade-off"
+      ],
+      "correct": 1,
+      "explanation": "Each tier further from the processor (registers -> cache -> RAM -> VRAM -> disk -> network) trades speed for capacity: slower, but much larger and cheaper per GB."
+    },
+    {
+      "stage": "check",
+      "question": "What primarily causes VRAM usage to grow as a conversation gets longer, beyond the fixed size of the model weights?",
+      "options": [
+        "The model re-downloads its weights for each new token",
+        "The KV cache, which stores Key/Value vectors for every processed token and grows with context length and batch size",
+        "The GPU's L1 cache expands automatically",
+        "Disk swap space is allocated per token"
+      ],
+      "correct": 1,
+      "explanation": "The KV cache stores attention Key/Value vectors for every prior token so they don't need to be recomputed, and it scales linearly with both context length and the number of concurrent requests (batch size)."
+    },
+    {
+      "stage": "post",
+      "question": "Engineering proposes increasing context window from 8K to 128K tokens to support long conversations, citing a 5x cost increase. As a TPM, which question best challenges whether this is the right fix?",
+      "options": [
+        "Can we just buy a faster CPU instead?",
+        "Have we evaluated prefix caching, paged attention, or retrieval (RAG) as cheaper alternatives to raw context expansion for the 'remember everything' requirement?",
+        "Why do we need any memory at all for a chatbot?",
+        "Can the frontend team reduce the font size to save memory?"
+      ],
+      "correct": 1,
+      "explanation": "KV cache growth from raw context expansion is often the most expensive way to solve a 'remember more' requirement. Prefix caching, paged attention, and RAG-based retrieval are established levers to reduce that cost before scaling hardware."
+    }
+  ]
+}

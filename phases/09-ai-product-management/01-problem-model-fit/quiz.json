@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does 'problem-model fit' assess?",
+      "options": [
+        "Which specific LLM provider offers the cheapest pricing",
+        "Whether a given problem's characteristics genuinely match what LLM-based approaches are good at, before committing to build one",
+        "How many GPUs are needed to train a model",
+        "Whether a model's context window is large enough"
+      ],
+      "correct": 1,
+      "explanation": "Problem-model fit is an upfront assessment of whether a problem is actually well-suited to an LLM-based solution, before deciding which model or architecture to use."
+    },
+    {
+      "stage": "check",
+      "question": "Why is calculating an exact monthly invoice total considered a poor fit for an LLM-based solution?",
+      "options": [
+        "LLMs cannot process numbers at all",
+        "It requires perfect, deterministic accuracy and already has a simple, well-established deterministic solution, making an LLM's probabilistic nature an unnecessary risk",
+        "Invoices are too short for an LLM to process",
+        "This is actually a great fit for an LLM-based solution"
+      ],
+      "correct": 1,
+      "explanation": "Invoice calculation needs zero tolerance for error and has a straightforward deterministic formula already available, making a probabilistic LLM approach both riskier and less efficient than a simple calculation."
+    },
+    {
+      "stage": "post",
+      "question": "A team wants to add AI to a feature that simply validates whether a submitted form field matches a required format. Which question best evaluates this proposal?",
+      "options": [
+        "Should we approve it since AI can be added to any feature?",
+        "Does this problem require perfect, deterministic accuracy, and does a simpler, well-established deterministic solution (like a format check) already exist?",
+        "Which specific model should we use for this?",
+        "How much context window will this feature need?"
+      ],
+      "correct": 1,
+      "explanation": "This is a classic poor-fit signal: format validation is deterministic and already well-solved by simple rule-based logic, so the problem-model fit question should be asked before any model selection discussion happens."
+    }
+  ]
+}

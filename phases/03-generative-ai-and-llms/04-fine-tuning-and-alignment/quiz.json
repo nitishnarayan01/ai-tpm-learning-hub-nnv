@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is fine-tuning generally most reliable for?",
+      "options": [
+        "Teaching a model brand-new facts it can recall perfectly on demand",
+        "Adjusting a model's behavior, style, tone, or specializing it on a narrow task",
+        "Making a model faster to run at inference time",
+        "Increasing a model's context window size"
+      ],
+      "correct": 1,
+      "explanation": "Fine-tuning is well-suited to shaping behavior, tone, format adherence, and task specialization, but is not a reliable way to teach a model to accurately recall specific new facts on demand."
+    },
+    {
+      "stage": "check",
+      "question": "A team wants a model to accurately answer questions about pricing that changes weekly. Why is fine-tuning a poor fit here?",
+      "options": [
+        "Fine-tuning is always more expensive than any other option in every situation",
+        "Fine-tuning bakes information into static weights, requiring expensive retraining every time the facts change, whereas retrieval (RAG) can serve fresh facts immediately",
+        "Fine-tuning cannot be used for any factual question",
+        "Weekly changes are too infrequent for any method to handle"
+      ],
+      "correct": 1,
+      "explanation": "Frequently changing facts are better served by retrieving fresh information at request time (RAG) than by fine-tuning, which would require repeated, costly retraining to stay current."
+    },
+    {
+      "stage": "post",
+      "question": "A team says 'the model doesn't know our internal terminology, let's fine-tune it.' Which question best diagnoses whether fine-tuning is the right fix?",
+      "options": [
+        "Should we just start fine-tuning immediately without further discussion?",
+        "Is this actually a factual knowledge gap (better solved by RAG) or a behavior/style problem (better solved by fine-tuning)?",
+        "Why does the model need any specialized knowledge at all?",
+        "Can we avoid this decision by using a smaller model instead?"
+      ],
+      "correct": 1,
+      "explanation": "Distinguishing between a knowledge gap (favoring retrieval/RAG) and a behavior gap (favoring fine-tuning) is the key diagnostic question, since fine-tuning is frequently misapplied to problems that are actually about missing or stale factual information."
+    }
+  ]
+}

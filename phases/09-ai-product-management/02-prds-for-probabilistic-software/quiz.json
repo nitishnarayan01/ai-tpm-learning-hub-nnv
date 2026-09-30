@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is 'the feature should summarize documents accurately' an incomplete acceptance criterion for an AI feature's PRD?",
+      "options": [
+        "It's actually a perfectly complete and testable requirement",
+        "It's unfalsifiable and untestable — there's no defined quality threshold, no eval method, and no specification of what happens when the model gets it wrong",
+        "AI features never need any acceptance criteria at all",
+        "This phrasing only applies to traditional software, never to AI"
+      ],
+      "correct": 1,
+      "explanation": "Without a specific, measurable quality threshold and defined eval method, an engineer has no way to know when this requirement is actually met, and the PRD gives no guidance on handling the model's inevitable imperfect outputs."
+    },
+    {
+      "stage": "check",
+      "question": "What is 'failure mode handling' in the context of an AI feature's PRD?",
+      "options": [
+        "A section describing the server infrastructure's failover configuration",
+        "An explicit specification of what the feature should do when the AI component produces a wrong or low-confidence output",
+        "A list of programming languages the feature must never be built in",
+        "A section that only applies to features with no AI component"
+      ],
+      "correct": 1,
+      "explanation": "Since an AI feature will inevitably sometimes be wrong, failure mode handling defines the expected behavior in those cases (e.g. a low-confidence warning, a fallback path), rather than leaving it as an unplanned, ad hoc decision."
+    },
+    {
+      "stage": "post",
+      "question": "A PRD for an AI feature states only that it 'should be accurate and helpful,' with no other AI-specific detail. Which question best identifies the gap?",
+      "options": [
+        "Should we just approve the PRD as written and move forward?",
+        "Does this PRD specify a concrete quality threshold, eval method, and failure mode handling, or does it leave these to be decided ad hoc during implementation?",
+        "Should we remove all acceptance criteria to simplify the PRD?",
+        "Is this level of detail unnecessary for any AI feature?"
+      ],
+      "correct": 1,
+      "explanation": "This PRD is missing the AI-specific sections (quality threshold, eval criteria, failure mode handling, guardrail requirements) needed to give engineering a genuinely testable, unambiguous target for a probabilistic feature."
+    }
+  ]
+}

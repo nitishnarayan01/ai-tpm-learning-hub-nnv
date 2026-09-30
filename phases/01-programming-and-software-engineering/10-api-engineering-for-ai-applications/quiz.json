@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the typical shape of a production-grade AI API integration pipeline?",
+      "options": [
+        "Just call the model and show whatever comes back",
+        "Validate input, build the request, call the API with retries, parse the response, and handle failures gracefully",
+        "Only handle the successful case, since failures are rare",
+        "Store the entire conversation permanently before doing anything else"
+      ],
+      "correct": 1,
+      "explanation": "A production-ready pipeline combines input validation, structured request building, resilient API calls (with retries/backoff), response parsing, and graceful handling of every failure mode — not just the happy path."
+    },
+    {
+      "stage": "check",
+      "question": "In the example code, why does the retry loop multiply `delay` by 2 after each failed attempt (`delay *= 2`)?",
+      "options": [
+        "To make the code run faster",
+        "This implements exponential backoff — increasing wait time between retries to avoid overwhelming an already-struggling API",
+        "It's a typo and has no real purpose",
+        "To count how many users are affected"
+      ],
+      "correct": 1,
+      "explanation": "Exponential backoff increases the delay between retries after each failure, reducing the chance of repeatedly hammering an API that's already rate-limiting or struggling, and spreading out retry attempts."
+    },
+    {
+      "stage": "post",
+      "question": "A team says their new AI chatbot feature is 'production-ready' after a successful demo. Which question best tests whether that claim holds up?",
+      "options": [
+        "Did it work when you tried it once?",
+        "Walk me through what happens step by step if the model API returns a 429, a 500, or a malformed response — not just what happens when it succeeds.",
+        "Can we ship it today regardless of the answer?",
+        "Is the demo using a fun color scheme?"
+      ],
+      "correct": 1,
+      "explanation": "A working demo only proves the happy path. Production-readiness requires confirming behavior for validation failures, rate limits, server errors, and malformed responses — the failure modes that actually occur at scale."
+    }
+  ]
+}

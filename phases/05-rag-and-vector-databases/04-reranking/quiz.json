@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why do production RAG systems commonly use a two-stage retrieval pattern (similarity search, then reranking) instead of just similarity search alone?",
+      "options": [
+        "Two stages are only used to make the system appear more sophisticated",
+        "Similarity search is fast but approximate; reranking is slower but more precisely orders a smaller shortlist by true relevance to the specific query",
+        "Reranking replaces the need for embeddings entirely",
+        "This pattern is only used for image retrieval, never for text"
+      ],
+      "correct": 1,
+      "explanation": "Fast similarity search narrows millions of documents to a manageable shortlist, and a more computationally expensive reranker then re-scores that smaller shortlist with a deeper, more accurate relevance comparison."
+    },
+    {
+      "stage": "check",
+      "question": "Why is reranking applied only to a shortlist (e.g. top 50) rather than the entire document corpus directly?",
+      "options": [
+        "Rerankers can only process 50 documents total, ever",
+        "Reranking is computationally more expensive per item than similarity search, so applying it to millions of documents directly would be too slow",
+        "Reranking doesn't work on more than 50 items due to a hard technical limit",
+        "There is no real reason; it's an arbitrary convention"
+      ],
+      "correct": 1,
+      "explanation": "Rerankers do a deeper, costlier comparison between the query and each candidate, making them impractical to run against an entire large corpus directly — they're applied only to the smaller shortlist that similarity search has already narrowed down."
+    },
+    {
+      "stage": "post",
+      "question": "A RAG feature misses an obviously relevant answer that exists somewhere in the retrieved candidates. Which question best diagnoses whether reranking would help?",
+      "options": [
+        "Should we assume the model simply failed to read the content?",
+        "Was the relevant content excluded from the shortlist entirely, or included but ranked too low to be sent to the LLM — and are we using a reranking stage to fix the latter?",
+        "Should we increase the embedding model's dimensionality instead?",
+        "Is this definitely an unfixable limitation of RAG as an approach?"
+      ],
+      "correct": 1,
+      "explanation": "Distinguishing between 'missing from the shortlist entirely' (a retrieval/chunking issue) versus 'present but ranked too low' (a reranking opportunity) is the key diagnostic question for this kind of RAG quality issue."
+    }
+  ]
+}

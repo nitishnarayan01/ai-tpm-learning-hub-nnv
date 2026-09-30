@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does LoRA (Low-Rank Adaptation) do differently from full fine-tuning?",
+      "options": [
+        "It updates every single parameter in the model, just like full fine-tuning",
+        "It freezes the original model weights entirely and trains a small set of additional matrices alongside targeted layers instead",
+        "It deletes most of the model's original parameters",
+        "It only works on models with fewer than 1 million parameters"
+      ],
+      "correct": 1,
+      "explanation": "LoRA keeps the original weights frozen and unchanged, training only small additional matrices, which dramatically reduces the number of trainable parameters compared to updating the entire model."
+    },
+    {
+      "stage": "check",
+      "question": "What does QLoRA add on top of standard LoRA?",
+      "options": [
+        "Nothing — QLoRA and LoRA are identical",
+        "Quantization of the frozen base model weights (e.g. storing them in 4-bit instead of 16-bit), further reducing the VRAM needed to load the base model for fine-tuning",
+        "A requirement to use multiple GPUs simultaneously",
+        "Full fine-tuning of all original weights in addition to the LoRA matrices"
+      ],
+      "correct": 1,
+      "explanation": "QLoRA combines LoRA's parameter-efficient training with quantizing the frozen base weights to a lower precision, further cutting memory requirements and enabling fine-tuning of large models on more modest hardware."
+    },
+    {
+      "stage": "post",
+      "question": "A team proposes full fine-tuning of a 70-billion-parameter model for a narrow behavioral adjustment (customer service tone). Which question best evaluates this proposal?",
+      "options": [
+        "Should we just approve the full fine-tuning budget without further discussion?",
+        "Have we considered LoRA or QLoRA instead, given the typical order-of-magnitude reduction in cost and hardware requirements for this kind of behavioral adaptation task?",
+        "Why do we need any fine-tuning at all for a tone adjustment?",
+        "Should we switch to prompting instead without evaluating fine-tuning approaches?"
+      ],
+      "correct": 1,
+      "explanation": "For narrow behavioral/style adaptation tasks, LoRA/QLoRA typically capture most of the benefit of full fine-tuning at a small fraction of the cost, making it the natural first question before committing to a full fine-tuning budget."
+    }
+  ]
+}

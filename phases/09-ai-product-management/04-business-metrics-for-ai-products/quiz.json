@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is 'cost per interaction' an essential metric for AI product business health, beyond typical engagement metrics?",
+      "options": [
+        "It isn't important; engagement metrics alone are always sufficient",
+        "Every AI interaction has a real, calculable cost, and growing usage without cost context can mean growing losses rather than growing success",
+        "Cost per interaction only matters for features with fewer than 100 users",
+        "AI features never have any meaningful cost per interaction"
+      ],
+      "correct": 1,
+      "explanation": "Since AI interactions have real, measurable costs (tied to token economics), understanding cost per interaction relative to the value generated is essential to knowing whether rising usage reflects a sustainable, profitable feature or a growing financial liability."
+    },
+    {
+      "stage": "check",
+      "question": "What is 'deflection rate' (or containment rate) and why does it matter for support-oriented AI features?",
+      "options": [
+        "The percentage of users who stop using a feature entirely",
+        "The percentage of interactions fully resolved by the AI without human intervention, directly tied to the feature's cost-saving value proposition",
+        "The speed at which a model generates its first token",
+        "A measure of how many tokens a request uses"
+      ],
+      "correct": 1,
+      "explanation": "For AI features designed to reduce human workload, deflection rate measures how many interactions are actually resolved without escalating to a human, which is often the core metric tied to the feature's business value."
+    },
+    {
+      "stage": "post",
+      "question": "A team reports '50,000 daily interactions and rising' as evidence their AI chatbot feature is succeeding. Which question best challenges this claim?",
+      "options": [
+        "Should we just accept rising usage as proof of success?",
+        "What is the cost per interaction and quality score alongside this usage growth — could rising interactions reflect users re-asking due to unsatisfying answers rather than genuine value?",
+        "Should we increase the feature's usage target even higher?",
+        "Is this metric measured in the correct time zone?"
+      ],
+      "correct": 1,
+      "explanation": "Engagement alone is ambiguous — it could reflect genuine value or a broken, frustrating experience generating repeated re-attempts. Cost and quality metrics are needed alongside engagement to distinguish between these very different underlying realities."
+    }
+  ]
+}

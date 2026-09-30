@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What information does a model use to decide which MCP tool to call and how to call it?",
+      "options": [
+        "The tool's internal source code, which the model can read directly",
+        "The tool's name, description, and input schema — the only information available to the model at that decision point",
+        "A separate conversation with the server's developer",
+        "Random selection with no real decision process"
+      ],
+      "correct": 1,
+      "explanation": "A model has no visibility into a tool's internal implementation — it reasons entirely from the tool's name, description, and schema, making these a first-class design concern rather than an afterthought."
+    },
+    {
+      "stage": "check",
+      "question": "Why does a vague tool description like 'searches things' cause problems?",
+      "options": [
+        "It has no effect on model behavior at all",
+        "It's functionally equivalent to a vague prompt — it gives the model little basis to correctly decide when to use this tool or distinguish it from similar tools",
+        "It only affects the tool's execution speed, not its selection",
+        "MCP servers automatically reject vague descriptions"
+      ],
+      "correct": 1,
+      "explanation": "Since the model's tool-selection decision is based entirely on the description, a vague one increases the likelihood of the wrong tool being called or called with malformed arguments, mirroring the effect of a vague prompt."
+    },
+    {
+      "stage": "post",
+      "question": "An MCP server's tools are frequently called with the wrong arguments or the wrong tool is selected for a task. Which question best diagnoses this?",
+      "options": [
+        "Should we assume the underlying model is simply incapable of using tools correctly?",
+        "Are our tool descriptions and input schemas clear and specific enough to give the model a precise basis for selecting and calling the right tool?",
+        "Should we remove all tool descriptions to simplify the server?",
+        "Is this definitely a rate-limiting issue unrelated to tool design?"
+      ],
+      "correct": 1,
+      "explanation": "Frequent wrong tool selection or malformed calls are classic symptoms of unclear or under-specified tool descriptions and schemas, which should be reviewed and improved before assuming a deeper model limitation."
+    }
+  ]
+}

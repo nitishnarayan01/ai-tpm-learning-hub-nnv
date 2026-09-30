@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why do modern deep learning models require GPUs instead of standard CPUs?",
+      "options": [
+        "CPUs lack support for floating point arithmetic",
+        "GPUs have thousands of parallel cores designed for matrix multiplication",
+        "CPUs cannot run Python scripts",
+        "GPUs have larger persistent storage drives"
+      ],
+      "correct": 1,
+      "explanation": "Deep learning workloads are dominated by matrix operations (GEMM) that can be parallelized across thousands of small GPU cores simultaneously."
+    },
+    {
+      "stage": "check",
+      "question": "What is the primary hardware bottleneck during autoregressive LLM token generation?",
+      "options": [
+        "Network latency across cloud availability zones",
+        "Memory bandwidth (transferring weights from VRAM to compute cores)",
+        "Operating system file descriptors",
+        "Disk input/output operations per second (IOPS)"
+      ],
+      "correct": 1,
+      "explanation": "During autoregressive generation, weights must be transferred across the memory bus for each sequential token, making memory bandwidth the dominant constraint."
+    },
+    {
+      "stage": "post",
+      "question": "As an AI TPM evaluating infrastructure, which question most directly challenges an over-provisioned GPU cluster proposal?",
+      "options": [
+        "What color are the server chassis?",
+        "Have we benchmarked quantized weights (e.g. INT8/FP8) or smaller instances to verify if quality is retained at half the operational cost?",
+        "Can we rewrite the entire application in Assembly?",
+        "Why didn't we use 100% CPUs for training our 70B model?"
+      ],
+      "correct": 1,
+      "explanation": "Quantization and rightsizing instances are high-impact TPM levers to reduce operational expenditure while preserving model output quality."
+    }
+  ]
+}

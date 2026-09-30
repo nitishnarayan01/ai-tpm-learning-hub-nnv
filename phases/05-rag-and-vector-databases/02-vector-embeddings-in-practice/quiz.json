@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can't embeddings produced by two different embedding models be directly compared for similarity search?",
+      "options": [
+        "All embedding models produce identical, interchangeable vectors",
+        "Different models are trained differently and optimize for different notions of similarity, so their vectors aren't comparable to each other",
+        "Embeddings can only be compared if they are exactly one dimension",
+        "This is never actually a real constraint in practice"
+      ],
+      "correct": 1,
+      "explanation": "Each embedding model learns its own representation of meaning, so vectors from different models exist in different, incompatible spaces and cannot be meaningfully compared for similarity."
+    },
+    {
+      "stage": "check",
+      "question": "What does 're-indexing' mean when an embedding model is changed?",
+      "options": [
+        "Renaming files in the vector database",
+        "Re-embedding every existing chunk in the corpus with the new model, since old embeddings aren't compatible with it",
+        "Deleting the vector database entirely with no replacement",
+        "Changing only the database's search algorithm, not the data"
+      ],
+      "correct": 1,
+      "explanation": "Because embeddings from different models aren't comparable, switching embedding models requires re-embedding (re-indexing) the entire existing document corpus — a real, sometimes significant compute and time cost."
+    },
+    {
+      "stage": "post",
+      "question": "A RAG system performs poorly on internal engineering documentation full of specific jargon. Which question best identifies a likely, targeted fix?",
+      "options": [
+        "Should we conclude that RAG as an approach is fundamentally broken?",
+        "Have we benchmarked our current embedding model against domain-specific alternatives, since a general-purpose model may not capture our jargon well?",
+        "Should we abandon retrieval entirely and rely only on the LLM's built-in knowledge?",
+        "Is this definitely a chunking problem and nothing else?"
+      ],
+      "correct": 1,
+      "explanation": "Poor performance on specialized/jargon-heavy content is a classic symptom of an embedding model mismatch, which is a specific, benchmarkable, and fixable issue rather than evidence that RAG itself doesn't work."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the orchestrator-worker pattern in multi-agent systems?",
+      "options": [
+        "All agents operate completely independently with no communication",
+        "A central orchestrator agent breaks down the task, delegates sub-tasks to worker agents, and assembles their results",
+        "A pattern where only one agent is ever used at a time",
+        "A way to merge multiple agents into a single model"
+      ],
+      "correct": 1,
+      "explanation": "In the orchestrator-worker pattern, a central agent manages delegation and result assembly, providing clear accountability for coordinating the overall task across specialized worker agents."
+    },
+    {
+      "stage": "check",
+      "question": "What new failure mode do multi-agent systems introduce that a single agent's internal loop typically doesn't have?",
+      "options": [
+        "Multi-agent systems are immune to all failure modes",
+        "Race conditions, where one agent acts on another agent's output before it's actually complete or ready",
+        "Multi-agent systems can never use tools at all",
+        "Multi-agent systems always cost less than single-agent systems"
+      ],
+      "correct": 1,
+      "explanation": "Coordinating multiple independent agents introduces failure modes like race conditions (acting on incomplete output) and miscommunication between agents, which don't arise within a single agent's own internal loop."
+    },
+    {
+      "stage": "post",
+      "question": "A team proposes splitting a task across three agents (researcher, writer, editor), but the writer starts drafting before research is complete. Which question best addresses the root cause?",
+      "options": [
+        "Should we just merge all three agents back into one to avoid this?",
+        "Is there an explicit coordination mechanism ensuring the writer only starts once the researcher's output is confirmed complete?",
+        "Should we remove the editor agent since it's clearly unnecessary?",
+        "Is this an unavoidable limitation of using more than one agent?"
+      ],
+      "correct": 1,
+      "explanation": "This is a coordination failure (a race condition) that's addressed by an explicit dependency check or handoff protocol (e.g. an orchestrator confirming completion before delegating the next step), not necessarily by abandoning the multi-agent design entirely."
+    }
+  ]
+}

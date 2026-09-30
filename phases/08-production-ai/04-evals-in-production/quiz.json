@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a 'golden dataset' used for in LLM evaluation?",
+      "options": [
+        "Storing a model's most expensive API calls",
+        "A curated set of representative inputs paired with known-good expected outputs or scoring criteria, used to repeatably measure quality before deployment",
+        "A backup copy of the production database",
+        "A list of banned words for content moderation"
+      ],
+      "correct": 1,
+      "explanation": "A golden dataset provides a consistent, repeatable benchmark to measure whether a prompt or model change improves, maintains, or regresses quality, compared to the current production version."
+    },
+    {
+      "stage": "check",
+      "question": "Why do LLM evals need different techniques than traditional software testing's simple 'assert result == expected value'?",
+      "options": [
+        "LLM evals don't actually need to be any different from traditional testing",
+        "LLM outputs are non-deterministic and often open-ended, so evals need approaches like rule-based scoring, LLM-as-judge, or human review rather than exact equality checks",
+        "LLM outputs are always identical, so testing is unnecessary",
+        "Traditional software testing never uses any scoring at all"
+      ],
+      "correct": 1,
+      "explanation": "Because the same input can produce varying, open-ended outputs, evals need scoring methods (rule-based checks, LLM-as-judge, human review) suited to measuring quality on a spectrum, rather than a simple pass/fail equality test."
+    },
+    {
+      "stage": "post",
+      "question": "A team changes a system prompt and someone asks whether it made quality better or worse, but the team has only done a few spot checks. Which question best identifies the missing capability?",
+      "options": [
+        "Should we just trust the spot checks and move forward?",
+        "Do we have a golden dataset and repeatable scoring method to measure this change's actual impact on quality, rather than relying on a few manual spot checks?",
+        "Should we avoid ever changing prompts again to prevent this uncertainty?",
+        "Is this definitely not measurable in any way?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario is a direct symptom of missing eval infrastructure — a golden dataset with a repeatable scoring method turns 'did this help or hurt' from a guess into a measured, comparable result."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the difference between Git and GitHub?",
+      "options": [
+        "They are exactly the same thing with different names",
+        "Git is the underlying version control tool that works locally; GitHub is a hosted service built around Git adding collaboration features like pull requests and code review",
+        "GitHub is a programming language, Git is a code editor",
+        "Git only works for Python, GitHub only for JavaScript"
+      ],
+      "correct": 1,
+      "explanation": "Git tracks changes to code and works entirely on a local machine. GitHub (or similar services like GitLab) hosts Git repositories and adds collaboration tooling like pull requests, review, and CI/CD integration."
+    },
+    {
+      "stage": "check",
+      "question": "What causes a merge conflict?",
+      "options": [
+        "Two branches change the exact same lines of a file differently, and Git cannot automatically decide which change is correct",
+        "A commit message is too long",
+        "A branch has too many commits",
+        "The internet connection was too slow during a push"
+      ],
+      "correct": 0,
+      "explanation": "A merge conflict specifically occurs when overlapping changes exist on the same lines across two branches being merged, requiring a human to manually resolve which version (or combination) is correct."
+    },
+    {
+      "stage": "post",
+      "question": "A release gets delayed by a merge conflict. Which question best helps a TPM assess whether this indicates a real process problem?",
+      "options": [
+        "Can we just delete one engineer's branch to avoid the conflict?",
+        "Is this a one-off, quick-to-resolve conflict, or a sign of a deeper coordination problem with multiple teams constantly colliding on the same files?",
+        "Why does Git allow conflicts to happen at all?",
+        "Can we stop using version control to avoid this in the future?"
+      ],
+      "correct": 1,
+      "explanation": "A single merge conflict is usually a normal, quick, mechanical fix. Frequent conflicts, however, can signal poor branch hygiene or insufficient coordination between engineers working on overlapping code — worth distinguishing before assuming either extreme."
+    }
+  ]
+}

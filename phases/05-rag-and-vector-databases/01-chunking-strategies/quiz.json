@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why must documents be split into chunks before being used in a RAG system?",
+      "options": [
+        "Chunking is purely a storage cost-saving trick with no effect on retrieval quality",
+        "Embedding an entire long document as a single vector loses fine-grained detail needed for precise retrieval, and context windows limit how much text can be used at once",
+        "Documents cannot be embedded at all unless they are chunked",
+        "Chunking is only needed for documents written in non-English languages"
+      ],
+      "correct": 1,
+      "explanation": "A single embedding for an entire long document would be too coarse for precise similarity search, and retrieved content must fit within context window limits, making chunking necessary for effective retrieval."
+    },
+    {
+      "stage": "check",
+      "question": "What is the main risk of chunks that are too small?",
+      "options": [
+        "They are always too expensive to store",
+        "They risk separating a statement from the surrounding context needed to correctly interpret it",
+        "They can never be embedded successfully",
+        "They always improve retrieval quality with no downsides"
+      ],
+      "correct": 1,
+      "explanation": "Very small chunks can achieve high retrieval precision but risk cutting a statement off from the context needed to interpret it correctly, as in the refund policy exception example."
+    },
+    {
+      "stage": "post",
+      "question": "A RAG-powered bot gives a confidently wrong answer by quoting a policy sentence out of context. Which question best identifies the likely root cause?",
+      "options": [
+        "Is the model simply broken and unable to reason correctly?",
+        "Was the retrieved chunk missing necessary surrounding context due to how the document was chunked, before assuming this is purely a model reasoning failure?",
+        "Should we just disable the RAG feature entirely?",
+        "Is this a rate-limiting issue?"
+      ],
+      "correct": 1,
+      "explanation": "Wrong or incomplete RAG answers are frequently caused by chunking that separates a statement from its necessary context, rather than a flaw in the model's reasoning — checking the retrieved chunk itself is the right first diagnostic step."
+    }
+  ]
+}

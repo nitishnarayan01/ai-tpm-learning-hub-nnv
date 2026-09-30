@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the main trade-off between Small Language Models (SLMs) and frontier-scale LLMs?",
+      "options": [
+        "SLMs are always better in every way, with no downsides",
+        "SLMs trade some general capability for major gains in cost, latency, and deployment flexibility, while frontier LLMs have a higher capability ceiling but higher cost and latency",
+        "Frontier LLMs can only run on-device, while SLMs require large cloud infrastructure",
+        "There is no meaningful difference between SLMs and frontier LLMs"
+      ],
+      "correct": 1,
+      "explanation": "SLMs sacrifice some breadth of capability for dramatically lower cost, faster latency, and the ability to run on more modest or on-device hardware, while frontier LLMs offer a higher capability ceiling at higher cost."
+    },
+    {
+      "stage": "check",
+      "question": "Why is a narrow task like classifying support tickets into a small fixed set of categories often a good fit for a Small Language Model?",
+      "options": [
+        "SLMs cannot perform any classification tasks",
+        "The task is well-defined and doesn't require broad world knowledge or complex multi-step reasoning, which SLMs can often handle well, especially when fine-tuned for the specific task",
+        "Classification tasks always require a frontier-scale model regardless of complexity",
+        "SLMs are only usable for tasks involving images, never text"
+      ],
+      "correct": 1,
+      "explanation": "Narrow, well-defined tasks without a need for broad world knowledge or complex reasoning are within an SLM's capability, especially when combined with task-specific fine-tuning, making a frontier-scale model unnecessary and wasteful for this use case."
+    },
+    {
+      "stage": "post",
+      "question": "A team uses a frontier-scale, expensive model for a simple intent classification task without evaluating alternatives. Which question best challenges this choice?",
+      "options": [
+        "Should we just accept this as the correct default choice?",
+        "Have we evaluated whether a Small Language Model, possibly fine-tuned for this specific narrow task, would perform adequately at a fraction of the cost and latency?",
+        "Should we stop using AI for this task entirely?",
+        "Is this task too simple to need any model at all?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario is a classic case of defaulting to the largest available model without matching model size to actual task complexity — evaluating an SLM alternative is the natural next question given the task's narrow, well-defined nature."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What integration problem does MCP primarily solve?",
+      "options": [
+        "It makes AI models generate text faster",
+        "The N x M integration problem — without a standard, connecting N AI applications to M tools requires up to N x M custom integrations",
+        "It replaces the need for any tool use entirely",
+        "It only applies to image generation models"
+      ],
+      "correct": 1,
+      "explanation": "Without a shared standard, every AI application needing every tool requires its own custom integration, scaling as N x M. MCP standardizes both sides, reducing this to N + M."
+    },
+    {
+      "stage": "check",
+      "question": "What is the difference between function calling and MCP?",
+      "options": [
+        "They are exactly the same thing with different names",
+        "Function calling is the mechanism for a model to request a specific action with arguments; MCP is a standard for how those functions and other resources are exposed and discovered across different applications and servers",
+        "MCP replaces function calling entirely and makes it obsolete",
+        "Function calling only works with MCP servers, never independently"
+      ],
+      "correct": 1,
+      "explanation": "Function calling is the underlying mechanism for requesting actions; MCP is a higher-level standard for exposing, describing, and discovering those capabilities in a way that works consistently across different AI applications and tool providers."
+    },
+    {
+      "stage": "post",
+      "question": "A team is building a custom, one-off integration between their AI assistant and an internal ticketing system. Which question best evaluates whether MCP would be a better approach?",
+      "options": [
+        "Should we just always build custom integrations regardless of future needs?",
+        "If we have (or expect to have) multiple AI applications needing access to this or other internal systems, would exposing this as an MCP server reduce total integration cost compared to one-off custom work?",
+        "Is MCP only relevant for external, third-party tools?",
+        "Should we avoid any integration work entirely?"
+      ],
+      "correct": 1,
+      "explanation": "The strategic case for MCP strengthens specifically when there's more than one AI application or more than one tool involved, since that's exactly when the N x M vs. N + M cost difference becomes significant."
+    }
+  ]
+}

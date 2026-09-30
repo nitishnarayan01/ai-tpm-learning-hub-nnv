@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is Time to First Token (TTFT)?",
+      "options": [
+        "The total time to generate an entire response from start to finish",
+        "The delay between sending a request and receiving the very first generated token, dominated by how long the model takes to process the input prompt",
+        "The time it takes to train a model from scratch",
+        "The cost per token charged by an API provider"
+      ],
+      "correct": 1,
+      "explanation": "TTFT specifically measures the initial delay before any output begins streaming, driven largely by prompt processing time, which connects to attention's quadratic scaling with input length."
+    },
+    {
+      "stage": "check",
+      "question": "Why did switching to a faster model fail to meaningfully improve a chatbot's perceived slowness in the lesson's opening scenario?",
+      "options": [
+        "Faster models are never actually faster in practice",
+        "The actual bottleneck was a slow retrieval (RAG) step happening before the model was ever called, so the model's own generation speed was a small fraction of total latency",
+        "The model swap was implemented incorrectly",
+        "Users don't actually notice speed differences at all"
+      ],
+      "correct": 1,
+      "explanation": "Without measuring where time was actually spent, the team optimized the wrong stage — retrieval, not model generation, was the dominant cost, so a faster model couldn't meaningfully reduce total latency."
+    },
+    {
+      "stage": "post",
+      "question": "A team proposes switching to a faster model to fix a slow AI feature, without first measuring latency by pipeline stage. Which question best evaluates this proposal?",
+      "options": [
+        "Should we just approve the model swap since faster models are always better?",
+        "Do we have a latency breakdown by pipeline stage to confirm the model call, rather than retrieval or another step, is actually the bottleneck?",
+        "Should we skip measurement entirely to save time?",
+        "Is this definitely unrelated to any pipeline design choice?"
+      ],
+      "correct": 1,
+      "explanation": "Latency optimization should be measurement-first: confirming which specific stage is the actual bottleneck (via tracing) before committing to a fix, rather than assuming the model call is always the dominant cost."
+    }
+  ]
+}

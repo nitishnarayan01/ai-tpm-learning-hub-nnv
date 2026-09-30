@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why are output tokens typically priced higher than input tokens by most LLM providers?",
+      "options": [
+        "Output tokens are always free, this is a trick question",
+        "Generating text is more computationally expensive than reading it, so output tokens are often priced several times higher than input tokens",
+        "Input tokens are actually always more expensive than output tokens",
+        "Pricing has nothing to do with computation cost"
+      ],
+      "correct": 1,
+      "explanation": "Generating (producing) tokens requires more computation per token than processing (reading) input tokens, which is why providers commonly price output tokens at a higher rate than input tokens."
+    },
+    {
+      "stage": "check",
+      "question": "Why does the cost of a single ongoing conversation tend to grow with each new turn, even if the user's new message is short?",
+      "options": [
+        "Providers charge a flat fee per conversation regardless of length",
+        "Unless caching is used, each new turn re-sends the entire prior conversation history as input tokens, so input token count grows as the conversation continues",
+        "Longer conversations are always free after a certain point",
+        "This never actually happens in practice"
+      ],
+      "correct": 1,
+      "explanation": "Without prefix/prompt caching, the full conversation history must be resent as input on every new turn, so token count (and therefore cost) per turn grows as a conversation gets longer."
+    },
+    {
+      "stage": "post",
+      "question": "A team estimates a new AI feature will cost 'a few hundred dollars a month' without showing detailed numbers. Which question best pressure-tests this estimate?",
+      "options": [
+        "Should we just trust this estimate and move forward?",
+        "Can you show the actual token counts (system prompt, conversation history, output length) and request volume behind this number, rather than a rough estimate?",
+        "Why do we need to know the cost at all before launching?",
+        "Can we assume the cheapest possible model without checking quality?"
+      ],
+      "correct": 1,
+      "explanation": "A defensible cost estimate should be an auditable calculation based on measurable inputs (tokens per request, request volume, price per token), not a vague estimate — asking to see the actual numbers surfaces gaps before launch rather than after an unexpectedly high bill."
+    }
+  ]
+}

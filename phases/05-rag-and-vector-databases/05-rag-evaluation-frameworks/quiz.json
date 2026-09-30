@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why should RAG systems be evaluated on retrieval and generation separately, rather than just judging the final answer?",
+      "options": [
+        "Separate evaluation is unnecessary busywork with no practical benefit",
+        "The final answer being wrong doesn't reveal whether the failure was in retrieval (wrong content found) or generation (right content, used poorly) — each requires a different fix",
+        "Retrieval and generation always fail together, so separate evaluation is redundant",
+        "Only generation can ever be the source of a RAG failure"
+      ],
+      "correct": 1,
+      "explanation": "A wrong final answer could stem from retrieval finding irrelevant content, generation misusing good content, or both — without separate evaluation, teams risk applying the wrong fix entirely."
+    },
+    {
+      "stage": "check",
+      "question": "What does 'faithfulness' (groundedness) measure in RAG evaluation?",
+      "options": [
+        "Whether the retrieved documents were relevant to the query",
+        "Whether the generated answer accurately reflects the retrieved content without contradicting it or adding unsupported claims",
+        "How fast the retrieval stage ran",
+        "How many documents were stored in the vector database"
+      ],
+      "correct": 1,
+      "explanation": "Faithfulness is a generation-stage metric checking that the model's answer sticks to what was actually retrieved, rather than hallucinating additional or contradictory claims on top of the real context."
+    },
+    {
+      "stage": "post",
+      "question": "A team's RAG feature gives a wrong answer, and they propose switching to a bigger, more expensive LLM to fix it. Which question best evaluates whether this is the right fix?",
+      "options": [
+        "Should we just approve the bigger model since it seems like a reasonable improvement?",
+        "Have we measured context relevance to confirm retrieval actually found relevant content, before assuming this is a generation problem that a bigger model would fix?",
+        "Can we skip evaluation entirely and just monitor user complaints?",
+        "Should we assume this is definitely a chunking problem without checking?"
+      ],
+      "correct": 1,
+      "explanation": "If retrieval failed to find relevant content (low context relevance), no amount of generation-side improvement, including a bigger model, would fix the underlying problem — confirming which stage actually failed should precede choosing a fix."
+    }
+  ]
+}

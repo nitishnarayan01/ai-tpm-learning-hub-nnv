@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is a guardrail considered more reliable than a system prompt instruction for enforcing a hard safety rule?",
+      "options": [
+        "Guardrails and prompt instructions are functionally identical",
+        "A guardrail is deterministic code that runs regardless of what the model decided to output, while a prompt instruction only probabilistically influences the model's behavior",
+        "Prompt instructions are always more reliable than guardrails",
+        "Guardrails can only be applied to user input, never to model output"
+      ],
+      "correct": 1,
+      "explanation": "A system prompt is just another input the model weighs probabilistically, and can be bypassed under adversarial or unusual conditions, while a guardrail enforces a check deterministically outside the model's own decision-making."
+    },
+    {
+      "stage": "check",
+      "question": "What is the difference between an input guardrail and an output guardrail?",
+      "options": [
+        "They are the same thing applied at different times of day",
+        "An input guardrail checks the user's request before it reaches the model; an output guardrail checks the model's response before it reaches the user",
+        "Input guardrails only apply to images, output guardrails only to text",
+        "Output guardrails are never necessary if input guardrails exist"
+      ],
+      "correct": 1,
+      "explanation": "Input guardrails filter what reaches the model (e.g. blocking off-topic requests), while output guardrails filter what reaches the user (e.g. redacting PII), and both are typically needed since a bad output can occur even from a seemingly fine input."
+    },
+    {
+      "stage": "post",
+      "question": "A team relies solely on a system prompt instruction ('never discuss competitor products') to enforce a business rule, and a user manages to bypass it. Which question best identifies the fix?",
+      "options": [
+        "Should we just rewrite the prompt instruction more strongly and hope that fixes it?",
+        "Should we add a deterministic guardrail (input and/or output check) to enforce this rule, rather than relying solely on the prompt instruction?",
+        "Should we remove the rule entirely since it clearly can't be enforced?",
+        "Is this an unfixable limitation of all AI systems?"
+      ],
+      "correct": 1,
+      "explanation": "Prompt instructions alone are a probabilistic influence, not a guarantee. A separate, deterministic guardrail is the standard, more reliable way to enforce a hard rule that a prompt instruction alone failed to guarantee."
+    }
+  ]
+}

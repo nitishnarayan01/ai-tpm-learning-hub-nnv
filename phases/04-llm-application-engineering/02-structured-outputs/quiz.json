@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is relying only on a prompt instruction like 'respond only with JSON' risky for production features?",
+      "options": [
+        "JSON is not a real data format",
+        "The model can still occasionally add extra text, use inconsistent fields, or produce invalid JSON, since this is a suggestion rather than an enforced constraint",
+        "Prompts can never contain the word JSON",
+        "This approach is actually completely reliable and risk-free"
+      ],
+      "correct": 1,
+      "explanation": "A prompt instruction is a request, not a guarantee. Without an enforced structured output mechanism, the model can still deviate from the expected format, especially under longer or more complex prompts."
+    },
+    {
+      "stage": "check",
+      "question": "What does a JSON schema define for a structured output request?",
+      "options": [
+        "The exact wording the user must type",
+        "The expected shape of the response: required fields, their types, and constraints like allowed values (enums)",
+        "The pricing tier of the API being used",
+        "The programming language the response must be written in"
+      ],
+      "correct": 1,
+      "explanation": "A JSON schema precisely specifies which fields must exist, their data types, and any constraints (such as an enum of allowed values), enabling enforcement rather than just hoping the model follows an instruction."
+    },
+    {
+      "stage": "post",
+      "question": "A feature crashes intermittently in production because the model occasionally adds a friendly preamble before its JSON response. Which question best addresses the root cause?",
+      "options": [
+        "Can we just tell users the feature is unreliable?",
+        "Are we using an enforced structured output/JSON schema feature, or only a prompt instruction asking for JSON — and can we switch to the enforced mechanism?",
+        "Should we stop using JSON entirely and switch to plain text?",
+        "Can we ignore this bug since it doesn't happen every time?"
+      ],
+      "correct": 1,
+      "explanation": "This is a textbook symptom of relying on a prompt-only JSON request instead of an enforced structured output mechanism. Switching to a provider's dedicated structured output/JSON schema feature directly addresses the root cause."
+    }
+  ]
+}

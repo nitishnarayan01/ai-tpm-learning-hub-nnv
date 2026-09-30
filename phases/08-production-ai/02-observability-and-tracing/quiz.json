@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a 'span' in the context of LLM tracing?",
+      "options": [
+        "The total cost of running the entire application for a month",
+        "One distinct step within a larger request's trace (e.g. a retrieval call, a tool call), capturing its input, output, latency, and cost",
+        "A type of database index",
+        "The maximum context window size of a model"
+      ],
+      "correct": 1,
+      "explanation": "A span represents a single step within a trace, and spans can be nested to reflect a pipeline's structure, each recording enough detail (input, output, latency, cost) to diagnose that specific step."
+    },
+    {
+      "stage": "check",
+      "question": "Why is tracing often more valuable for LLM pipelines than for traditional, deterministic software?",
+      "options": [
+        "LLM pipelines never have any bugs, so tracing is purely precautionary",
+        "LLM pipelines are non-deterministic and multi-step, so simply rerunning a failing request might not reproduce the same behavior, making the original trace often the only reliable diagnostic record",
+        "Traditional software never needs any debugging tools at all",
+        "Tracing is only useful for measuring server uptime"
+      ],
+      "correct": 1,
+      "explanation": "Because LLM outputs can vary between runs and pipelines often involve multiple steps, capturing what actually happened during the original failing request (via tracing) is often the only reliable way to diagnose an issue, unlike traditional deterministic bugs that can often be reproduced by rerunning."
+    },
+    {
+      "stage": "post",
+      "question": "A RAG-powered agent gives a wrong answer, and the team's only information is 'the final answer was wrong.' Which question best addresses the underlying capability gap?",
+      "options": [
+        "Should we just accept that AI systems are inherently undebuggable?",
+        "Can we pull up the exact trace for this specific request to see what was retrieved, reranked, and generated at each step, rather than guessing at which stage failed?",
+        "Should we switch to a completely different model without further investigation?",
+        "Is this definitely a rate-limiting issue?"
+      ],
+      "correct": 1,
+      "explanation": "Without tracing, diagnosing a multi-step pipeline failure is guesswork. The right question identifies the need for tracing infrastructure that reveals exactly which step (retrieval, reranking, generation) actually caused the wrong answer."
+    }
+  ]
+}

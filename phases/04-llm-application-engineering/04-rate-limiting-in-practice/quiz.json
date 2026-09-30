@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is application-level rate limiting?",
+      "options": [
+        "Waiting for the provider to return a 429 error before doing anything",
+        "Imposing a self-set request limit below the provider's actual limit, to avoid unpredictably hitting the hard ceiling",
+        "A feature that only exists on the provider's side, not something an application can control",
+        "Permanently disabling an AI feature after any single rate limit error"
+      ],
+      "correct": 1,
+      "explanation": "Application-level rate limiting means deliberately throttling your own request rate below the provider's actual limit, turning an unpredictable failure mode into a predictable, controlled one."
+    },
+    {
+      "stage": "check",
+      "question": "Why is prioritization important when a system's AI request capacity is constrained?",
+      "options": [
+        "It ensures all requests are processed in completely random order",
+        "It ensures the most important requests (e.g. paying customers, urgent tasks) are processed first when capacity is limited, rather than treating all requests equally under strain",
+        "It has no real effect on the user experience during a spike",
+        "It is only relevant for background batch jobs, never for user-facing requests"
+      ],
+      "correct": 1,
+      "explanation": "Combined with a request queue, prioritization ensures that when capacity is constrained, the most important work (e.g. interactive, paying-customer requests) is processed ahead of lower-priority background work."
+    },
+    {
+      "stage": "post",
+      "question": "A feature works in testing but fails for many users at once during a real product launch due to hitting a provider's rate limit. Which question best identifies the real gap?",
+      "options": [
+        "Should we just ask the provider to remove rate limits entirely?",
+        "Do we throttle ourselves below the provider's actual limit and gracefully degrade under load, or do we only react after hitting a 429 with no queueing or prioritization?",
+        "Can we blame the provider and move on without changes?",
+        "Should we stop using AI for this feature entirely?"
+      ],
+      "correct": 1,
+      "explanation": "The real gap is usually the absence of self-imposed throttling, queueing, prioritization, and graceful degradation — the rate limit itself is expected and known; the failure is in how the system responds to reaching it."
+    }
+  ]
+}

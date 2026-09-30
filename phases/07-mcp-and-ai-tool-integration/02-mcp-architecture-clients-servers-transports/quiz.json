@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What are MCP's three core primitives that a server can expose?",
+      "options": [
+        "Tools, resources, and prompts",
+        "Databases, caches, and queues",
+        "Users, roles, and permissions",
+        "Requests, responses, and errors"
+      ],
+      "correct": 0,
+      "explanation": "MCP servers expose tools (callable functions), resources (readable data), and prompts (reusable prompt templates) as their three core primitives."
+    },
+    {
+      "stage": "check",
+      "question": "What is the key architectural difference between a local (stdio) MCP server and a remote (HTTP-based) MCP server?",
+      "options": [
+        "They are functionally identical with no real differences",
+        "A local stdio server runs as a single-machine, typically single-user process needing no network auth, while a remote HTTP server supports multiple concurrent users and requires authentication, rate limiting, and permission scoping",
+        "Remote servers can never expose tools, only resources",
+        "Local servers always run faster than remote servers regardless of use case"
+      ],
+      "correct": 1,
+      "explanation": "The transport choice determines the deployment context: stdio is simple and local with minimal security needs, while HTTP-based remote deployment requires explicitly addressing authentication, concurrency, and per-user access control."
+    },
+    {
+      "stage": "post",
+      "question": "A team converts a working local MCP server (built for one developer's machine) into a shared service for their whole team, without other changes. Which question best surfaces the gap?",
+      "options": [
+        "Should we assume the local design already handles this correctly?",
+        "Have we explicitly added network authentication, rate limiting, and per-user permission scoping, which weren't needed in the original single-user local design?",
+        "Should we just disable all tools to make this safer?",
+        "Is this conversion even possible technically?"
+      ],
+      "correct": 1,
+      "explanation": "Converting a local, single-user MCP server into a shared remote service requires explicitly addressing requirements (authentication, rate limiting, per-user scoping) that simply didn't exist in the original local design context."
+    }
+  ]
+}

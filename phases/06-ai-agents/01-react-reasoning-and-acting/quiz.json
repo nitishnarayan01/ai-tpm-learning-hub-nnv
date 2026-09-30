@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does the ReAct pattern combine in a repeating loop?",
+      "options": [
+        "Reasoning (thought), acting (tool calls), and observing results",
+        "Only reasoning, with no actions ever taken",
+        "Only actions, with no reasoning steps",
+        "Rendering and caching, unrelated to agent behavior"
+      ],
+      "correct": 0,
+      "explanation": "ReAct interleaves explicit reasoning ('thought') with actions (typically tool calls) and observations of the results, repeating this cycle until the task is complete."
+    },
+    {
+      "stage": "check",
+      "question": "How does a ReAct agent loop fundamentally differ from prompt chaining (a fixed sequence of steps)?",
+      "options": [
+        "They are exactly the same technique with different names",
+        "In a ReAct loop, the model dynamically decides each next action based on what it has observed so far, rather than following a predetermined fixed sequence",
+        "Prompt chaining always uses more tool calls than ReAct",
+        "ReAct never involves any tool calls at all"
+      ],
+      "correct": 1,
+      "explanation": "Prompt chaining follows a fixed, pre-determined sequence of steps, while a ReAct agent decides its next action adaptively at each step, based on the observations it has gathered so far."
+    },
+    {
+      "stage": "post",
+      "question": "A team's agent occasionally seems to loop for a very long time without reaching a final answer. Which question best addresses this risk?",
+      "options": [
+        "Should we just let it run indefinitely since agents are supposed to be autonomous?",
+        "Does this agent have a maximum step count or other hard stopping condition to prevent runaway loops that never converge?",
+        "Can we remove the reasoning ('thought') steps to make it faster?",
+        "Is this definitely a bug in the underlying LLM itself?"
+      ],
+      "correct": 1,
+      "explanation": "Without an explicit stopping condition (like a maximum step count), an agent loop that never reaches a clear 'final answer' state can consume time and cost indefinitely — a distinct operational risk worth designing against explicitly."
+    }
+  ]
+}

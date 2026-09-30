@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "When an LLM uses 'function calling,' who actually executes the function?",
+      "options": [
+        "The model executes the function directly inside its own weights",
+        "Your application code executes the function, after the model requests it with a structured tool call",
+        "The function executes itself automatically with no application code involved",
+        "The user's browser executes the function"
+      ],
+      "correct": 1,
+      "explanation": "The model only decides that a tool should be called and with what arguments, outputting a structured request. The actual execution happens in your application code, which then returns the result back to the model."
+    },
+    {
+      "stage": "check",
+      "question": "Why is a model's decision to call a tool considered 'probabilistic, not guaranteed'?",
+      "options": [
+        "Tool calling is deterministic and never fails",
+        "Like all LLM outputs, the decision of whether and how to call a tool is a prediction, meaning the model can occasionally fail to call a tool when it should, or call it with wrong arguments",
+        "Tools are chosen randomly with no relation to the conversation",
+        "Only some programming languages support function calling"
+      ],
+      "correct": 1,
+      "explanation": "Function calling relies on the same underlying prediction mechanism as any other LLM output, so it inherits the same imperfect, probabilistic nature — it can miss a needed tool call or produce malformed arguments."
+    },
+    {
+      "stage": "post",
+      "question": "A support bot occasionally calls a refund-processing tool with a malformed order ID. Which question best addresses the risk here?",
+      "options": [
+        "Can we just trust the model's output completely since it's usually right?",
+        "Are we validating and sanitizing tool call arguments before executing them, the same way we would treat any other untrusted input?",
+        "Should we remove all tools from the bot entirely?",
+        "Can we ignore this since it doesn't happen most of the time?"
+      ],
+      "correct": 1,
+      "explanation": "Since tool call arguments come from a probabilistic model decision, they should be validated and sanitized before execution just like any other untrusted input, especially for high-risk actions like processing refunds."
+    }
+  ]
+}

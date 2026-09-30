@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the primary value of an AI architecture review?",
+      "options": [
+        "Finding syntax errors in the code",
+        "Catching high-cost design decisions and gaps before they're built and become expensive to change",
+        "Approving whichever vendor is cheapest",
+        "Ensuring the meeting lasts a specific length of time"
+      ],
+      "correct": 1,
+      "explanation": "An architecture review's purpose is to surface risky or incomplete decisions (in data/retrieval, model choice, operations, cost, security) while the design is still flexible, before implementation locks them in."
+    },
+    {
+      "stage": "check",
+      "question": "Why is spending an entire review meeting discussing vector database vendor choice, while skipping chunking strategy and eval planning, a poorly-facilitated review?",
+      "options": [
+        "Vendor choice is actually the only thing that matters in a RAG system",
+        "It misses several other high-risk dimensions (chunking, eval strategy, cost projections, guardrails) that are just as likely to determine whether the system works well and costs a reasonable amount",
+        "Vendor discussions should never happen in an architecture review",
+        "This is actually a perfectly thorough review"
+      ],
+      "correct": 1,
+      "explanation": "A real AI system's success depends on many interacting decisions across data, model, operations, cost, and security dimensions — focusing exclusively on one topic (like a vendor choice) while skipping others leaves major risks unexamined."
+    },
+    {
+      "stage": "post",
+      "question": "A team reports their architecture review is complete, but several items were marked 'we haven't decided that yet.' Which question best ensures this doesn't become a silent risk?",
+      "options": [
+        "Should we treat 'not decided yet' as equivalent to 'resolved'?",
+        "Who owns closing each open gap, and by when, before this system launches?",
+        "Should we cancel the review entirely since it revealed gaps?",
+        "Can we skip tracking these gaps since the review technically happened?"
+      ],
+      "correct": 1,
+      "explanation": "Open gaps from a review are valuable findings, not failures, but only if they're explicitly tracked to resolution with clear ownership and a timeline — otherwise they become silent, unaddressed risks."
+    }
+  ]
+}

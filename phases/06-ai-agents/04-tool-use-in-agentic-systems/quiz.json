@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does the risk profile of tool use change when many tool calls chain together autonomously, compared to a single reviewed tool call?",
+      "options": [
+        "It doesn't change at all — risk is identical regardless of how many calls occur",
+        "No human reviews each individual step in real time, and an early mistaken action can compound into further incorrect actions built on that mistake",
+        "Autonomous loops always use fewer tools than single calls",
+        "Chained tool calls are always safer because the agent double-checks itself"
+      ],
+      "correct": 1,
+      "explanation": "In a long autonomous loop, no human reviews each individual action before it executes, and each step's context includes the results of prior steps, so an early error can compound into further incorrect actions."
+    },
+    {
+      "stage": "check",
+      "question": "What is a 'human-in-the-loop checkpoint' in an agentic system?",
+      "options": [
+        "A step where the agent talks to another AI model instead of a human",
+        "A required human approval step before a higher-risk action executes, even during otherwise autonomous operation",
+        "A mandatory pause after every single tool call, regardless of risk",
+        "A feature that only exists in theory and is never actually implemented"
+      ],
+      "correct": 1,
+      "explanation": "A human-in-the-loop checkpoint specifically gates higher-risk actions (like an irreversible delete or a financial transaction) behind explicit human approval, while lower-risk actions can proceed autonomously."
+    },
+    {
+      "stage": "post",
+      "question": "A coding agent given file-editing tools unexpectedly deletes an unrelated configuration file mid-task. Which question best addresses the governance gap that allowed this?",
+      "options": [
+        "Should we remove all tool access from agents entirely?",
+        "What's the risk classification for each tool this agent has access to, and should high-risk actions like deletion require human approval before executing?",
+        "Is this simply an unavoidable cost of using AI agents?",
+        "Should we just trust the agent more next time?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario points directly to a missing risk-based tool governance layer — classifying tools by risk and requiring human approval for high-risk actions like deletion would have caught this before it executed."
+    }
+  ]
+}

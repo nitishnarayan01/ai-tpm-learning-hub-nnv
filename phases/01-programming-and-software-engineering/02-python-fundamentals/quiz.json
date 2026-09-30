@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does Python use indentation (spaces) instead of curly braces `{ }`?",
+      "options": [
+        "It doesn't — Python uses curly braces just like most languages",
+        "Indentation defines which lines of code belong inside a loop, conditional, or function, and incorrect indentation is a real syntax error",
+        "Indentation is optional and purely stylistic",
+        "Python only runs code written on a single line"
+      ],
+      "correct": 1,
+      "explanation": "Python uses indentation, not braces, to group code blocks. This makes code visually consistent but also means indentation mistakes can break a script."
+    },
+    {
+      "stage": "check",
+      "question": "What does Python's `None` typically represent?",
+      "options": [
+        "The number zero",
+        "An empty text string",
+        "The absence of a value — similar to 'null' in other languages",
+        "A syntax error"
+      ],
+      "correct": 2,
+      "explanation": "`None` represents 'no value.' A large share of real bugs come from code expecting a real value but receiving `None` instead."
+    },
+    {
+      "stage": "post",
+      "question": "An engineer says a script 'crashed on an unhandled exception' when calling an AI model API. Which question best identifies whether this is a production risk?",
+      "options": [
+        "Why is the script written in Python instead of a faster language?",
+        "Is there a try/except around this API call, and if not, could one provider outage or bad response crash the whole service?",
+        "Can we just delete the script?",
+        "What color is the terminal text?"
+      ],
+      "correct": 1,
+      "explanation": "Missing try/except error handling around external API calls means a single failure (timeout, bad response, provider outage) can crash the entire process instead of being handled gracefully."
+    }
+  ]
+}

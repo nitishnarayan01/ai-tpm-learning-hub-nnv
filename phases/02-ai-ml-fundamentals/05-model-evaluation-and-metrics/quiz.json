@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why can 'accuracy' alone be a misleading metric for a fraud detection model?",
+      "options": [
+        "Accuracy is never a real metric used in machine learning",
+        "When fraud is rare (e.g. 1% of transactions), a model that always predicts 'not fraud' can score high accuracy while catching zero actual fraud",
+        "Accuracy can only be calculated for image data",
+        "Accuracy always equals 100% for well-trained models"
+      ],
+      "correct": 1,
+      "explanation": "On imbalanced data, where one outcome dominates, a model can achieve high accuracy simply by always predicting the common class, hiding the fact that it fails at the rare, important case."
+    },
+    {
+      "stage": "check",
+      "question": "What is the difference between precision and recall?",
+      "options": [
+        "They are two names for the exact same measurement",
+        "Precision measures how many flagged positives were actually correct; recall measures how many actual positives were successfully caught",
+        "Precision only applies to text data, recall only to images",
+        "Recall measures training speed, precision measures inference speed"
+      ],
+      "correct": 1,
+      "explanation": "Precision answers 'of what we flagged as positive, how much was right?' Recall answers 'of everything that was actually positive, how much did we catch?' They typically trade off against each other."
+    },
+    {
+      "stage": "post",
+      "question": "A team reports their fraud detection model is '99% accurate.' Which question best evaluates whether this is meaningful?",
+      "options": [
+        "Can we ship it immediately since 99% sounds great?",
+        "Given how rare fraud actually is in our data, is accuracy alone misleading here — what are the precision and recall numbers?",
+        "Why do we need any metrics beyond accuracy?",
+        "Can we just double the accuracy number to be safe?"
+      ],
+      "correct": 1,
+      "explanation": "On rare-event data like fraud, accuracy can be trivially high while missing nearly all real cases. Asking for precision and recall reveals whether the model is actually catching fraud or just exploiting the class imbalance."
+    }
+  ]
+}

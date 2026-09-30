@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the general architectural pattern behind multimodal models?",
+      "options": [
+        "Completely separate models are run independently with no shared components",
+        "Modality-specific encoders convert each input type (text, image, audio) into tokens/embeddings compatible with a shared transformer backbone that processes all of them together",
+        "Only text can ever be processed; images and audio are simply ignored",
+        "Multimodal models require a completely different attention mechanism for each modality"
+      ],
+      "correct": 1,
+      "explanation": "Each modality has its own encoder converting it into a shared token/embedding representation, which then flows into the same underlying transformer architecture used for text, allowing the model to reason across modalities together."
+    },
+    {
+      "stage": "check",
+      "question": "Why can adding image input support to a feature significantly increase cost, even though 'the model supports it'?",
+      "options": [
+        "Image inputs are always free to process",
+        "Images are typically broken into many patches converted into tokens, often consuming far more tokens than an equivalent text description, directly increasing cost per request",
+        "Image processing has nothing to do with token-based pricing",
+        "This only applies to video, never to still images"
+      ],
+      "correct": 1,
+      "explanation": "A single moderate-resolution image can consume hundreds to thousands of tokens, often substantially more than a short text description of the same content, making image support a real, calculable cost driver rather than a free capability unlock."
+    },
+    {
+      "stage": "post",
+      "question": "A team wants to add image upload support to a chatbot 'since the model supports images now,' without further analysis. Which question best evaluates this proposal?",
+      "options": [
+        "Should we just enable it since the capability exists?",
+        "Have we projected the token cost difference of image inputs at our expected scale, and do we have an evaluation approach specifically designed for this new modality?",
+        "Should we avoid ever using multimodal capabilities?",
+        "Is this feature technically impossible to build?"
+      ],
+      "correct": 1,
+      "explanation": "Enabling a new modality has real cost implications (often much higher token consumption) and requires its own evaluation approach — neither should be assumed to come for free just because the underlying model technically supports it."
+    }
+  ]
+}

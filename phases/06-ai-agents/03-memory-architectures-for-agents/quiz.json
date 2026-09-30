@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What are the three common tiers of agent memory?",
+      "options": [
+        "Fast, medium, and slow memory",
+        "Short-term (context window), session memory, and long-term memory",
+        "Public memory, private memory, and encrypted memory",
+        "Text memory, image memory, and audio memory"
+      ],
+      "correct": 1,
+      "explanation": "Agent memory is typically architected across three tiers: short-term (the current context window), session memory (persisted across turns within one session, often summarized), and long-term memory (persisted across sessions, typically via retrieval)."
+    },
+    {
+      "stage": "check",
+      "question": "How is long-term agent memory typically implemented?",
+      "options": [
+        "By storing the entire raw conversation history forever and resending all of it every time",
+        "Using the same RAG mechanisms as document retrieval — storing memories as embeddings and retrieving only relevant ones based on the current query",
+        "Long-term memory cannot actually be implemented with current technology",
+        "By training a brand new model for every user"
+      ],
+      "correct": 1,
+      "explanation": "Long-term memory faces the same 'don't resend everything' pressure as document retrieval, so it typically reuses RAG mechanisms: storing memories as embeddings and retrieving only the relevant ones for the current context."
+    },
+    {
+      "stage": "post",
+      "question": "A user complains that a support agent 'doesn't remember' something from a conversation yesterday. Which question best diagnoses this using the memory tier framework?",
+      "options": [
+        "Should we assume this is a fundamental limitation that can't be fixed?",
+        "Is this because we lack long-term memory entirely, or because long-term memory exists but retrieval failed to surface the relevant prior information?",
+        "Should we just increase the context window size to fix this?",
+        "Is this definitely a hallucination unrelated to memory design?"
+      ],
+      "correct": 1,
+      "explanation": "This complaint should be diagnosed against the memory tier framework: it distinguishes between having no long-term memory at all versus having it but failing to retrieve the relevant memory, which point to very different fixes."
+    }
+  ]
+}

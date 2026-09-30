@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is the key difference between synchronous and asynchronous code?",
+      "options": [
+        "Synchronous code runs one instruction at a time, waiting for each to finish; asynchronous code can start multiple tasks and handle results as they complete",
+        "Asynchronous code only works with databases",
+        "Synchronous code is always written in Python, asynchronous only in JavaScript",
+        "There is no real difference — it's just terminology"
+      ],
+      "correct": 0,
+      "explanation": "Synchronous execution waits for each task to finish before starting the next; asynchronous execution can start several tasks and process each as it completes, avoiding idle waiting time."
+    },
+    {
+      "stage": "check",
+      "question": "What is the difference between concurrency and parallelism?",
+      "options": [
+        "They are exactly the same thing",
+        "Concurrency means managing multiple in-progress tasks over overlapping time (no extra CPU cores needed); parallelism means running multiple tasks at the exact same instant, requiring multiple cores",
+        "Concurrency only applies to databases, parallelism only to APIs",
+        "Parallelism is slower than concurrency in every case"
+      ],
+      "correct": 1,
+      "explanation": "Async programming for API calls is typically about concurrency — juggling many 'waiting for a response' tasks efficiently on one worker — not true parallelism, which needs multiple CPU cores executing simultaneously."
+    },
+    {
+      "stage": "post",
+      "question": "A team wants to make a slow batch-summarization feature 'fully async' by firing off 50 LLM calls at once. What is the best follow-up question to ask?",
+      "options": [
+        "Can we just buy more RAM instead?",
+        "Will firing off 50 requests at once hit our RPM/TPM rate limits faster, and do we have backoff/retry or a concurrency limit in place?",
+        "Why do we need to summarize documents at all?",
+        "Can we switch the whole codebase to a different language?"
+      ],
+      "correct": 1,
+      "explanation": "Async programming interacts directly with rate limits: firing off many requests simultaneously can hit RPM/TPM ceilings faster than a slow sequential approach, so a concurrency limit and backoff strategy are important safeguards."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What are the two main axes along which LLM API providers typically enforce rate limits?",
+      "options": [
+        "CPU usage and disk space",
+        "Requests Per Minute (RPM) and Tokens Per Minute (TPM)",
+        "Number of users and number of API keys",
+        "Screen resolution and browser type"
+      ],
+      "correct": 1,
+      "explanation": "Providers commonly cap both how many requests you can send per minute (RPM) and how many total tokens across those requests (TPM), and either can bind first depending on your traffic pattern."
+    },
+    {
+      "stage": "check",
+      "question": "Why can a feature hit its RPM limit while barely using its TPM budget, or vice versa?",
+      "options": [
+        "RPM and TPM always move together in lockstep",
+        "Because RPM counts request frequency regardless of size, while TPM counts total token volume regardless of request count — many small requests stress RPM, few large requests stress TPM",
+        "TPM only applies to image generation APIs",
+        "RPM is deprecated and no longer enforced by providers"
+      ],
+      "correct": 1,
+      "explanation": "A high-frequency, low-payload feature (e.g. autocomplete pings) can exhaust RPM quickly, while a low-frequency, large-payload feature (e.g. document summarization) can exhaust TPM with far fewer calls."
+    },
+    {
+      "stage": "post",
+      "question": "Engineering says a feature launch must be staged over two weeks due to rate limits. Which question best challenges this plan with real numbers?",
+      "options": [
+        "Can we just use a faster internet connection?",
+        "What is our current RPM/TPM ceiling, which one binds first for this feature, and have we filed for a tier increase given expected launch volume?",
+        "Why do we need an API at all?",
+        "Can we reduce the number of users instead?"
+      ],
+      "correct": 1,
+      "explanation": "A defensible staged-rollout plan should cite the actual RPM/TPM ceiling, identify which limit binds first, and confirm whether a capacity increase has been requested — not rely on a vague 'to be safe' timeline."
+    }
+  ]
+}

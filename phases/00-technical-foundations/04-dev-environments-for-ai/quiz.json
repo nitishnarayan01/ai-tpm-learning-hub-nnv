@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why are AI dev environments generally harder to reproduce than typical web application environments?",
+      "options": [
+        "AI code is written in a slower programming language",
+        "They have more interdependent layers — OS, GPU driver, CUDA/ROCm toolkit, framework, and model libraries must all be compatible versions",
+        "AI applications never use version control",
+        "Web applications don't run on operating systems"
+      ],
+      "correct": 1,
+      "explanation": "AI environments add a GPU driver, CUDA/ROCm toolkit, and deep learning framework layer beneath the application code, each of which must be version-compatible with the ones above and below it."
+    },
+    {
+      "stage": "check",
+      "question": "A model produces slightly different outputs on a new GPU box, but the code runs without any errors. What failure class does this describe?",
+      "options": [
+        "Hard failure",
+        "Silent numerical drift",
+        "Network timeout",
+        "A missing API key"
+      ],
+      "correct": 1,
+      "explanation": "Silent numerical drift occurs when code runs successfully but produces subtly different results due to environment differences like floating-point rounding or different kernel implementations — dangerous because it can pass casual testing while breaking reproducibility."
+    },
+    {
+      "stage": "post",
+      "question": "Engineering reports a delay because 'the model gives different results on the new GPU box.' Which question best helps a TPM assess this as a real, known issue rather than a vague excuse?",
+      "options": [
+        "Can we just use a different programming language?",
+        "Do we log an environment fingerprint (CUDA version, framework version, GPU type) alongside training runs, and is environment mismatch one of the first hypotheses being tested?",
+        "Why do we need GPUs if they cause bugs?",
+        "Can we skip testing and ship anyway?"
+      ],
+      "correct": 1,
+      "explanation": "Environment fingerprinting and treating environment mismatch as a standard early hypothesis are established practices for diagnosing this well-known AI engineering failure mode quickly and credibly."
+    }
+  ]
+}

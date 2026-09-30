@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What are the four universal building blocks that almost every program is built from?",
+      "options": [
+        "Sequence, variables, conditionals, and loops",
+        "Servers, databases, APIs, and browsers",
+        "Python, JavaScript, Rust, and Java",
+        "Screens, buttons, menus, and forms"
+      ],
+      "correct": 0,
+      "explanation": "Nearly all program logic, no matter the language, can be described as ordered sequence, stored variables, conditional branching, and repeating loops."
+    },
+    {
+      "stage": "check",
+      "question": "An engineer says a feature is 'stuck in an infinite loop.' What does that mean?",
+      "options": [
+        "The program has too many variables",
+        "A loop's stopping condition is never satisfied, so it keeps repeating forever",
+        "The API returned a 429 error",
+        "The code has no conditionals"
+      ],
+      "correct": 1,
+      "explanation": "An infinite loop occurs when the condition meant to stop a loop never becomes true, so the instructions inside it repeat indefinitely."
+    },
+    {
+      "stage": "post",
+      "question": "An engineer reports a bug and says 'it's an off-by-one error.' Which question best helps a TPM understand the actual issue?",
+      "options": [
+        "Can we just restart the server?",
+        "What's the actual boundary condition that's wrong — is the loop or check running one time too many or too few?",
+        "Why does the code have any loops at all?",
+        "Can we switch to a different programming language?"
+      ],
+      "correct": 1,
+      "explanation": "Off-by-one errors are precise: they mean a loop or comparison is evaluated at the wrong boundary (e.g. using <= instead of <), and asking about the exact boundary condition gets to the root cause fastest."
+    }
+  ]
+}

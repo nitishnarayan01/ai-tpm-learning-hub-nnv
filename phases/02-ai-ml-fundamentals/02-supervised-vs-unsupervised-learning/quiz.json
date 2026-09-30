@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What distinguishes supervised learning from unsupervised learning?",
+      "options": [
+        "Supervised learning uses labeled data (input paired with correct output); unsupervised learning finds patterns in unlabeled data",
+        "Supervised learning never requires any data at all",
+        "Unsupervised learning is always more accurate",
+        "There is no meaningful difference between them"
+      ],
+      "correct": 0,
+      "explanation": "Supervised learning requires examples with known correct answers (labels) to learn from, while unsupervised learning discovers structure in data without any labels provided."
+    },
+    {
+      "stage": "check",
+      "question": "A team wants to group similar customers for a marketing campaign, with no predefined 'correct' grouping. Which category does this fall into?",
+      "options": [
+        "Supervised learning, because customers need to be labeled first",
+        "Unsupervised learning, because it finds patterns/groups without a predefined correct answer",
+        "Reinforcement learning, because it requires a reward signal",
+        "This isn't a machine learning problem at all"
+      ],
+      "correct": 1,
+      "explanation": "Grouping data without predefined correct labels (clustering/segmentation) is a classic unsupervised learning task — no labeled 'correct group' is needed upfront."
+    },
+    {
+      "stage": "post",
+      "question": "A data science team says a new ticket-classification feature needs 10,000 labeled examples. Which question best evaluates whether this is a real requirement?",
+      "options": [
+        "Can we just skip labeling and hope it works?",
+        "Is this genuinely a supervised learning task, and if so, how was the 10,000 number derived — who will label them and how will labeling quality be validated?",
+        "Why do we need machine learning for this at all?",
+        "Can we replace labeled data with random data instead?"
+      ],
+      "correct": 1,
+      "explanation": "Confirming the task truly requires supervised learning (labeled data) and understanding how the specific data volume estimate was derived helps distinguish a well-reasoned requirement from an inflated or unexamined one."
+    }
+  ]
+}

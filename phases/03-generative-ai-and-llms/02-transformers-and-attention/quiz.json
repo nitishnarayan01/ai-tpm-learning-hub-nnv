@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does the self-attention mechanism let each token in a transformer do?",
+      "options": [
+        "Only look at the single word immediately before it",
+        "Directly look at and weigh the relevance of every other token in the input, all at once",
+        "Ignore all other tokens and process independently",
+        "Only look at tokens that share the exact same spelling"
+      ],
+      "correct": 1,
+      "explanation": "Self-attention lets every token compute a relevance weight for every other token, allowing the model to build a context-aware representation regardless of distance between related words."
+    },
+    {
+      "stage": "check",
+      "question": "Why does doubling an LLM's context length roughly quadruple attention computation, rather than just doubling it?",
+      "options": [
+        "It doesn't — attention cost scales linearly with input length",
+        "Because every token attends to every other token, so computation scales with the square (N x N) of input length",
+        "Because the model has to be retrained from scratch for longer inputs",
+        "Because longer inputs require more GPUs regardless of the model architecture"
+      ],
+      "correct": 1,
+      "explanation": "Since attention requires each of N tokens to compute a relevance score against every other token, total computation scales roughly with N squared, so doubling N roughly quadruples the work."
+    },
+    {
+      "stage": "post",
+      "question": "A team wants to double a chatbot's context window and assumes cost will roughly double. Which question best corrects this assumption?",
+      "options": [
+        "Can we just accept whatever cost happens without checking?",
+        "Given attention's quadratic scaling, has the actual cost/latency increase been benchmarked, rather than estimated as a simple linear doubling?",
+        "Why does the model need attention at all?",
+        "Can we remove attention to make the model cheaper?"
+      ],
+      "correct": 1,
+      "explanation": "Because attention computation scales quadratically with input length, doubling context length is expected to roughly quadruple attention cost, not simply double it — this should be benchmarked rather than assumed linear."
+    }
+  ]
+}

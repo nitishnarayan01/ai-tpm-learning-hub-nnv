@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What are the five recurring risk categories common across AI programs, according to this lesson?",
+      "options": [
+        "Marketing, sales, legal, HR, and finance risk",
+        "Quality, cost, latency, security, and dependency risk",
+        "Only cost and latency risk — the other categories don't apply to AI",
+        "Weather, geopolitics, currency, supply chain, and labor risk"
+      ],
+      "correct": 1,
+      "explanation": "These five categories (quality, cost, latency, security, dependency) recur across nearly every AI program and map directly to concepts covered throughout this curriculum."
+    },
+    {
+      "stage": "check",
+      "question": "How does 'likelihood x impact' scoring help prioritize risk mitigation effort?",
+      "options": [
+        "It ensures every risk gets exactly equal mitigation effort regardless of severity",
+        "It ranks risks so that high-likelihood, high-impact risks are mitigated first, rather than spreading effort evenly across all risks regardless of severity",
+        "It only measures cost, ignoring all other risk types",
+        "It is used only after an incident has already occurred"
+      ],
+      "correct": 1,
+      "explanation": "Multiplying likelihood by impact produces a priority score that helps focus limited mitigation effort on the risks most likely to cause serious harm, rather than treating all identified risks as equally urgent."
+    },
+    {
+      "stage": "post",
+      "question": "A program hits cost overruns, a quality regression, and a rate-limit outage within its first month — all things this curriculum identifies as well-known risk categories. Which question best addresses the root process gap?",
+      "options": [
+        "Should we conclude these were simply unpredictable bad luck?",
+        "Did we identify and score these risks in a risk register before launch, or did we discover each one only as a live incident?",
+        "Should we abandon the AI program entirely after these issues?",
+        "Is this an unavoidable cost of building AI products?"
+      ],
+      "correct": 1,
+      "explanation": "None of these risks were genuinely unpredictable — they fall into well-known categories. The gap is a missing proactive risk register that would have surfaced and prioritized mitigation for these risks before they became incidents."
+    }
+  ]
+}

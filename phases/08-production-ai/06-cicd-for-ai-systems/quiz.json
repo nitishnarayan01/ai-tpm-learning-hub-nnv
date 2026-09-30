@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does an 'eval gate' add to a traditional CI/CD pipeline?",
+      "options": [
+        "It replaces all traditional unit tests entirely",
+        "An automated check that runs a candidate change against a golden dataset and blocks deployment if output quality regresses beyond a threshold",
+        "It only checks server uptime, nothing about output quality",
+        "It is identical to a traditional unit test with no meaningful difference"
+      ],
+      "correct": 1,
+      "explanation": "An eval gate specifically checks output quality against a golden dataset baseline, catching regressions that traditional code-focused tests (which only verify the code runs correctly) would miss entirely."
+    },
+    {
+      "stage": "check",
+      "question": "Why should prompt changes go through version control and review, similar to code changes?",
+      "options": [
+        "Prompts never actually affect application behavior",
+        "A prompt change can shift model behavior and introduce a quality regression just as easily as a code change, so it deserves the same reviewable, revertible, tracked process",
+        "Prompts are automatically validated by the model provider, so no review is needed",
+        "This is unnecessary since prompts are just plain text with no real impact"
+      ],
+      "correct": 1,
+      "explanation": "Since prompts directly influence model behavior and output quality, treating them as unversioned, unreviewed text edits creates the same risk as making unreviewed code changes directly in production."
+    },
+    {
+      "stage": "post",
+      "question": "A team's CI/CD pipeline passes all traditional unit tests and auto-deploys a prompt change that turns out to cause a quality regression. Which question best identifies the missing safeguard?",
+      "options": [
+        "Should we just trust that passing unit tests means the change is safe?",
+        "Does our CI/CD pipeline include an eval gate comparing quality scores to a production baseline, given that traditional tests only verify the code runs correctly, not that output quality is acceptable?",
+        "Should we stop running any automated tests at all?",
+        "Is this an unavoidable risk of using AI that can't be mitigated?"
+      ],
+      "correct": 1,
+      "explanation": "This scenario is the direct symptom of a missing eval gate — traditional CI/CD checks that code works, but only an eval gate specifically checks that output quality hasn't regressed, which is the safeguard that would have caught this before deployment."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a loss function?",
+      "options": [
+        "A formula that turns 'how wrong was this prediction?' into a single number that training tries to minimize",
+        "A database query that retrieves training data",
+        "A type of neural network layer",
+        "A measure of how many users lost interest in a product"
+      ],
+      "correct": 0,
+      "explanation": "A loss function quantifies prediction error as a single number, and training works by adjusting model weights to make that number as small as possible."
+    },
+    {
+      "stage": "check",
+      "question": "Training loss is decreasing while validation loss is increasing. What does this classically indicate?",
+      "options": [
+        "The model is performing perfectly and ready for production",
+        "Overfitting — the model is getting better at the training data specifically, not at generalizing to new data",
+        "The loss function is broken and should be ignored",
+        "The learning rate is too low"
+      ],
+      "correct": 1,
+      "explanation": "A widening gap between improving training loss and worsening validation loss is a textbook overfitting signal: the model is memorizing training data rather than learning generalizable patterns."
+    },
+    {
+      "stage": "post",
+      "question": "An engineer reports a language model's loss numbers look great, but a manual review of its responses 'feels wrong.' Which question best addresses this gap?",
+      "options": [
+        "Should we just trust the loss numbers and ship it?",
+        "What exactly does this loss function measure, and how closely does that map to the real product outcome we actually care about?",
+        "Can we remove the loss function entirely?",
+        "Why do we need to manually review anything if the loss is low?"
+      ],
+      "correct": 1,
+      "explanation": "A loss function is a proxy metric, not a direct measure of product quality. When loss numbers and real-world quality diverge, the right move is to question whether the loss function faithfully represents the actual goal, not to dismiss the manual review."
+    }
+  ]
+}

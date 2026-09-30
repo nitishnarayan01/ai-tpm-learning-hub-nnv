@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Which data structure is optimized for extremely fast 'have we seen this before?' checks, with no duplicates and no guaranteed order?",
+      "options": [
+        "List",
+        "Set",
+        "Tuple",
+        "String"
+      ],
+      "correct": 1,
+      "explanation": "A set stores unique values and is specifically optimized for fast membership checks, unlike a list which may need to check every item one by one."
+    },
+    {
+      "stage": "check",
+      "question": "Why does checking whether an item exists in a list get slower as the list grows, while a set or dictionary lookup stays roughly constant?",
+      "options": [
+        "Lists are stored on a slower part of the computer's memory",
+        "A list search may need to check every item one by one (linear search), while sets and dictionaries use a lookup method that doesn't depend on the total size",
+        "Sets and dictionaries are written in a faster programming language",
+        "Lists can only hold 1,000 items maximum"
+      ],
+      "correct": 1,
+      "explanation": "A list's 'is this in here?' check is a linear search that can require scanning every element, so time grows with list size. Sets and dictionaries use hashing to find items almost instantly regardless of size."
+    },
+    {
+      "stage": "post",
+      "question": "Engineering says a permissions lookup went from 5 minutes to instant by 'switching from a list to a dictionary.' Which question best confirms this fix generalizes and isn't a one-off?",
+      "options": [
+        "Can we just add more servers instead?",
+        "As this dataset grows 10x or 100x further, will this lookup's speed stay roughly the same, or will it degrade again?",
+        "Why was a list used at all if dictionaries exist?",
+        "Can we remove the permissions check entirely?"
+      ],
+      "correct": 1,
+      "explanation": "Confirming the fix generalizes as data scales is the key follow-up — dictionary/set lookups stay fast regardless of size, so this should hold even as the dataset grows further, unlike the original list-based linear search."
+    }
+  ]
+}

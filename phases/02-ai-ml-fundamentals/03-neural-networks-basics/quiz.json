@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What does a single neuron in a neural network mechanically do?",
+      "options": [
+        "It stores a copy of the entire training dataset",
+        "It multiplies inputs by learned weights, adds a bias, sums the result, and passes it through an activation function",
+        "It runs a SQL query against a database",
+        "It directly outputs the final prediction for the whole network"
+      ],
+      "correct": 1,
+      "explanation": "A neuron computes a weighted sum of its inputs plus a bias, then applies an activation function to produce its output — this simple operation, repeated across many neurons and layers, is the basis of neural networks."
+    },
+    {
+      "stage": "check",
+      "question": "Why is an activation function necessary in a neural network?",
+      "options": [
+        "It saves memory by compressing the weights",
+        "Without a non-linear activation function, stacking multiple layers would be mathematically no different than having just one layer",
+        "It is only needed for the very last layer of a network",
+        "It speeds up the computer's internet connection"
+      ],
+      "correct": 1,
+      "explanation": "Activation functions introduce non-linearity. Without them, no matter how many layers are stacked, the whole network would collapse into a single linear transformation, unable to model complex relationships."
+    },
+    {
+      "stage": "post",
+      "question": "A team proposes adding more layers to a model to improve accuracy, citing 99% training accuracy but only 60% accuracy on new data. What is the most important question to ask?",
+      "options": [
+        "Can we just add even more layers regardless of this result?",
+        "Is this overfitting rather than underfitting, and would adding more layers make that worse instead of better?",
+        "Why does the model need any layers at all?",
+        "Can we ignore the accuracy on new data entirely?"
+      ],
+      "correct": 1,
+      "explanation": "A large gap between training accuracy (99%) and new-data accuracy (60%) is a classic sign of overfitting. Adding more layers/parameters would likely worsen overfitting rather than help, since the model already has more capacity than it can generalize well with."
+    }
+  ]
+}

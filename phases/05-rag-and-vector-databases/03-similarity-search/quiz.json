@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why does exact (brute-force) similarity search become slow as a document corpus grows?",
+      "options": [
+        "It doesn't — exact search speed is unaffected by corpus size",
+        "It compares the query against every single stored vector, so its cost grows roughly linearly (or worse) with the number of stored vectors",
+        "Exact search only works for corpora under 100 documents",
+        "Exact search requires a special type of GPU that becomes unavailable at scale"
+      ],
+      "correct": 1,
+      "explanation": "Brute-force search checks every stored vector against the query, so as the number of vectors grows, the amount of work (and time) grows proportionally, becoming impractical for large corpora."
+    },
+    {
+      "stage": "check",
+      "question": "What trade-off does Approximate Nearest Neighbor (ANN) search make compared to exact search?",
+      "options": [
+        "ANN search is always slower but more accurate",
+        "ANN search pre-organizes vectors to check only a smart subset, trading a small amount of accuracy (occasionally missing the true best match) for a large speed improvement",
+        "ANN search guarantees finding the exact best match every time, just like brute-force search",
+        "ANN search only works for text data, never for images"
+      ],
+      "correct": 1,
+      "explanation": "ANN algorithms sacrifice a small, usually acceptable amount of retrieval accuracy in exchange for dramatically faster search at scale, which is essential once a corpus grows beyond a small size."
+    },
+    {
+      "stage": "post",
+      "question": "A RAG feature's retrieval latency became unacceptable as the document corpus grew from thousands to millions of chunks. Which question best identifies the standard fix?",
+      "options": [
+        "Should we abandon the RAG approach entirely and rebuild from scratch?",
+        "Is our vector database using exact or approximate (ANN) search, and is that configuration appropriate for our current corpus size?",
+        "Can we just reduce the number of documents to make search fast again?",
+        "Is this definitely an embedding model problem rather than a search algorithm problem?"
+      ],
+      "correct": 1,
+      "explanation": "Slow retrieval at scale is a well-understood, well-solved problem typically addressed by adopting or properly configuring approximate nearest neighbor search, rather than requiring a fundamental rearchitecture."
+    }
+  ]
+}

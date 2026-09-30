@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is prompt chaining?",
+      "options": [
+        "Sending the exact same prompt to multiple different models at once",
+        "Breaking a complex task into a sequence of smaller, focused LLM calls where each step's output feeds the next step's input",
+        "A technique for encrypting prompts for security",
+        "Combining multiple user questions into a single database query"
+      ],
+      "correct": 1,
+      "explanation": "Prompt chaining splits a complex task into a pipeline of simpler, focused steps, each building on the previous step's output, rather than asking one prompt to handle everything at once."
+    },
+    {
+      "stage": "check",
+      "question": "Why does a single giant prompt asking for multiple distinct tasks (e.g. summarize, classify, and draft a reply) often produce lower quality results than a chain of focused prompts?",
+      "options": [
+        "Giant prompts are always rejected by the API",
+        "Asking one call to juggle several distinct jobs at once tends to reduce quality on each individual job, similar to a person being asked to do several things simultaneously",
+        "Giant prompts cost less, so they can't be as good",
+        "This is not actually true — giant prompts always perform better"
+      ],
+      "correct": 1,
+      "explanation": "A single prompt handling multiple distinct sub-tasks at once tends to produce weaker results per sub-task than a sequence of focused prompts, each targeting one specific job."
+    },
+    {
+      "stage": "post",
+      "question": "A multi-step AI feature occasionally produces a wrong final output. Which question best helps debug this using the benefits of prompt chaining?",
+      "options": [
+        "Can we just regenerate the output repeatedly until it looks right?",
+        "Can we inspect each intermediate step's output individually to pinpoint exactly which step introduced the error?",
+        "Should we merge all the steps back into one single prompt to simplify things?",
+        "Is the API provider having an outage?"
+      ],
+      "correct": 1,
+      "explanation": "One of prompt chaining's key benefits is debuggability: inspecting each step's intermediate output lets you pinpoint exactly which stage of the pipeline introduced an error, rather than treating the whole process as an opaque black box."
+    }
+  ]
+}

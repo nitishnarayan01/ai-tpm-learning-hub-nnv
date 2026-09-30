@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What format do most modern APIs use to exchange data?",
+      "options": [
+        "Plain unformatted text",
+        "JSON (JavaScript Object Notation)",
+        "Microsoft Word documents",
+        "Compiled binary files"
+      ],
+      "correct": 1,
+      "explanation": "JSON is a lightweight, human-readable text format that maps closely to dictionaries and lists, and it's the standard format for request and response bodies in modern APIs."
+    },
+    {
+      "stage": "check",
+      "question": "What does an HTTP 429 status code mean?",
+      "options": [
+        "The request succeeded",
+        "The requested resource doesn't exist",
+        "Too many requests — a rate limit was hit",
+        "The server crashed unexpectedly"
+      ],
+      "correct": 2,
+      "explanation": "A 429 status code specifically indicates the client exceeded a rate limit (too many requests in a given time window), distinct from a 404 (not found) or 500 (server error)."
+    },
+    {
+      "stage": "post",
+      "question": "An engineer says renaming a field in an API's JSON response 'would break the API contract.' Which question best evaluates the real risk?",
+      "options": [
+        "Can we just rename it anyway and see what happens?",
+        "Which existing clients (internal or external) read that specific field, and would we need to version the API instead of changing it in place?",
+        "Why does the API use JSON instead of plain text?",
+        "Can we remove JSON entirely to avoid this problem?"
+      ],
+      "correct": 1,
+      "explanation": "Renaming or removing a field silently breaks any client code that reads it by that exact name/path. Identifying affected clients and considering API versioning is the standard way to make such a change safely."
+    }
+  ]
+}

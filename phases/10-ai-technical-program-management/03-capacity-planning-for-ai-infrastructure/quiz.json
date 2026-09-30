@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is peak concurrency, rather than daily average traffic, the correct basis for capacity planning?",
+      "options": [
+        "Daily average and peak concurrency are always identical",
+        "Rate limits are enforced per-minute, and traffic often clusters into peak windows, meaning actual concurrent load can be far higher than a naive average-per-hour figure suggests",
+        "Peak concurrency is irrelevant to AI systems specifically",
+        "Daily average is always a more conservative, safer estimate than peak concurrency"
+      ],
+      "correct": 1,
+      "explanation": "Since RPM/TPM rate limits are enforced on a per-minute basis, a plan based only on daily averages can badly underestimate the actual load during real peak usage windows, leading to unexpected rate limit failures."
+    },
+    {
+      "stage": "check",
+      "question": "Why should a capacity plan include 'headroom' above the projected peak requirement?",
+      "options": [
+        "Headroom is unnecessary if the peak estimate is calculated correctly",
+        "To absorb traffic that exceeds projections, since real-world usage can vary from estimates, and running exactly at the calculated limit leaves no margin for error",
+        "Headroom only matters for cost, not for rate limits",
+        "Headroom should always be set to exactly 0% for efficiency"
+      ],
+      "correct": 1,
+      "explanation": "Planning capacity with headroom above the calculated peak (e.g. 150% of the projected peak) provides a safety margin for real-world variance and unexpected traffic spikes beyond the initial estimate."
+    },
+    {
+      "stage": "post",
+      "question": "A team's capacity plan for a major launch is the single sentence 'our current API tier should be fine.' Which question best challenges this?",
+      "options": [
+        "Should we just trust this assessment since the team seems confident?",
+        "What's our peak concurrency estimate and the specific RPM/TPM requirement that implies, compared to our current provider tier's actual limits?",
+        "Should we cancel the launch entirely without further discussion?",
+        "Is this level of detail really necessary for any launch?"
+      ],
+      "correct": 1,
+      "explanation": "An assumption-based capacity statement should be replaced with an actual calculation — peak concurrency, resulting RPM/TPM needs, and a comparison against the current provider tier's real limits — before a significant launch proceeds."
+    }
+  ]
+}

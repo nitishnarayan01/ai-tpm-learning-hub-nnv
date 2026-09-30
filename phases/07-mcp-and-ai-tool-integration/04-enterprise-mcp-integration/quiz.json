@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "Why is authenticating an MCP server with a single, broad service account risky, even if the server's code has no bugs?",
+      "options": [
+        "It isn't risky at all — service accounts are always safe",
+        "Without per-user authorization, any user's AI assistant calling through that server can access anything the broad service account can, regardless of that specific user's actual permissions",
+        "Service accounts are slower than individual user accounts",
+        "This only matters for read-only tools, never for write actions"
+      ],
+      "correct": 1,
+      "explanation": "A shared service account with broad access means the MCP server itself has no way to distinguish what a specific requesting user should be allowed to do, effectively granting every user's AI assistant the service account's full access level."
+    },
+    {
+      "stage": "check",
+      "question": "What does 'identity passthrough' mean in an enterprise MCP integration?",
+      "options": [
+        "Deleting user identities after each session",
+        "Carrying the actual requesting user's identity/token through the AI assistant and MCP client to the server, so authorization can be checked against that specific user's real permissions",
+        "Allowing any user to impersonate any other user",
+        "A feature that only applies to local, single-user MCP servers"
+      ],
+      "correct": 1,
+      "explanation": "Identity passthrough ensures the server can enforce authorization based on the specific requesting user's actual permissions, rather than relying solely on a generic service account's broad access."
+    },
+    {
+      "stage": "post",
+      "question": "A company's AI assistant is connected to their HR system via an MCP server using one shared admin-level service account. Which question best identifies the security gap?",
+      "options": [
+        "Should we just trust that users will only ask for appropriate information?",
+        "Does the server enforce per-user authorization based on each requesting user's actual permissions, or does every request inherit the service account's broad access regardless of who is asking?",
+        "Is this system too slow to be usable?",
+        "Should we remove the MCP server and use no integration at all?"
+      ],
+      "correct": 1,
+      "explanation": "The core issue is the absence of per-user authorization: without it, any user's AI assistant can technically perform any action the broad service account is capable of, regardless of that individual user's actual entitlements."
+    }
+  ]
+}

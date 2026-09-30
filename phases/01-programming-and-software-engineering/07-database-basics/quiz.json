@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "stage": "pre",
+      "question": "What is a database index primarily used for?",
+      "options": [
+        "Encrypting data so it can't be read by unauthorized users",
+        "Letting a database find matching rows quickly instead of scanning every row in a table",
+        "Making a table use less disk space",
+        "Automatically backing up the entire database"
+      ],
+      "correct": 1,
+      "explanation": "An index is a separate, sorted structure that lets the database jump directly to matching rows, similar to a book's index letting you jump to a page instead of reading cover to cover."
+    },
+    {
+      "stage": "check",
+      "question": "Why do AI/RAG systems typically use a vector database in addition to a relational database?",
+      "options": [
+        "Vector databases are always faster for everything",
+        "Vector databases store embeddings and are optimized for finding content with similar meaning, which relational databases aren't designed for",
+        "Relational databases can't store any text data",
+        "Vector databases replace the need for any other storage"
+      ],
+      "correct": 1,
+      "explanation": "Vector databases store embeddings (numeric representations of meaning) and are optimized for similarity search, a fundamentally different query pattern than the exact-match/structured queries relational databases excel at."
+    },
+    {
+      "stage": "post",
+      "question": "A chat history feature takes 8 seconds to load once a user has 10,000 messages. Which question best identifies a likely, well-understood root cause?",
+      "options": [
+        "Should we just tell users to have fewer conversations?",
+        "Is the query filtering or sorting on a column (like user_id or created_at) that's missing a database index?",
+        "Can we switch to a completely different programming language?",
+        "Why do we store chat history at all?"
+      ],
+      "correct": 1,
+      "explanation": "A missing index on a frequently filtered or sorted column is one of the most common, well-understood causes of a query slowing down significantly as a table grows."
+    }
+  ]
+}
