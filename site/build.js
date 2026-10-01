@@ -235,6 +235,13 @@ window.__AIFS_SOURCE = {
 `;
   fs.writeFileSync(OUTPUT_META_PATH, metaContent, 'utf8');
   console.log(`Successfully generated ${OUTPUT_META_PATH}`);
+
+  // Bundle lesson content into the deployable site/ directory so the public
+  // Cloudflare site doesn't need to fetch it from GitHub at runtime.
+  const SITE_PHASES_DIR = path.join(__dirname, 'phases');
+  fs.rmSync(SITE_PHASES_DIR, { recursive: true, force: true });
+  fs.cpSync(PHASES_DIR, SITE_PHASES_DIR, { recursive: true });
+  console.log(`Successfully copied lesson content to ${SITE_PHASES_DIR}`);
 }
 
 buildCurriculum();

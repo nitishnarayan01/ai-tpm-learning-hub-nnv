@@ -42,7 +42,7 @@
   function repoUrl(path) {
     var safe = clean(path);
     if (isLocal()) return '../' + safe;
-    return rawRepoUrl(safe);
+    return safe;
   }
 
   function localDirectoryFiles(path) {
