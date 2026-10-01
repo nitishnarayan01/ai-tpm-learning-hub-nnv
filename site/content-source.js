@@ -26,10 +26,10 @@
   function rawRepoUrl(path) {
     var safe = clean(path);
     var configured = window.__AIFS_SOURCE || {};
-    var owner = /^[A-Za-z0-9-]+$/.test(configured.owner || '') ? configured.owner : 'rohitg00';
+    var owner = /^[A-Za-z0-9-]+$/.test(configured.owner || '') ? configured.owner : 'nitishnarayan01';
     var repo = /^[A-Za-z0-9_.-]+$/.test(configured.repo || '') && !hasDotSegment(configured.repo)
       ? configured.repo
-      : 'ai-engineering-from-scratch';
+      : 'ai-tpm-learning-hub-nnv';
     var fallbackRevision = /^[A-Za-z0-9._/-]+$/.test(window.__AIFS_REF || '') && !hasDotSegment(window.__AIFS_REF)
       ? window.__AIFS_REF
       : 'main';

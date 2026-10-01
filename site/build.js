@@ -228,8 +228,8 @@ const ARTIFACTS = [];
 
   const metaContent = `window.__AIFS_REF = 'main';
 window.__AIFS_SOURCE = {
-  owner: 'ai-tpm',
-  repo: 'ai-tpm-learning-hub',
+  owner: 'nitishnarayan01',
+  repo: 'ai-tpm-learning-hub-nnv',
   revision: 'main'
 };
 `;
