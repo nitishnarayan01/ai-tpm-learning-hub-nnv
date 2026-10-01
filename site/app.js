@@ -30,9 +30,9 @@
     }, 0);
     var values = {
       mastheadLessonCount: lessonTotal + ' lessons',
-      mastheadPhaseCount: PHASES.length + ' phases',
+      mastheadPhaseCount: PHASES.length + ' levels',
       prefaceLessonCount: lessonTotal + ' lessons',
-      prefacePhaseCount: PHASES.length + ' phases'
+      prefacePhaseCount: PHASES.length + ' levels'
     };
     Object.keys(values).forEach(function (id) {
       var target = document.getElementById(id);
@@ -68,13 +68,12 @@
       var lessons = PHASES[i].lessons;
       totalLessons += lessons.length;
       for (var j = 0; j < lessons.length; j++) {
-        var staticDone = lessons[j].status === 'complete';
         var userDone = false;
         if (hasProgress && lessons[j].url) {
           var lp = window.AIFSProgress.extractPath(lessons[j].url);
           if (lp) userDone = window.AIFSProgress.isLessonComplete(lp);
         }
-        if (staticDone || userDone) completeLessons++;
+        if (userDone) completeLessons++;
       }
     }
     var completePhases = 0;
@@ -110,15 +109,11 @@
     var stats = computeStats();
     var pct = stats.lessons > 0 ? (stats.complete / stats.lessons) * 100 : 0;
     var phasePct = stats.phases > 0 ? (stats.completePhases / stats.phases) * 100 : 0;
-    var glossaryCount = (typeof GLOSSARY !== 'undefined') ? GLOSSARY.length : 0;
 
     setText('[data-stat="complete-frac"]', stats.complete + ' / ' + stats.lessons);
     setText('[data-stat="phases-frac"]', stats.completePhases + ' / ' + stats.phases);
-    setText('[data-stat="glossary-count"]', String(glossaryCount));
     setBar('[data-bar="complete"]', pct);
     setBar('[data-bar="phases"]', phasePct);
-    setBar('[data-bar="languages"]', 100);
-    setBar('[data-bar="glossary"]', glossaryCount > 0 ? 100 : 0);
   }
 
   function setText(selector, value) {
