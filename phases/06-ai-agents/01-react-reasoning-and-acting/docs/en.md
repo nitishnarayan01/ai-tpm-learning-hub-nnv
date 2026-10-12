@@ -24,13 +24,13 @@ A team builds a chatbot that tries to answer "what's the total cost of the last 
 
 ```mermaid
 graph TD
-    Start["User Task"] --> Thought1["Thought: What do I need to do first?"]
-    Thought1 --> Action1["Action: Call a tool"]
-    Action1 --> Obs1["Observation: Tool result"]
-    Obs1 --> Thought2["Thought: What's the next step,<br/>given this result?"]
-    Thought2 --> Action2["Action: Call another tool"]
-    Action2 --> Obs2["Observation: Tool result"]
-    Obs2 --> Final["Thought: I have enough information.<br/>Final Answer."]
+    Start["User Task"] --> Thought["Thought: What's the next step,<br/>given what I know so far?"]
+    Thought -->|"Need more information"| Action["Action: Call a tool"]
+    Action --> Obs["Observation: Tool result<br/>(added to context)"]
+    Obs --> Check{"Step limit reached?<br/>(max_steps)"}
+    Check -->|"No: loop again"| Thought
+    Check -->|"Yes"| Stop["Stop: max_steps reached<br/>(no final answer)"]
+    Thought -->|"I have enough information"| Final["Final Answer"]
 ```
 
 ### Why "Thought" Steps Matter

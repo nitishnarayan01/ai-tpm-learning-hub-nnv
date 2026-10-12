@@ -1,0 +1,238 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CI/CD for AI: The Eval Gate",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/cicd-ai/cicd-ai.html"
+  },
+  "lanes": [
+    {
+      "id": "change",
+      "label": "Change and Versioning"
+    },
+    {
+      "id": "ci",
+      "label": "CI Checks"
+    },
+    {
+      "id": "release",
+      "label": "Release"
+    },
+    {
+      "id": "stop",
+      "label": "Stop and Recover",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "author",
+      "label": "Author",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "verify",
+      "label": "Verify",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "security"
+    },
+    {
+      "id": "ship",
+      "label": "Ship",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "mainPath": [
+    "change",
+    "versioned",
+    "eval",
+    "gate",
+    "staged",
+    "prod"
+  ],
+  "nodes": [
+    {
+      "id": "change",
+      "lane": "change",
+      "col": 0,
+      "type": "external",
+      "label": "Change",
+      "sublabel": "code, prompt, model, or config",
+      "width": 190
+    },
+    {
+      "id": "versioned",
+      "lane": "change",
+      "col": 1,
+      "type": "backend",
+      "label": "Versioned + Reviewed",
+      "sublabel": "prompts, model pins, golden sets",
+      "width": 210
+    },
+    {
+      "id": "prod",
+      "lane": "change",
+      "col": 5,
+      "type": "frontend",
+      "label": "All Users",
+      "sublabel": "full rollout",
+      "width": 150
+    },
+    {
+      "id": "unit",
+      "lane": "ci",
+      "col": 3,
+      "type": "backend",
+      "label": "Unit + Integration",
+      "sublabel": "does the code work?",
+      "width": 190
+    },
+    {
+      "id": "eval",
+      "lane": "ci",
+      "col": 2,
+      "type": "security",
+      "label": "Eval Gate",
+      "sublabel": "golden set vs baseline",
+      "tag": "the AI-specific gate",
+      "width": 190
+    },
+    {
+      "id": "gate",
+      "lane": "release",
+      "col": 4,
+      "type": "security",
+      "label": "Both Must Pass",
+      "sublabel": "green is not enough",
+      "width": 170
+    },
+    {
+      "id": "staged",
+      "lane": "release",
+      "col": 5,
+      "type": "cloud",
+      "label": "Staged Rollout",
+      "sublabel": "small share of traffic first",
+      "width": 190
+    },
+    {
+      "id": "block",
+      "lane": "stop",
+      "col": 1,
+      "type": "security",
+      "label": "Block Deploy",
+      "sublabel": "quality regressed",
+      "width": 170
+    },
+    {
+      "id": "rollback",
+      "lane": "stop",
+      "col": 5,
+      "type": "security",
+      "label": "Rollback",
+      "sublabel": "plan needed mid-rollout",
+      "width": 190
+    }
+  ],
+  "edges": [
+    {
+      "id": "change-versioned",
+      "from": "change",
+      "to": "versioned",
+      "label": "commit",
+      "variant": "emphasis"
+    },
+    {
+      "id": "versioned-unit",
+      "from": "versioned",
+      "to": "unit",
+      "label": "CI",
+      "variant": "default"
+    },
+    {
+      "id": "versioned-eval",
+      "from": "versioned",
+      "to": "eval",
+      "label": "CI",
+      "variant": "emphasis"
+    },
+    {
+      "id": "unit-gate",
+      "from": "unit",
+      "to": "gate",
+      "label": "pass",
+      "variant": "default"
+    },
+    {
+      "id": "eval-gate",
+      "from": "eval",
+      "to": "gate",
+      "label": "no regression",
+      "variant": "emphasis"
+    },
+    {
+      "id": "eval-block",
+      "from": "eval",
+      "to": "block",
+      "label": "regression",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "gate-staged",
+      "from": "gate",
+      "to": "staged",
+      "label": "deploy",
+      "variant": "emphasis"
+    },
+    {
+      "id": "staged-prod",
+      "from": "staged",
+      "to": "prod",
+      "label": "expand",
+      "variant": "emphasis"
+    },
+    {
+      "id": "staged-rollback",
+      "from": "staged",
+      "to": "rollback",
+      "label": "regression found",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "The Problem",
+      "items": [
+        "Unit tests pass, so a prompt change auto-deploys",
+        "Nothing checked output quality: green, yet a real regression"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Version Beyond Code",
+      "items": [
+        "Prompts: reviewable, revertible artifacts",
+        "Model versions: pinned, since providers can shift behavior",
+        "Golden datasets: versioned so scores stay comparable"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "TPM Questions",
+      "items": [
+        "Does green mean more than traditional tests passed?",
+        "Are prompt and model changes reviewed like code?",
+        "What is the rollback plan once traffic is affected?"
+      ]
+    }
+  ]
+}

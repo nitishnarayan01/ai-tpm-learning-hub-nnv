@@ -32,6 +32,12 @@ graph LR
     OutputGuard -->|"Blocked"| Reject2["Reject/Regenerate/Redact"]
 ```
 
+```archify
+src: diagrams/guardrails.html
+title: Follow one request through every input and output check
+aspect: 718/462
+```
+
 ### Input Guardrails vs. Output Guardrails
 
 - **Input guardrails**: check the user's request before it ever reaches the model — e.g. detecting attempts to manipulate the system prompt ("prompt injection"), blocking clearly off-topic or abusive requests, or validating expected input format.

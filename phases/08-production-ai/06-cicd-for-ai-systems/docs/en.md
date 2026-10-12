@@ -33,6 +33,12 @@ graph LR
     EvalGate -->|"Regression detected"| Block["Block Deployment"]
 ```
 
+```archify
+src: diagrams/cicd-ai.html
+title: Follow a prompt change through the eval gate, and see what blocks it
+aspect: 718/421
+```
+
 ### What Needs to Be Versioned Beyond Code
 
 - **Prompts**: version-controlled the same way code is, so a prompt change is a reviewable, revertible artifact — not an unstructured edit made directly in a config file or dashboard.

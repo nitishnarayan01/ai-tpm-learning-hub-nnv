@@ -32,6 +32,12 @@ graph TD
     Review --> Security["Security & Governance<br/>(auth, permissions, data handling)"]
 ```
 
+```archify
+src: diagrams/arch-review.html
+title: Walk the checklist over a real system: the RAG support agent
+aspect: 718/292
+```
+
 ### The Six-Dimension Checklist
 
 1. **Data & Retrieval** (Level 5): What's the chunking strategy? Which embedding model, and was it validated for this domain? Is reranking used? How is retrieval quality actually measured?

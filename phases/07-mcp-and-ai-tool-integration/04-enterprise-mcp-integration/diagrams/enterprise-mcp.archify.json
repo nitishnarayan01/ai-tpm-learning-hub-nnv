@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Enterprise MCP: Per-User Authorization",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/enterprise-mcp/enterprise-mcp.html"
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [
+      40,
+      100
+    ],
+    "cols": 6,
+    "gapX": 90,
+    "gapY": 64,
+    "cellW": 160,
+    "cellH": 72
+  },
+  "components": [
+    {
+      "id": "idp",
+      "type": "security",
+      "label": "Identity Provider",
+      "sublabel": "SSO: who is this user?",
+      "row": 0,
+      "col": 1
+    },
+    {
+      "id": "sensitive",
+      "type": "database",
+      "label": "HR: Sensitive Data",
+      "sublabel": "salary, reviews",
+      "tag": "own tool + scope",
+      "row": 0,
+      "col": 4
+    },
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Individual User",
+      "sublabel": "e.g. emp_200",
+      "row": 1,
+      "col": 0
+    },
+    {
+      "id": "host",
+      "type": "frontend",
+      "label": "AI Assistant",
+      "sublabel": "MCP host",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "client",
+      "type": "frontend",
+      "label": "MCP Client",
+      "sublabel": "carries user identity",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "MCP Server",
+      "sublabel": "HR tools",
+      "row": 1,
+      "col": 3
+    },
+    {
+      "id": "authz",
+      "type": "security",
+      "label": "AuthZ Check",
+      "sublabel": "this user, this action?",
+      "tag": "per request",
+      "row": 1,
+      "col": 4
+    },
+    {
+      "id": "basic",
+      "type": "database",
+      "label": "HR: Basic Info",
+      "sublabel": "job title, manager",
+      "row": 1,
+      "col": 5
+    },
+    {
+      "id": "deny",
+      "type": "security",
+      "label": "Deny Request",
+      "sublabel": "not authorized",
+      "row": 2,
+      "col": 4
+    },
+    {
+      "id": "audit",
+      "type": "database",
+      "label": "Audit Log",
+      "sublabel": "user, tool, args, result",
+      "row": 2,
+      "col": 5
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "User's AI assistant",
+      "wraps": [
+        "host",
+        "client"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Enterprise boundary",
+      "wraps": [
+        "server",
+        "authz",
+        "basic",
+        "sensitive",
+        "deny",
+        "audit"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-asks",
+      "from": "user",
+      "to": "host",
+      "label": "asks",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sso-token",
+      "from": "idp",
+      "to": "host",
+      "label": "user token",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "host-client",
+      "from": "host",
+      "to": "client",
+      "variant": "emphasis"
+    },
+    {
+      "id": "client-server",
+      "from": "client",
+      "to": "server",
+      "label": "user token",
+      "variant": "emphasis"
+    },
+    {
+      "id": "server-authz",
+      "from": "server",
+      "to": "authz",
+      "label": "check",
+      "variant": "emphasis"
+    },
+    {
+      "id": "allowed-basic",
+      "from": "authz",
+      "to": "basic",
+      "label": "allowed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "stricter-scope",
+      "from": "authz",
+      "to": "sensitive",
+      "label": "stricter scope",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "denied",
+      "from": "authz",
+      "to": "deny",
+      "label": "denied",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "log-denied",
+      "from": "deny",
+      "to": "audit",
+      "label": "log",
+      "variant": "dashed"
+    },
+    {
+      "id": "log-allowed",
+      "from": "basic",
+      "to": "audit",
+      "label": "log",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Lesson Example",
+      "items": [
+        "emp_200 (manager) views emp_100's record: allowed, logged",
+        "emp_100 views emp_200 (a peer it doesn't manage): denied, logged"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Anti-Pattern",
+      "items": [
+        "One shared service account for every request",
+        "Any user's assistant can then reach anything the account can"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "TPM Questions",
+      "items": [
+        "Is authorization per user, or one broad service account?",
+        "Are AI actions logged with user, tool, arguments, result?",
+        "Are tools scoped to least privilege (basic vs. sensitive)?"
+      ]
+    }
+  ]
+}

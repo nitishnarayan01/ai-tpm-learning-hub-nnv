@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Multi-Agent Coordination: Orchestrator and Handoffs",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/multi-agent/multi-agent.html"
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User",
+      "sublabel": "asks for a report",
+      "pos": [
+        40,
+        244
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "orch",
+      "type": "backend",
+      "label": "Orchestrator",
+      "sublabel": "plans, delegates, assembles",
+      "pos": [
+        290,
+        244
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "tag": "single point of failure"
+    },
+    {
+      "id": "research",
+      "type": "backend",
+      "label": "Researcher",
+      "sublabel": "worker: finds sources",
+      "pos": [
+        600,
+        80
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "tag": "writer must wait"
+    },
+    {
+      "id": "writer",
+      "type": "backend",
+      "label": "Writer",
+      "sublabel": "worker: drafts report",
+      "pos": [
+        600,
+        244
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "tag": "needs structured input"
+    },
+    {
+      "id": "editor",
+      "type": "backend",
+      "label": "Editor",
+      "sublabel": "worker: checks draft",
+      "pos": [
+        600,
+        408
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "tools",
+      "type": "cloud",
+      "label": "Search + Docs",
+      "sublabel": "researcher's only tools",
+      "pos": [
+        890,
+        80
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "report",
+      "type": "frontend",
+      "label": "Final Report",
+      "sublabel": "approved draft",
+      "pos": [
+        890,
+        408
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Orchestrator-Worker pattern",
+      "wraps": [
+        "orch",
+        "research",
+        "writer",
+        "editor"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "ask",
+      "from": "user",
+      "to": "orch",
+      "label": "task",
+      "variant": "emphasis"
+    },
+    {
+      "id": "delegate-research",
+      "from": "orch",
+      "to": "research",
+      "label": "delegate",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "delegate-writer",
+      "from": "orch",
+      "to": "writer",
+      "label": "delegate",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "delegate-editor",
+      "from": "orch",
+      "to": "editor",
+      "label": "delegate",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "handoff-research",
+      "from": "research",
+      "to": "writer",
+      "label": "handoff: research",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "handoff-draft",
+      "from": "writer",
+      "to": "editor",
+      "label": "handoff: draft",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "search",
+      "from": "research",
+      "to": "tools",
+      "label": "search",
+      "variant": "dashed"
+    },
+    {
+      "id": "approve",
+      "from": "editor",
+      "to": "report",
+      "label": "approved",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Failure Modes to Trace",
+      "items": [
+        "Race condition: writer drafts before research is final",
+        "Miscommunication: unstructured handoffs get misread",
+        "Compounding cost: every agent adds tool calls and latency"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Two Patterns, One Diagram",
+      "items": [
+        "Orchestrator-Worker: central plan, clear accountability, but a bottleneck",
+        "Peer handoff: the red researcher, writer, editor chain, simple but rigid"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "TPM Questions",
+      "items": [
+        "What stops an agent acting on incomplete output?",
+        "Would one well-scoped agent do the job more cheaply?",
+        "What is the total cost and latency versus a single agent?"
+      ]
+    }
+  ]
+}
