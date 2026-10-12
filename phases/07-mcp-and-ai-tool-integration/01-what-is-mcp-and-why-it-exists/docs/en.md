@@ -42,6 +42,12 @@ graph TD
     end
 ```
 
+```archify
+src: diagrams/mcp-intro.html
+title: Trace the dependencies: which apps reach which tools through MCP
+aspect: 718/394
+```
+
 ### The "N x M" Integration Problem
 
 Without a shared standard, connecting N AI applications to M tools/data sources requires up to N x M custom integrations — a number that grows quickly and none of which is reusable across pairings. MCP reduces this to N + M: each AI application implements the client side of MCP once, and each tool/data source implements the server side once, and any client can then talk to any server.

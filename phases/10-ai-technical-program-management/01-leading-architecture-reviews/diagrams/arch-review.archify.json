@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Reviewing a RAG Support Agent: Six Dimensions",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/arch-review/arch-review.html"
+  },
+  "layout": {
+    "mode": "grid",
+    "origin": [
+      40,
+      100
+    ],
+    "cols": 6,
+    "gapX": 76,
+    "gapY": 64,
+    "cellW": 150,
+    "cellH": 72
+  },
+  "components": [
+    {
+      "id": "docs",
+      "type": "database",
+      "label": "Support Docs",
+      "sublabel": "knowledge base",
+      "row": 0,
+      "col": 0
+    },
+    {
+      "id": "chunk",
+      "type": "backend",
+      "label": "Chunk + Embed",
+      "sublabel": "strategy? model?",
+      "row": 0,
+      "col": 1
+    },
+    {
+      "id": "vdb",
+      "type": "database",
+      "label": "Vector DB",
+      "sublabel": "the 45-min debate",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "rerank",
+      "type": "backend",
+      "label": "Reranker",
+      "sublabel": "used at all?",
+      "row": 0,
+      "col": 3
+    },
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Customer",
+      "sublabel": "support question",
+      "row": 1,
+      "col": 0
+    },
+    {
+      "id": "gateway",
+      "type": "security",
+      "label": "API Gateway",
+      "sublabel": "auth + rate limits",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Support Agent",
+      "sublabel": "chain or agent loop?",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "LLM",
+      "sublabel": "which model, why?",
+      "row": 1,
+      "col": 3
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "Guardrails",
+      "sublabel": "code, not prompt",
+      "row": 1,
+      "col": 4
+    },
+    {
+      "id": "reply",
+      "type": "frontend",
+      "label": "Answer",
+      "sublabel": "shown to customer",
+      "row": 1,
+      "col": 5
+    },
+    {
+      "id": "audit",
+      "type": "database",
+      "label": "Audit Log",
+      "sublabel": "who did what",
+      "row": 2,
+      "col": 1
+    },
+    {
+      "id": "tools",
+      "type": "messagebus",
+      "label": "Ticket Tool",
+      "sublabel": "via MCP",
+      "row": 2,
+      "col": 2
+    },
+    {
+      "id": "trace",
+      "type": "backend",
+      "label": "Tracing",
+      "sublabel": "every call logged",
+      "row": 2,
+      "col": 3
+    },
+    {
+      "id": "cost",
+      "type": "cloud",
+      "label": "Cost Tracking",
+      "sublabel": "$ per interaction",
+      "row": 2,
+      "col": 4
+    },
+    {
+      "id": "evals",
+      "type": "database",
+      "label": "Eval Golden Set",
+      "sublabel": "quality regression",
+      "row": 2,
+      "col": 5
+    }
+  ],
+  "connections": [
+    {
+      "id": "ingest",
+      "from": "docs",
+      "to": "chunk",
+      "label": "ingest",
+      "variant": "dashed"
+    },
+    {
+      "id": "index",
+      "from": "chunk",
+      "to": "vdb",
+      "label": "vectors",
+      "variant": "dashed"
+    },
+    {
+      "id": "search",
+      "from": "agent",
+      "to": "vdb",
+      "label": "search",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "topk",
+      "from": "vdb",
+      "to": "rerank",
+      "label": "top-k"
+    },
+    {
+      "id": "context",
+      "from": "rerank",
+      "to": "llm",
+      "label": "context",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "ask",
+      "from": "user",
+      "to": "gateway",
+      "label": "ask",
+      "variant": "emphasis"
+    },
+    {
+      "id": "route",
+      "from": "gateway",
+      "to": "agent",
+      "variant": "emphasis"
+    },
+    {
+      "id": "prompt",
+      "from": "agent",
+      "to": "llm",
+      "label": "prompt",
+      "variant": "emphasis"
+    },
+    {
+      "id": "draft",
+      "from": "llm",
+      "to": "guard",
+      "label": "draft",
+      "variant": "emphasis"
+    },
+    {
+      "id": "safe",
+      "from": "guard",
+      "to": "reply",
+      "label": "safe",
+      "variant": "emphasis"
+    },
+    {
+      "id": "log",
+      "from": "gateway",
+      "to": "audit",
+      "label": "log",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mcp-call",
+      "from": "agent",
+      "to": "tools",
+      "label": "tool call",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "spans",
+      "from": "llm",
+      "to": "trace",
+      "label": "spans",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "tokens",
+      "from": "trace",
+      "to": "cost",
+      "label": "tokens",
+      "variant": "dashed"
+    },
+    {
+      "id": "score",
+      "from": "reply",
+      "to": "evals",
+      "label": "score",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "The Problem",
+      "items": [
+        "45 minutes went to choosing a vector DB vendor",
+        "Nobody asked about chunking, evals, cost, or guardrails"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Six Review Dimensions",
+      "items": [
+        "1 Data & Retrieval: Support Docs, Chunk + Embed, Vector DB, Reranker",
+        "2 Model & Prompting: LLM",
+        "3 Pipeline Design: Support Agent, Ticket Tool",
+        "4 Operations: Guardrails, Tracing, Eval Golden Set",
+        "5 Cost & Capacity: API Gateway (rate limits), Cost Tracking",
+        "6 Security & Governance: API Gateway (auth), Audit Log"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "How to Use This Diagram",
+      "items": [
+        "Click a component, then Downstream to see what a gap there affects",
+        "Treat \"we haven't decided yet\" as a found gap, not a failure"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "TPM Questions",
+      "items": [
+        "Which items are addressed, which are gaps, and who closes each?",
+        "Is the review early enough to still change the design?"
+      ]
+    }
+  ]
+}

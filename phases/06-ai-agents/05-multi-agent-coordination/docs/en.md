@@ -34,6 +34,12 @@ graph TD
     end
 ```
 
+```archify
+src: diagrams/multi-agent.html
+title: Trace the handoffs: where a race condition or failure would spread
+aspect: 718/384
+```
+
 ### Why Split Across Multiple Agents
 
 - **Specialization**: a narrowly-scoped agent (with a focused prompt and limited toolset) can be more reliable at its specific sub-task than one generalist agent trying to do everything.
