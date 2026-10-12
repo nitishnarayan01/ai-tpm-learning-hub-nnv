@@ -1158,6 +1158,64 @@
 
     .mermaid-source { display: none; }
 
+    .lesson-article .archify-block {
+      margin: 24px 0;
+      border: 1px solid var(--rule-soft);
+      background: var(--bg-surface);
+    }
+
+    .archify-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+
+    .archify-kicker {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blueprint);
+    }
+
+    .archify-title { font-weight: 600; color: var(--ink); }
+
+    .archify-stage { padding: 16px; }
+    .archify-block.loaded .archify-stage { padding: 0 0 12px; }
+    .archify-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      padding: 0 16px;
+    }
+    .archify-tip { flex: 1 1 280px; color: var(--ink-soft); font-size: 0.8rem; line-height: 1.4; }
+
+    .archify-desc { margin: 0 0 12px !important; color: var(--ink-soft); font-size: 0.9rem; }
+
+    .archify-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .archify-open { text-decoration: none; }
+
+    .archify-frame {
+      display: block;
+      width: 100%;
+      border: 0;
+      margin-bottom: 12px;
+      background: var(--bg-surface);
+    }
+
+    .archify-mobile-note { display: none; margin: 12px 0 0 !important; color: var(--ink-mute); font-size: 0.8rem; }
+    .archify-error { color: var(--ink-mute); font-style: italic; }
+
+    /* Embedded Archify diagrams clip below tablet width; offer full screen only. */
+    @media (max-width: 767px) {
+      .archify-load { display: none; }
+      .archify-mobile-note { display: block; }
+    }
+
     .mermaid-modal-overlay {
       position: fixed;
       inset: 0;
@@ -2781,6 +2839,7 @@
           try { localStorage.setItem('theme', next); } catch (_) {}
           updateThemeIcon();
           updateMermaidThemeAndRerender();
+          updateArchifyTheme();
         });
       }
 
@@ -3790,6 +3849,7 @@
         renderLessonActionPanel(article);
         initCodeCopy();
         renderMermaidBlocks(article);
+        mountArchifyBlocks(article);
         var assetPromise = window.AIFS_loadFigureProviders
           ? window.AIFS_loadFigureProviders(article)
           : Promise.resolve([]);
@@ -4299,6 +4359,8 @@
                 out += '<div class="mermaid-render" id="mermaid-render-' + mermaidBlocks + '"></div>';
                 out += '</div>';
                 out += '</div>';
+              } else if (codeLang === 'archify') {
+                out += renderArchifyBlock(raw);
               } else {
                 out += renderCodeBlock(raw, codeLang);
               }
@@ -4596,6 +4658,89 @@
             });
         }
         return mermaidPromise;
+      }
+
+      // ```archify blocks embed a pre-generated Archify diagram that lives in the
+      // lesson's diagrams/ folder. The block renders as a card; the ~200 KB
+      // diagram only loads on request, inside a sandboxed iframe (no
+      // allow-same-origin) so its scripts can't read site storage or the page.
+      var ARCHIFY_SRC_RE = /^diagrams\/[a-z0-9-]+\.html$/;
+
+      function renderArchifyBlock(raw) {
+        var opts = {};
+        raw.split(/\r?\n/).forEach(function (line) {
+          var m = line.match(/^\s*([a-z]+)\s*:\s*(.+?)\s*$/);
+          if (m) opts[m[1]] = m[2];
+        });
+        if (!ARCHIFY_SRC_RE.test(opts.src || '')) {
+          return '<p class="archify-error">Interactive diagram unavailable: invalid source path.</p>';
+        }
+        var aspect = /^\d+\/\d+$/.test(opts.aspect || '') ? opts.aspect : '16/9';
+        var title = opts.title || 'Interactive diagram';
+        var h = '<div class="archify-block" data-archify-src="' + escapeHtml(opts.src) + '" data-archify-aspect="' + aspect + '">';
+        h += '<div class="archify-header">';
+        h += '<span class="archify-kicker">Interactive diagram</span>';
+        h += '<span class="archify-title">' + escapeHtml(title) + '</span>';
+        h += '</div>';
+        h += '<div class="archify-stage">';
+        h += '<p class="archify-desc">Click a component to highlight its connections. Open full screen to trace upstream/downstream, read the notes, and export. Loads on demand (about 200 KB).</p>';
+        h += '<div class="archify-actions">';
+        h += '<button type="button" class="mermaid-btn archify-load">Load interactive diagram</button>';
+        h += '<a class="mermaid-btn archify-open" target="_blank" rel="noopener">Open full screen</a>';
+        h += '</div>';
+        h += '<p class="archify-mobile-note">Best explored on a larger screen. Full screen view supports zoom and pan.</p>';
+        h += '</div>';
+        h += '</div>';
+        return h;
+      }
+
+      function archifyUrl(block, embed) {
+        var base = String(lessonPath || '').replace(/\/+$/, '') + '/' + block.getAttribute('data-archify-src');
+        var url = window.AIFSContentSource ? window.AIFSContentSource.repoUrl(base) : base;
+        var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        return url + '?' + (embed ? 'embed=1&' : '') + 'theme=' + theme;
+      }
+
+      function mountArchifyBlocks(root) {
+        (root || document).querySelectorAll('.archify-block').forEach(function (block) {
+          var open = block.querySelector('.archify-open');
+          var load = block.querySelector('.archify-load');
+          if (open) open.href = archifyUrl(block, false);
+          if (!load) return;
+          load.addEventListener('click', function () {
+            var stage = block.querySelector('.archify-stage');
+            var frame = document.createElement('iframe');
+            frame.className = 'archify-frame';
+            frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
+            frame.setAttribute('title', block.querySelector('.archify-title').textContent);
+            frame.setAttribute('loading', 'lazy');
+            frame.style.aspectRatio = block.getAttribute('data-archify-aspect');
+            frame.src = archifyUrl(block, true);
+            // Loading replaces the intro text, so keep a visible hint: nothing else
+            // tells the reader that the diagram is clickable (or that a second
+            // click on the same box clears the highlight).
+            var footer = document.createElement('div');
+            footer.className = 'archify-footer';
+            var tip = document.createElement('span');
+            tip.className = 'archify-tip';
+            tip.textContent = 'Click any box to highlight its connections. Click it again, click empty space, or press Esc to clear. Open full screen to trace routes.';
+            footer.appendChild(tip);
+            footer.appendChild(open);
+            stage.innerHTML = '';
+            stage.appendChild(frame);
+            stage.appendChild(footer);
+            block.classList.add('loaded');
+          });
+        });
+      }
+
+      function updateArchifyTheme() {
+        document.querySelectorAll('.archify-block').forEach(function (block) {
+          var open = block.querySelector('.archify-open');
+          var frame = block.querySelector('.archify-frame');
+          if (open) open.href = archifyUrl(block, false);
+          if (frame) frame.src = archifyUrl(block, true);
+        });
       }
 
       function renderMermaidBlocks(root) {

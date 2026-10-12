@@ -1,0 +1,259 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Guardrails: Deterministic Checks Around the Model",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/guardrails/guardrails.html"
+  },
+  "lanes": [
+    {
+      "id": "user",
+      "label": "User"
+    },
+    {
+      "id": "guards",
+      "label": "Guardrails (deterministic code)"
+    },
+    {
+      "id": "model",
+      "label": "Model (probabilistic)"
+    },
+    {
+      "id": "blocked",
+      "label": "Blocked Outcomes",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "input-checks",
+      "label": "Input checks",
+      "fromCol": 1,
+      "toCol": 2,
+      "variant": "security"
+    },
+    {
+      "id": "generate",
+      "label": "Generate",
+      "fromCol": 3,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "output-checks",
+      "label": "Output checks",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "mainPath": [
+    "request",
+    "injection",
+    "scope",
+    "llm",
+    "pii",
+    "policy",
+    "shown"
+  ],
+  "nodes": [
+    {
+      "id": "request",
+      "lane": "user",
+      "col": 0,
+      "type": "external",
+      "label": "User Input",
+      "sublabel": "request text",
+      "width": 150
+    },
+    {
+      "id": "shown",
+      "lane": "user",
+      "col": 5,
+      "type": "frontend",
+      "label": "Shown to User",
+      "sublabel": "passed every check",
+      "width": 170
+    },
+    {
+      "id": "injection",
+      "lane": "guards",
+      "col": 1,
+      "type": "security",
+      "label": "Injection Check",
+      "sublabel": "prompt manipulation?",
+      "width": 170
+    },
+    {
+      "id": "scope",
+      "lane": "guards",
+      "col": 2,
+      "type": "security",
+      "label": "Scope Check",
+      "sublabel": "on-topic, valid format?",
+      "width": 170
+    },
+    {
+      "id": "llm",
+      "lane": "model",
+      "col": 3,
+      "type": "backend",
+      "label": "LLM",
+      "sublabel": "prompt guides only",
+      "width": 170
+    },
+    {
+      "id": "pii",
+      "lane": "guards",
+      "col": 4,
+      "type": "security",
+      "label": "PII Detection",
+      "sublabel": "SSNs, card numbers",
+      "width": 170
+    },
+    {
+      "id": "policy",
+      "lane": "guards",
+      "col": 5,
+      "type": "security",
+      "label": "Policy + Schema",
+      "sublabel": "safe content, valid JSON",
+      "width": 170
+    },
+    {
+      "id": "reject",
+      "lane": "blocked",
+      "col": 1,
+      "type": "security",
+      "label": "Reject",
+      "sublabel": "attack blocked",
+      "width": 150
+    },
+    {
+      "id": "redirect",
+      "lane": "blocked",
+      "col": 2,
+      "type": "security",
+      "label": "Redirect",
+      "sublabel": "off-topic request",
+      "width": 150
+    },
+    {
+      "id": "redact",
+      "lane": "blocked",
+      "col": 4,
+      "type": "security",
+      "label": "Redact",
+      "sublabel": "remove personal data",
+      "width": 160
+    },
+    {
+      "id": "regenerate",
+      "lane": "blocked",
+      "col": 5,
+      "type": "security",
+      "label": "Regenerate",
+      "sublabel": "or refuse safely",
+      "width": 160
+    }
+  ],
+  "edges": [
+    {
+      "id": "request-injection",
+      "from": "request",
+      "to": "injection",
+      "label": "input",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "injection-scope",
+      "from": "injection",
+      "to": "scope",
+      "label": "clean",
+      "variant": "emphasis"
+    },
+    {
+      "id": "scope-llm",
+      "from": "scope",
+      "to": "llm",
+      "label": "in scope",
+      "variant": "emphasis"
+    },
+    {
+      "id": "llm-pii",
+      "from": "llm",
+      "to": "pii",
+      "label": "draft",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pii-policy",
+      "from": "pii",
+      "to": "policy",
+      "label": "clean",
+      "variant": "emphasis"
+    },
+    {
+      "id": "policy-shown",
+      "from": "policy",
+      "to": "shown",
+      "label": "passes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "injection-reject",
+      "from": "injection",
+      "to": "reject",
+      "label": "attack",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "scope-redirect",
+      "from": "scope",
+      "to": "redirect",
+      "label": "off-topic",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "pii-redact",
+      "from": "pii",
+      "to": "redact",
+      "label": "PII found",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "policy-regenerate",
+      "from": "policy",
+      "to": "regenerate",
+      "label": "violation",
+      "variant": "security",
+      "role": "error"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Why Guardrails Sit Outside the Model",
+      "items": [
+        "A system prompt is just another input the model weighs",
+        "A guardrail is code that runs whatever the model decided"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "TPM Questions",
+      "items": [
+        "Are safety rules enforced by guardrails, or only by the prompt?",
+        "Do output checks catch PII before the user sees it?",
+        "Are retrieved (RAG) documents checked for injected instructions?"
+      ]
+    }
+  ]
+}

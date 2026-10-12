@@ -32,6 +32,12 @@ graph TD
     AuthZ -->|"Not authorized"| Deny["Deny and log the attempt"]
 ```
 
+```archify
+src: diagrams/enterprise-mcp.html
+title: Explore the trust boundaries: trace what each component can reach
+aspect: 718/275
+```
+
 ### Per-User Authorization, Not Just Server-Level Access
 
 A common, serious mistake is authenticating the *MCP server itself* to the enterprise system with one broad service account, without separately checking whether the *individual user* making the request through their AI assistant has permission for that specific action. Enterprise-grade MCP integrations must pass the user's own identity through the chain and enforce the enterprise system's existing permission model per request — not grant every AI-initiated action the server's own broad access level.

@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MCP: 4 Apps, 3 Tools, One Standard",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "lab/mcp-intro/mcp-intro.html"
+  },
+  "components": [
+    {
+      "id": "chat",
+      "type": "frontend",
+      "label": "Chat Assistant",
+      "sublabel": "MCP client",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "ide",
+      "type": "frontend",
+      "label": "IDE Copilot",
+      "sublabel": "MCP client",
+      "pos": [
+        40,
+        220
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "support",
+      "type": "frontend",
+      "label": "Support Agent",
+      "sublabel": "MCP client",
+      "pos": [
+        40,
+        340
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "reports",
+      "type": "frontend",
+      "label": "Reporting Bot",
+      "sublabel": "MCP client (the 4th app)",
+      "pos": [
+        40,
+        460
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "reuses all 3 servers"
+    },
+    {
+      "id": "mcp",
+      "type": "messagebus",
+      "label": "MCP",
+      "sublabel": "standard protocol",
+      "pos": [
+        340,
+        207
+      ],
+      "size": [
+        170,
+        210
+      ],
+      "tag": "N + M, not N x M"
+    },
+    {
+      "id": "s-ticket",
+      "type": "backend",
+      "label": "Ticketing Server",
+      "sublabel": "MCP server",
+      "pos": [
+        650,
+        118
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "s-files",
+      "type": "backend",
+      "label": "File Storage Server",
+      "sublabel": "MCP server",
+      "pos": [
+        650,
+        280
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "s-cal",
+      "type": "backend",
+      "label": "Calendar Server",
+      "sublabel": "MCP server",
+      "pos": [
+        650,
+        442
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "ticket",
+      "type": "database",
+      "label": "Ticketing System",
+      "sublabel": "internal",
+      "pos": [
+        960,
+        118
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "files",
+      "type": "database",
+      "label": "File Storage",
+      "sublabel": "internal",
+      "pos": [
+        960,
+        280
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "cal",
+      "type": "database",
+      "label": "Calendar",
+      "sublabel": "internal",
+      "pos": [
+        960,
+        442
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "N = 4 AI apps: client built once each",
+      "wraps": [
+        "chat",
+        "ide",
+        "support",
+        "reports"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "chat-mcp",
+      "from": "chat",
+      "to": "mcp",
+      "variant": "emphasis",
+      "toSide": "left"
+    },
+    {
+      "id": "ide-mcp",
+      "from": "ide",
+      "to": "mcp",
+      "variant": "emphasis",
+      "toSide": "left"
+    },
+    {
+      "id": "support-mcp",
+      "from": "support",
+      "to": "mcp",
+      "variant": "emphasis",
+      "toSide": "left"
+    },
+    {
+      "id": "reports-mcp",
+      "from": "reports",
+      "to": "mcp",
+      "variant": "emphasis",
+      "toSide": "left"
+    },
+    {
+      "id": "mcp-ticket",
+      "from": "mcp",
+      "to": "s-ticket",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "mcp-files",
+      "from": "mcp",
+      "to": "s-files",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "mcp-cal",
+      "from": "mcp",
+      "to": "s-cal",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "ticket-api",
+      "from": "s-ticket",
+      "to": "ticket",
+      "label": "ticket API",
+      "variant": "dashed"
+    },
+    {
+      "id": "files-api",
+      "from": "s-files",
+      "to": "files",
+      "label": "file API",
+      "variant": "dashed"
+    },
+    {
+      "id": "cal-api",
+      "from": "s-cal",
+      "to": "cal",
+      "label": "calendar API",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Before MCP: N x M",
+      "items": [
+        "4 apps x 3 tools = 12 one-off custom integrations",
+        "Each with its own auth, data format, and owner",
+        "None reusable when a new app arrives"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "With MCP: N + M",
+      "items": [
+        "4 clients + 3 servers = 7 pieces, each built once",
+        "The 4th app reuses all 3 servers at no extra cost",
+        "Click a server, then Upstream: which apps depend on it?"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Function Calling vs MCP",
+      "items": [
+        "Function calling: how a model requests one function run",
+        "MCP: the standard for exposing and discovering tools, data resources, and prompts"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "TPM Questions",
+      "items": [
+        "Custom integration, or an MCP server other apps can reuse?",
+        "Have we costed N x M against N + M?",
+        "Does the third-party tool already offer an MCP server?"
+      ]
+    }
+  ]
+}
