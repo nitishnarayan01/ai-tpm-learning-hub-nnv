@@ -3,24 +3,37 @@
 > "How much will this AI feature cost per month?" is a spreadsheet question with a precise answer — if you know what to multiply.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** Rate Limiting in Practice
-**Time:** ~30 minutes
+**Time:** ~25 minutes
 
 ## Learning Objectives
 
-- Build a real cost model for an AI feature: tokens per request x requests per period x price per token
-- Understand the cost difference between input tokens and output tokens
-- Recognize the biggest cost levers: prompt length, output length, model choice, and caching
+- Build a cost model for an AI feature: tokens per request x requests per period x price per token
+- Explain the cost difference between input tokens and output tokens
+- Identify the biggest cost levers: prompt length, output length, model choice, and caching
 - Formulate the right questions when reviewing an AI feature's projected operating cost
 
-## The Problem
+## What It Is
 
-A team estimates an AI feature will cost "a few hundred dollars a month" without showing the math. After launch, it costs $8,000 in the first month, because the estimate didn't account for a long system prompt sent on every single request, verbose model outputs, or the actual number of daily active users. Token economics is not guesswork — it's a straightforward multiplication that should be shown, not estimated by feel.
+Token economics is the discipline of modeling, measuring, and optimizing an AI feature's cost from a small number of measurable variables: tokens per request (input plus output), price per token, and request volume. Providers usually charge different rates for **input tokens** (system prompt, conversation history, retrieved context, user message) and **output tokens** (the generated response). Output is often priced several times higher than input, because generating text is more computationally expensive than reading it.
 
-## The Concept
+## Why It Matters
 
-The cost of an AI feature is a direct function of a small number of measurable variables:
+A team estimates an AI feature will cost "a few hundred dollars a month" without showing the math. After launch it costs $8,000 in the first month, because the estimate ignored a long system prompt sent on every request, verbose outputs, and the real number of daily users. Token economics is not guesswork. It is a multiplication that should be shown, not estimated by feel.
+
+## How It Works
+
+Cost per request = (input tokens / 1,000 x input price) + (output tokens / 1,000 x output price). Monthly cost = cost per request x requests per day x 30.
+
+The biggest levers:
+
+1. **System prompt length**: repeated on every request, so a long one is a large, often underestimated recurring cost.
+2. **Conversation history**: each new turn re-sends the prior conversation as input, so cost per turn grows through a session (unless prefix caching is used).
+3. **Output length**: verbose responses cost more, at the higher output price.
+4. **Model choice**: larger models cost more per token; a real trade-off against quality, not just a cost slider.
+5. **Caching**: reusing a cached response or prompt prefix avoids paying for the same computation repeatedly.
+
+## Architecture and Workflow
 
 ```mermaid
 graph LR
@@ -29,109 +42,39 @@ graph LR
     D --> E["Cost per Day/Month<br/>= Cost per Request x Request Volume"]
 ```
 
-### Input Tokens vs. Output Tokens
-
-Providers typically charge different rates for **input tokens** (the prompt sent to the model, including system prompt, conversation history, and any retrieved context) and **output tokens** (the model's generated response) — output tokens are often priced several times higher than input tokens, since generating text is more computationally expensive than reading it.
-
-### The Biggest Cost Levers
-
-1. **System prompt length**: if every single request includes a long, repeated system prompt, that cost multiplies across every request, every day — a large, often underestimated recurring cost.
-2. **Conversation history**: as a chat gets longer, each new turn re-sends the entire prior conversation as input tokens (unless prefix caching, from the memory hierarchy lesson, is used), so cost per turn grows as a conversation continues.
-3. **Output length**: verbose responses cost more, especially since output tokens are typically priced higher than input tokens.
-4. **Model choice**: larger, more capable models are typically priced higher per token — a real trade-off against quality, not just a cost slider.
-5. **Caching**: reusing a cached response or a cached prompt prefix avoids paying for the same computation repeatedly.
-
-## Build It
-
-A real cost model, computing monthly cost from measurable inputs:
-
-```python
-def estimate_monthly_cost(
-    daily_active_users,
-    requests_per_user_per_day,
-    system_prompt_tokens,
-    avg_user_message_tokens,
-    avg_conversation_history_tokens,
-    avg_output_tokens,
-    input_price_per_1k=0.003,
-    output_price_per_1k=0.015,
-):
-    input_tokens_per_request = system_prompt_tokens + avg_user_message_tokens + avg_conversation_history_tokens
-    output_tokens_per_request = avg_output_tokens
-
-    input_cost_per_request = (input_tokens_per_request / 1000) * input_price_per_1k
-    output_cost_per_request = (output_tokens_per_request / 1000) * output_price_per_1k
-    cost_per_request = input_cost_per_request + output_cost_per_request
-
-    requests_per_day = daily_active_users * requests_per_user_per_day
-    daily_cost = requests_per_day * cost_per_request
-    monthly_cost = daily_cost * 30
-
-    return {
-        "input_tokens_per_request": input_tokens_per_request,
-        "cost_per_request": round(cost_per_request, 5),
-        "requests_per_day": requests_per_day,
-        "daily_cost": round(daily_cost, 2),
-        "monthly_cost": round(monthly_cost, 2),
-    }
-
-scenario_a = estimate_monthly_cost(
-    daily_active_users=5000,
-    requests_per_user_per_day=3,
-    system_prompt_tokens=800,
-    avg_user_message_tokens=50,
-    avg_conversation_history_tokens=200,
-    avg_output_tokens=300,
-)
-
-scenario_b = estimate_monthly_cost(
-    daily_active_users=5000,
-    requests_per_user_per_day=3,
-    system_prompt_tokens=200,
-    avg_user_message_tokens=50,
-    avg_conversation_history_tokens=200,
-    avg_output_tokens=150,
-)
-
-print("Scenario A (long system prompt, verbose output):")
-for k, v in scenario_a.items():
-    print(f"  {k}: {v}")
-
-print("\nScenario B (trimmed system prompt, concise output):")
-for k, v in scenario_b.items():
-    print(f"  {k}: {v}")
-
-savings = scenario_a["monthly_cost"] - scenario_b["monthly_cost"]
-print(f"\nMonthly savings from trimming prompt/output: ${savings:.2f}")
+```archify
+src: diagrams/token-cost-model.html
+title: How tokens and price combine into daily and monthly cost
+aspect: 869/528
 ```
 
-Trimming the system prompt from 800 to 200 tokens and encouraging more concise output can produce a meaningfully lower monthly cost at scale — exactly the kind of concrete, model-free optimization a TPM can push for without touching the underlying model at all.
+## A Real-World Example
 
-## Use It
+A feature has 5,000 daily active users making 3 requests each (15,000 requests per day). Illustrative prices: $0.003 per 1,000 input tokens, $0.015 per 1,000 output tokens.
 
-Real cost conversations should always ground themselves in this multiplication:
+| | Scenario A: long prompt, verbose | Scenario B: trimmed, concise |
+| :--- | :--- | :--- |
+| System prompt | 800 tokens | 200 tokens |
+| User message + history | 50 + 200 tokens | 50 + 200 tokens |
+| Input tokens per request | 1,050 | 450 |
+| Output tokens per request | 300 | 150 |
+| Cost per request | $0.00765 | $0.0036 |
+| Daily cost | $114.75 | $54.00 |
+| Monthly cost | about $3,443 | $1,620 |
 
-- **"Why did our AI costs spike this month?"** → check for increases in daily active users, average conversation length, or a change in system prompt/output length — usually one of these explains it directly.
-- **"Should we use a cheaper model?"** → model price per token is one lever, but often smaller than prompt/output length optimization, which should be checked first.
-- **"What's our cost per user per month?"** → a standard SaaS-style metric that should be tracked continuously for any AI feature, not just estimated once before launch.
+Trimming the prompt and encouraging concise answers saves roughly $1,800 per month without touching the model. Typical cost conversations map to the same multiplication:
 
-## Exercises
+- **"Why did costs spike?"** Look for more users, longer conversations, or a changed prompt or output length.
+- **"Should we use a cheaper model?"** Often prompt and output length are a bigger lever; check those first.
+- **"What's our cost per user per month?"** A standard metric to track continuously, not estimate once.
 
-1. **Easy**: In the code above, which single change (system prompt length or output length) had the bigger cost impact between Scenario A and B? (Try isolating each change separately.)
-2. **Medium**: Estimate the monthly cost impact of average conversation history growing from 200 tokens to 2,000 tokens per request, holding everything else constant.
-3. **Hard**: Propose two concrete optimizations (not switching models) that would reduce this feature's cost by at least 30%, and justify each with the cost model above.
+## What a TPM Needs to Understand
 
-## TPM Perspective
+- Present AI cost as a calculation with visible inputs, not a single number. This exposes the biggest lever, often prompt length or output verbosity rather than model choice, and makes the team accountable to an auditable model.
+- Growth in history length is a hidden multiplier: if average history in Scenario A grows from 200 to 2,000 tokens, input per request becomes 2,850 tokens and the monthly bill rises from about $3,443 to about $5,870.
+- Track cost per user and per request in production, not only before launch.
 
-### Strategic Executive Summary
-AI feature cost should always be presented as a calculation with visible inputs (tokens per request, request volume, price per token), not a single estimated number. This lets a TPM immediately identify the biggest cost lever — often prompt length or output verbosity, not model choice — and hold the team accountable to a specific, auditable cost model rather than a vague monthly estimate.
-
-### Questions to Challenge Engineering
-1. *"Can you show me the actual token counts (system prompt, average conversation history, average output) behind this cost estimate, rather than just the final number?"*
-2. *"Given that output tokens are priced higher than input tokens, have we looked at reducing average output length as a cost lever, not just model choice?"*
-3. *"As conversations get longer over a session, how does per-turn cost grow, and are we using any caching to offset that (from the memory hierarchy lesson)?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Cost Lever | Effort to Change | Typical Cost Impact |
 | :--- | :--- | :--- |
@@ -139,6 +82,22 @@ AI feature cost should always be presented as a calculation with visible inputs 
 | **Reduce average output length (concise responses)** | Low-Medium | Significant, since output tokens are priced higher |
 | **Switch to a cheaper model** | Medium (requires quality validation) | Can be significant, but risks quality trade-offs |
 | **Add prefix/prompt caching** | Medium (engineering work) | Significant for repeated system prompts/shared prefixes |
+
+Dependencies: provider price changes, usage growth you do not control, and quality evaluation before any model downgrade. Failure scenarios: trimming a prompt so far that quality drops; unbounded conversation history; agent loops making many calls per user request; an estimate built on test traffic that does not reflect real usage.
+
+## Questions to Ask Engineers
+
+1. *"Can you show me the actual token counts (system prompt, average conversation history, average output) behind this cost estimate, rather than just the final number?"*
+2. *"Given that output tokens are priced higher than input tokens, have we looked at reducing average output length as a cost lever, not just model choice?"*
+3. *"As conversations get longer over a session, how does per-turn cost grow, and are we using any caching to offset that (from the memory hierarchy lesson)?"*
+
+## Scenario Exercise
+
+Your team proposes a support assistant for 10,000 daily users, with 4 requests per user per day, a 1,000-token system prompt, and 400-token average answers.
+
+1. **Easy**: Which quantities do you multiply to get daily cost, and which input here repeats on every request?
+2. **Medium**: Conversation history is expected to grow from 200 to 2,000 tokens on average. Explain how this changes cost and which lever might offset it.
+3. **Hard**: Propose two optimizations (not switching models) that aim to cut cost by 30 percent or more, justify each using the cost model, and state what quality check you would require before shipping them.
 
 ## Key Terms
 

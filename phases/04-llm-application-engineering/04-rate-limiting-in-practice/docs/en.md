@@ -3,24 +3,39 @@
 > Knowing what a rate limit is (Level 0) is different from knowing how to design a system that survives one.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** Function Calling and Tool Use
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
 - Move from understanding what RPM/TPM limits are (Level 0) to designing systems that handle them gracefully
-- Understand queueing, request prioritization, and graceful degradation as rate-limit strategies
-- Recognize the difference between a provider-side rate limit and a self-imposed application-level rate limit
+- Describe queueing, request prioritization, and graceful degradation as rate-limit strategies
+- Distinguish a provider-side rate limit from a self-imposed application-level rate limit
 - Formulate the right questions when reviewing how a feature behaves under sustained high load
 
-## The Problem
+## What It Is
 
-A feature works fine in testing with a handful of users, but during a product launch, hundreds of users trigger AI calls simultaneously, the provider's rate limit is hit, and every user sees a raw error message at the same time. The rate limit itself (Level 0) wasn't the real failure — the failure was not designing the application to degrade gracefully when it's hit.
+Handling rate limits well in production takes more than a single retry. It is a small set of standard, composable strategies working together: self-imposed throttling, queueing, prioritization, graceful degradation, and circuit breakers.
 
-## The Concept
+## Why It Matters
 
-Handling rate limits well in production requires more than a single retry — it requires a small set of standard, composable strategies working together.
+A feature works fine in testing with a handful of users. During a product launch, hundreds of users trigger AI calls at once, the provider's limit is hit, and every user sees a raw error at the same time. The rate limit itself was not the real failure. The failure was not designing the application to degrade gracefully when it is hit.
+
+## How It Works
+
+**Application-level rate limiting.** Rather than sending requests as fast as possible and reacting only when the provider returns a 429 ("too many requests"), the system imposes its own slightly lower limit. For example, with a provider limit of 1,000 requests per minute, the app might cap itself at 800. This turns an unpredictable failure into a predictable, controlled one and leaves margin for spikes.
+
+**Queueing and prioritization.** Requests wait in a queue and are processed at a controlled rate. With priorities, a paying customer's urgent request is served before a background batch job, so the most important work completes first when capacity is tight.
+
+**Graceful degradation.** When limits are still reached:
+
+- Serve a cached or simplified response instead of a fresh AI call.
+- Show a clear "high demand, please wait" message instead of a raw error.
+- Temporarily disable a lower-priority feature to preserve capacity for a higher-priority one.
+
+**Circuit breakers.** Temporarily stop all calls to a struggling provider for a short period, rather than hammering it with requests that will fail. Retries should use backoff (for example, waiting 1, 2, 4, then 8 seconds, with small random variation) so that all clients do not retry at the same moment.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -32,94 +47,54 @@ graph TD
     E -->|"Success"| G["Return Result"]
 ```
 
-### Application-Level Rate Limiting
-
-Rather than sending requests as fast as possible and reacting only when the provider returns a 429, well-designed systems impose their own, slightly lower internal limit — deliberately throttling themselves so they rarely (ideally never) hit the provider's hard limit in the first place. This turns an unpredictable failure mode into a predictable, controlled one.
-
-### Request Queueing and Prioritization
-
-Instead of processing every request the instant it arrives, requests can be placed in a queue and processed at a controlled rate. Combined with **prioritization** (e.g. a paying customer's request processed before a background batch job's request), this ensures the most important work gets done first when capacity is constrained.
-
-### Graceful Degradation
-
-When limits are genuinely reached despite the above, the system should degrade predictably rather than fail loudly for everyone:
-
-- Serve a cached or simplified response instead of a fresh AI call.
-- Show users a clear "high demand, please wait" message instead of a raw error.
-- Temporarily disable a lower-priority feature to preserve capacity for a higher-priority one.
-
-## Build It
-
-A simplified request queue with prioritization and self-imposed throttling, showing the mechanism (not a production-grade implementation):
-
-```python
-import time
-import heapq
-
-class PriorityRequestQueue:
-    def __init__(self, max_requests_per_second=2):
-        self.queue = []
-        self.counter = 0
-        self.max_rps = max_requests_per_second
-
-    def add_request(self, priority, request_id):
-        heapq.heappush(self.queue, (priority, self.counter, request_id))
-        self.counter += 1
-
-    def process_all(self):
-        processed = []
-        while self.queue:
-            priority, _, request_id = heapq.heappop(self.queue)
-            processed.append((priority, request_id))
-            time.sleep(1 / self.max_rps)
-        return processed
-
-queue = PriorityRequestQueue(max_requests_per_second=5)
-
-queue.add_request(priority=2, request_id="background_batch_job_1")
-queue.add_request(priority=0, request_id="paying_customer_urgent_request")
-queue.add_request(priority=1, request_id="free_tier_user_request")
-queue.add_request(priority=2, request_id="background_batch_job_2")
-queue.add_request(priority=0, request_id="paying_customer_urgent_request_2")
-
-print("Processing order (lower priority number = processed first):")
-for priority, request_id in queue.process_all():
-    print(f"  priority={priority}  {request_id}")
+```archify
+src: diagrams/rate-limiting-flow.html
+title: Rate limiting in practice: how a request flows to the provider
+aspect: 1130/404
 ```
 
-Even though requests arrived in a mixed order, the priority queue ensures paying-customer requests are processed before background batch jobs, and the `time.sleep` call self-throttles below any provider limit.
+## A Real-World Example
 
-## Use It
+A launch sends 3,000 requests in one minute to a provider limit of 1,000 per minute.
 
-Real production AI systems combine these techniques:
+| Design | What users experience |
+| :--- | :--- |
+| React only to 429s | About two thirds of users see raw errors; retries from everyone at once make it worse |
+| Self-throttle at 800 per minute plus queue | Requests wait in line; some users wait several minutes but none see errors |
+| Add priorities and degradation | Paying customers are served within seconds; free-tier users see "high demand" and a cached answer; the overnight batch job is paused |
 
-- **Self-imposed rate limits set below the provider's actual limit**, leaving safety margin for traffic spikes.
-- **Separate queues or priority tiers** for interactive (user-facing, latency-sensitive) vs. batch (background, latency-tolerant) requests.
-- **Circuit breakers**: temporarily stopping all calls to a struggling provider for a short period, rather than continuing to hammer it with requests that will fail anyway.
+In practice, teams also keep separate queues or tiers for interactive (latency-sensitive) and batch (latency-tolerant) traffic.
 
-## Exercises
+## What a TPM Needs to Understand
 
-1. **Easy**: In the code above, what would happen to the processing order if `background_batch_job_1` were given priority `0` instead of `2`?
-2. **Medium**: Explain why setting your application's self-imposed rate limit exactly equal to the provider's stated limit (rather than somewhat below it) is risky.
-3. **Hard**: Design (in plain English) a graceful degradation plan for a customer-facing AI chat feature that hits its rate limit during a traffic spike — what should different types of users see, and why?
+- Surviving rate limits is a design discipline, not a single retry mechanism. A launch plan should specify these mechanisms explicitly, not just cite the provider's RPM/TPM numbers.
+- The goal is turning "everyone gets an error during a spike" into "the most important requests still succeed and everyone else sees a clear message."
+- Limits apply per provider account, so multiple features or teams can starve each other. Capacity needs an owner.
+- Higher limits can often be negotiated with the provider, but with lead time; plan it before the launch.
 
-## TPM Perspective
+## Risks, Dependencies, and Trade-Offs
 
-### Strategic Executive Summary
-Surviving rate limits in production is a design discipline, not a single retry mechanism: self-imposed throttling, request queueing, prioritization, and graceful degradation together turn "everyone gets an error during a spike" into "the most important requests still succeed, and everyone else sees a clear, controlled message." A launch plan should specify these mechanisms explicitly, not just cite the provider's RPM/TPM numbers.
+| Strategy | Protects Against Spikes | User Experience Under Load | Implementation Complexity |
+| :--- | :--- | :--- | :--- |
+| **React only to 429s (no self-throttling)** | Poor, hits limits unpredictably | Raw errors during spikes | Low |
+| **Self-imposed throttling below provider limit** | Good | Smoother, more predictable delays | Medium |
+| **Priority queueing + graceful degradation** | Very good | Best, important requests succeed, others degrade clearly | Medium-High |
 
-### Questions to Challenge Engineering
+Setting the self-imposed limit exactly at the provider's limit is risky: there is no headroom for bursts, for measurement differences between your counter and the provider's, or for other services sharing the same account. Dependencies: the provider's published limits and tier, and a clear definition of which traffic is "priority". Failure scenarios: queues growing without bound and making responses stale; retry storms; a priority scheme that starves low-tier users entirely.
+
+## Questions to Ask Engineers
+
 1. *"Do we throttle ourselves below the provider's actual rate limit, or do we only react after hitting a 429?"*
 2. *"When we do hit capacity limits, which requests get prioritized, and what do lower-priority users/features see instead of a raw error?"*
 3. *"Do we have a circuit breaker or similar mechanism to stop hammering a struggling provider, rather than retrying indefinitely into a wall?"*
 
-### Trade-Off Matrix
+## Scenario Exercise
 
-| Strategy | Protects Against Spikes | User Experience Under Load | Implementation Complexity |
-| :--- | :--- | :--- | :--- |
-| **React only to 429s (no self-throttling)** | Poor — hits limits unpredictably | Raw errors during spikes | Low |
-| **Self-imposed throttling below provider limit** | Good | Smoother, more predictable delays | Medium |
-| **Priority queueing + graceful degradation** | Very good | Best — important requests succeed, others degrade clearly | Medium-High |
+Your company is launching an AI chat feature with a Monday announcement email to 50,000 customers. The provider limit is 1,000 requests per minute.
+
+1. **Easy**: If a background batch job and a paying customer's request arrive together, which should go first, and why?
+2. **Medium**: Explain why a self-imposed limit equal to the provider's stated limit is risky.
+3. **Hard**: Write a graceful degradation plan for the launch spike: what should paying users, free users, and background jobs each see, and what metrics would tell you to trigger the plan?
 
 ## Key Terms
 

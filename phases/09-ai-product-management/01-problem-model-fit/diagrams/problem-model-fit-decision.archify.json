@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Problem-Model Fit Decision Flow",
+    "output": "diagrams/problem-model-fit-decision.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "problem",
+      "type": "external",
+      "label": "Candidate Problem",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "q1",
+      "type": "backend",
+      "label": "Needs perfect, deterministic accuracy?",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "poor",
+      "type": "security",
+      "label": "Poor fit: use traditional logic instead",
+      "pos": [
+        480,
+        170
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "backend",
+      "label": "Requires understanding unstructured language/context?",
+      "pos": [
+        40,
+        360
+      ],
+      "size": [
+        400,
+        64
+      ]
+    },
+    {
+      "id": "poor2",
+      "type": "security",
+      "label": "Poor fit: simpler solution likely exists",
+      "pos": [
+        740,
+        360
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "good",
+      "type": "cloud",
+      "label": "Good fit: LLM-based approach worth exploring",
+      "pos": [
+        40,
+        520
+      ],
+      "size": [
+        340,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "problem-to-q1",
+      "from": "problem",
+      "to": "q1"
+    },
+    {
+      "id": "q1-to-poor",
+      "from": "q1",
+      "to": "poor",
+      "label": "Yes"
+    },
+    {
+      "id": "q1-to-q2",
+      "from": "q1",
+      "to": "q2",
+      "label": "No, some error tolerance is OK"
+    },
+    {
+      "id": "q2-to-poor2",
+      "from": "q2",
+      "to": "poor2",
+      "label": "No, structured/rule-based is sufficient"
+    },
+    {
+      "id": "q2-to-good",
+      "from": "q2",
+      "to": "good",
+      "label": "Yes"
+    }
+  ]
+}

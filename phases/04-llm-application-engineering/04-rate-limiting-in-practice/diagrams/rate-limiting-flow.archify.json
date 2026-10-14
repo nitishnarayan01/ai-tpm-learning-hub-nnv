@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Rate Limiting in Practice: Request Flow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/04-llm-application-engineering/04-rate-limiting-in-practice/diagrams/rate-limiting-flow.html"
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Request path"
+    },
+    {
+      "id": "fail",
+      "label": "Failure handling",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "g"
+  ],
+  "nodes": [
+    {
+      "id": "a",
+      "lane": "main",
+      "col": 0,
+      "type": "external",
+      "label": "Incoming Requests",
+      "width": 130
+    },
+    {
+      "id": "b",
+      "lane": "main",
+      "col": 1,
+      "type": "security",
+      "label": "Application-Level Rate Limiter",
+      "sublabel": "self-imposed, below provider's limit",
+      "width": 217
+    },
+    {
+      "id": "c",
+      "lane": "main",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Request Queue",
+      "sublabel": "smooths out bursts",
+      "width": 130
+    },
+    {
+      "id": "d",
+      "lane": "main",
+      "col": 3,
+      "type": "backend",
+      "label": "Priority Check",
+      "sublabel": "is this urgent or can it wait?",
+      "width": 157
+    },
+    {
+      "id": "e",
+      "lane": "main",
+      "col": 4,
+      "type": "cloud",
+      "label": "Call Provider API",
+      "sublabel": "with retry + backoff",
+      "width": 130
+    },
+    {
+      "id": "g",
+      "lane": "main",
+      "col": 5,
+      "type": "backend",
+      "label": "Return Result",
+      "width": 130
+    },
+    {
+      "id": "f",
+      "lane": "fail",
+      "col": 4,
+      "type": "security",
+      "label": "Backoff, requeue, or degrade",
+      "width": 204
+    }
+  ],
+  "edges": [
+    {
+      "id": "a-b",
+      "from": "a",
+      "to": "b"
+    },
+    {
+      "id": "b-c",
+      "from": "b",
+      "to": "c"
+    },
+    {
+      "id": "c-d",
+      "from": "c",
+      "to": "d"
+    },
+    {
+      "id": "d-e",
+      "from": "d",
+      "to": "e"
+    },
+    {
+      "id": "e-f",
+      "from": "e",
+      "to": "f",
+      "label": "429",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "e-g",
+      "from": "e",
+      "to": "g",
+      "label": "Success",
+      "variant": "emphasis"
+    }
+  ]
+}

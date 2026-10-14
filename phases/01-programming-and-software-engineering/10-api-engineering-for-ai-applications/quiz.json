@@ -14,11 +14,11 @@
     },
     {
       "stage": "check",
-      "question": "In the example code, why does the retry loop multiply `delay` by 2 after each failed attempt (`delay *= 2`)?",
+      "question": "In a well-designed AI integration, why does the wait between retries roughly double after each failed attempt?",
       "options": [
-        "To make the code run faster",
-        "This implements exponential backoff — increasing wait time between retries to avoid overwhelming an already-struggling API",
-        "It's a typo and has no real purpose",
+        "To make the system run faster",
+        "This is exponential backoff: increasing the wait between retries avoids overwhelming an already-struggling API",
+        "It is a mistake with no real purpose",
         "To count how many users are affected"
       ],
       "correct": 1,

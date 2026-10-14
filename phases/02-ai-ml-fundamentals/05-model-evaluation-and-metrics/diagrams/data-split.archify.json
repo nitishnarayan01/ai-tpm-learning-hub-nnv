@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Splitting Labeled Data: Train, Validation, Test",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/02-ai-ml-fundamentals/05-model-evaluation-and-metrics/diagrams/data-split.html"
+  },
+  "components": [
+    {
+      "id": "all",
+      "type": "database",
+      "label": "All Available Labeled Data",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        230,
+        64
+      ]
+    },
+    {
+      "id": "train",
+      "type": "backend",
+      "label": "Training Set (~70-80%)",
+      "sublabel": "Used to teach the model",
+      "pos": [
+        390,
+        40
+      ],
+      "size": [
+        320,
+        64
+      ]
+    },
+    {
+      "id": "val",
+      "type": "backend",
+      "label": "Validation Set (~10-15%)",
+      "sublabel": "Used to tune settings and catch overfitting",
+      "pos": [
+        390,
+        150
+      ],
+      "size": [
+        320,
+        64
+      ]
+    },
+    {
+      "id": "test",
+      "type": "backend",
+      "label": "Test Set (~10-15%)",
+      "sublabel": "Used only once, for a final, honest performance check",
+      "pos": [
+        390,
+        260
+      ],
+      "size": [
+        320,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "a1",
+      "from": "all",
+      "to": "train",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a2",
+      "from": "all",
+      "to": "val",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a3",
+      "from": "all",
+      "to": "test",
+      "variant": "emphasis"
+    }
+  ]
+}

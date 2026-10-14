@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "RAG Evaluation: Where Each Metric Applies",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/05-rag-and-vector-databases/05-rag-evaluation-frameworks/diagrams/rag-evaluation-points.html"
+  },
+  "lanes": [
+    {
+      "id": "pipe",
+      "label": "RAG pipeline"
+    },
+    {
+      "id": "eval",
+      "label": "Evaluation questions"
+    }
+  ],
+  "mainPath": [
+    "q",
+    "r",
+    "g",
+    "a"
+  ],
+  "nodes": [
+    {
+      "id": "q",
+      "lane": "pipe",
+      "col": 0,
+      "type": "external",
+      "label": "Query",
+      "width": 130
+    },
+    {
+      "id": "r",
+      "lane": "pipe",
+      "col": 1,
+      "type": "database",
+      "label": "Retrieval Stage",
+      "sublabel": "chunking, embeddings, search, reranking",
+      "width": 200
+    },
+    {
+      "id": "g",
+      "lane": "pipe",
+      "col": 2,
+      "type": "backend",
+      "label": "Generation Stage",
+      "sublabel": "LLM uses retrieved context to answer",
+      "width": 186
+    },
+    {
+      "id": "a",
+      "lane": "pipe",
+      "col": 3,
+      "type": "cloud",
+      "label": "Final Answer",
+      "width": 130
+    },
+    {
+      "id": "e1",
+      "lane": "eval",
+      "col": 1,
+      "type": "security",
+      "label": "Did we retrieve",
+      "sublabel": "the right content?",
+      "width": 130
+    },
+    {
+      "id": "e2",
+      "lane": "eval",
+      "col": 2,
+      "type": "security",
+      "label": "Did the answer stick to",
+      "sublabel": "the retrieved content?",
+      "width": 171
+    },
+    {
+      "id": "e3",
+      "lane": "eval",
+      "col": 3,
+      "type": "security",
+      "label": "Does the answer address",
+      "sublabel": "the actual question?",
+      "width": 171
+    }
+  ],
+  "edges": [
+    {
+      "id": "q-r",
+      "from": "q",
+      "to": "r"
+    },
+    {
+      "id": "r-g",
+      "from": "r",
+      "to": "g"
+    },
+    {
+      "id": "g-a",
+      "from": "g",
+      "to": "a"
+    },
+    {
+      "id": "r-e1",
+      "from": "r",
+      "to": "e1",
+      "label": "Evaluate: Context Relevance",
+      "variant": "dashed"
+    },
+    {
+      "id": "g-e2",
+      "from": "g",
+      "to": "e2",
+      "label": "Evaluate: Faithfulness",
+      "variant": "dashed"
+    },
+    {
+      "id": "a-e3",
+      "from": "a",
+      "to": "e3",
+      "label": "Evaluate: Answer Relevance",
+      "variant": "dashed"
+    }
+  ]
+}

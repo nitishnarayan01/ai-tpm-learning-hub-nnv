@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Fine-Tuning a Pre-trained Base Model",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/03-generative-ai-and-llms/04-fine-tuning-and-alignment/diagrams/fine-tuning-flow.html"
+  },
+  "components": [
+    {
+      "id": "base",
+      "type": "cloud",
+      "label": "Pre-trained Base Model",
+      "sublabel": "(general language ability)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "ft",
+      "type": "backend",
+      "label": "Fine-tuning",
+      "sublabel": "on a smaller, targeted dataset",
+      "pos": [
+        360,
+        40
+      ],
+      "size": [
+        250,
+        64
+      ]
+    },
+    {
+      "id": "res",
+      "type": "database",
+      "label": "Adapted Model:",
+      "sublabel": "Follows instructions better, matches a specific tone/format, or specializes in a narrow task",
+      "pos": [
+        235,
+        200
+      ],
+      "size": [
+        500,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "f1",
+      "from": "base",
+      "to": "ft",
+      "variant": "emphasis"
+    },
+    {
+      "id": "f2",
+      "from": "ft",
+      "to": "res",
+      "variant": "emphasis"
+    }
+  ]
+}

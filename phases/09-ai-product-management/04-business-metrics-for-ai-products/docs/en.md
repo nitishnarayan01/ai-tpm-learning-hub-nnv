@@ -3,24 +3,39 @@
 > "Users love it" and "it's profitable" are two different questions — an AI feature needs to answer both, separately.
 
 **Type:** Learn
-**Languages:** Concept
 **Prerequisites:** AI UX Patterns
-**Time:** ~25 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand why AI features need cost-aware business metrics beyond typical product engagement metrics
-- Understand key metrics: cost per interaction, margin per user, quality-adjusted engagement, and deflection/containment rate
+- Explain why AI features need cost-aware business metrics beyond typical product engagement metrics
+- Describe key metrics: cost per interaction, margin per user, quality-adjusted engagement, and deflection/containment rate
 - Recognize why engagement alone can hide an unprofitable or low-quality feature
 - Formulate the right questions when reviewing an AI feature's reported business impact
 
-## The Problem
+## What It Is
 
-A team reports their new AI chatbot feature has "50,000 daily interactions and rising" as evidence of success. What's missing: the cost per interaction (Level 4's token economics) might make this feature deeply unprofitable at scale, and a rising interaction count could just as easily mean "users keep having to re-ask because the first answer was wrong" as it could mean genuine value delivered — engagement alone doesn't distinguish between these very different stories.
+AI product business metrics combine traditional product metrics with AI-specific cost and quality dimensions, since neither alone tells the full story.
 
-## The Concept
+- **Cost per interaction and margin per user**: building on token economics (Level 4), every AI interaction has a real, calculable cost. Viability depends on that cost relative to the value or revenue generated. "Growing usage" without this context can mean growing losses.
+- **Quality-adjusted engagement**: raw engagement (messages, sessions) cannot distinguish "users get value quickly" from "users keep re-asking because answers are unsatisfying." Pair it with quality signals from Level 8's evals (faithfulness, relevance, thumbs-up rate).
+- **Deflection (containment) rate**: for features meant to reduce human workload, such as a support chatbot, the percentage of interactions fully resolved by the AI without a human. It is often the single most important business metric, tied directly to cost savings.
 
-AI product business metrics need to combine traditional product metrics with AI-specific cost and quality dimensions, since neither alone tells the full story.
+## Why It Matters
+
+A team reports its new AI chatbot has "50,000 daily interactions and rising" as proof of success. What is missing: cost per interaction (Level 4) may make the feature deeply unprofitable at scale, and rising interactions could just as easily mean users keep re-asking because the first answer was wrong. Engagement alone cannot tell these stories apart.
+
+## How It Works
+
+1. Measure daily interactions (usage).
+2. Multiply by cost per interaction to get daily cost.
+3. Multiply by value or savings per interaction to get daily value.
+4. Subtract to get daily margin, and flag unprofitable features.
+5. Check average quality against a health threshold (for example, 0.75).
+6. For workload-reduction features, check deflection against a target (for example, 60%).
+7. Read all of them together: a decision needs cost, quality, and deflection, not engagement alone.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -30,97 +45,57 @@ graph TD
     Combined --> Decision["Is this feature actually<br/>successful and sustainable?"]
 ```
 
-### Cost Per Interaction and Margin Per User
-
-Directly building on token economics (Level 4): every AI interaction has a real, calculable cost. A feature's business viability requires knowing this cost relative to the value or revenue it generates — "growing usage" without this context can mean "growing losses," not growing success.
-
-### Quality-Adjusted Engagement
-
-Raw engagement (messages sent, sessions started) doesn't distinguish "users are getting value quickly" from "users keep re-asking because answers are unsatisfying." Combining engagement metrics with quality signals (from Level 8's evals — faithfulness, answer relevance, user feedback/thumbs-up rate) gives a much more honest picture of whether engagement reflects genuine value.
-
-### Deflection / Containment Rate
-
-For AI features designed to reduce human workload (e.g. a support chatbot meant to resolve issues without escalating to a human agent), the **deflection rate** (or containment rate) — the percentage of interactions fully resolved by the AI without human intervention — is often the single most important business metric, directly tied to cost savings and the feature's core value proposition.
-
-### Why Engagement Alone Can Mislead
-
-A high engagement number is genuinely ambiguous without additional context: it could reflect strong value delivery, or it could reflect a broken experience generating repeated, frustrated re-attempts. Business metrics for AI products need enough dimensions (cost, quality, deflection) to distinguish between these very different underlying realities.
-
-## Build It
-
-A simplified business metrics dashboard combining engagement, cost, and quality into an honest overall assessment:
-
-```python
-def evaluate_ai_feature_business_health(
-    daily_interactions,
-    cost_per_interaction,
-    revenue_or_savings_per_interaction,
-    average_quality_score,
-    deflection_rate=None,
-):
-    daily_cost = daily_interactions * cost_per_interaction
-    daily_value = daily_interactions * revenue_or_savings_per_interaction
-    daily_margin = daily_value - daily_cost
-
-    print(f"Daily interactions: {daily_interactions:,}")
-    print(f"Daily cost: ${daily_cost:,.2f}")
-    print(f"Daily value generated: ${daily_value:,.2f}")
-    print(f"Daily margin: ${daily_margin:,.2f} ({'profitable' if daily_margin > 0 else 'UNPROFITABLE'})")
-    print(f"Average quality score: {average_quality_score:.2f} "
-          f"({'healthy' if average_quality_score >= 0.75 else 'CONCERNING'})")
-
-    if deflection_rate is not None:
-        print(f"Deflection rate: {deflection_rate:.0%} "
-              f"({'strong' if deflection_rate >= 0.6 else 'needs improvement'})")
-
-    print()
-
-print("Scenario: 'Success' as reported (engagement only)")
-print("  50,000 daily interactions and rising -- looks great on its own.\n")
-
-print("Full business health picture:")
-evaluate_ai_feature_business_health(
-    daily_interactions=50_000,
-    cost_per_interaction=0.08,
-    revenue_or_savings_per_interaction=0.03,
-    average_quality_score=0.58,
-    deflection_rate=0.35,
-)
+```archify
+src: diagrams/combined-ai-business-view.html
+title: Three metric families combine into one business view
+aspect: 1060/368
 ```
 
-The full picture reveals what the engagement-only report hid: this feature is losing money on every interaction, quality is below a healthy threshold, and deflection rate is weak — the "growing usage" story looks very different once cost, quality, and deflection are included.
+## A Real-World Example
 
-## Use It
+The chatbot reported as a success on engagement alone, viewed in full:
 
-Mature AI product organizations report on all these dimensions together, not engagement alone:
+| Metric | Value | Reading |
+| :--- | :--- | :--- |
+| Daily interactions | 50,000 | Looks great on its own |
+| Cost per interaction | $0.08 | Daily cost $4,000 |
+| Value or savings per interaction | $0.03 | Daily value $1,500 |
+| Daily margin | -$2,500 | Unprofitable, losing $0.05 on every interaction (about $75,000 per month) |
+| Average quality score | 0.58 | Below the 0.75 health threshold |
+| Deflection rate | 35% | Below the 60% target, so most chats still reach a human |
 
-- **Quarterly business reviews for AI features** typically report cost per interaction and margin alongside usage growth, not usage growth in isolation.
-- **Support/service AI features** track deflection rate as a primary success metric, since it directly ties to the feature's core cost-saving value proposition.
-- **Quality-adjusted engagement dashboards**: combining usage trends with quality scores (Level 8) side-by-side, so a reviewer can immediately see whether rising usage correlates with rising or falling quality.
+The "growing usage" story looks very different once cost, quality, and deflection are included. Mature organizations report all of these together in quarterly reviews, track deflection as the primary metric for support AI, and put usage and quality trends side by side to see whether rising usage correlates with rising or falling quality.
 
-## Exercises
+## What a TPM Needs to Understand
 
-1. **Easy**: In the code example, is the AI feature profitable or unprofitable per interaction, and by how much?
-2. **Medium**: Explain in plain English why "50,000 daily interactions and rising" alone doesn't tell you whether an AI feature is succeeding.
-3. **Hard**: Propose a specific combination of metrics (at least three) you'd require in a quarterly business review for a customer support AI chatbot, and justify why each is necessary.
+- Engagement alone is insufficient and potentially misleading. Insist on cost per interaction, quality-adjusted engagement, and deflection where applicable.
+- Together these reveal whether growing usage reflects growing value or a growing, expensive problem.
+- Unit economics can change with scale and model choice: a cheaper model may cut cost but lower quality and deflection, so metrics must be read as a set.
+- Agree on definitions up front (what counts as a "resolved" chat, how value per interaction is estimated), or numbers will be disputed later.
 
-## TPM Perspective
+## Risks, Dependencies, and Trade-Offs
 
-### Strategic Executive Summary
-Engagement metrics alone are insufficient — and potentially misleading — for evaluating an AI feature's actual business success. A TPM should insist on cost per interaction, quality-adjusted engagement, and (where applicable) deflection rate as standard reporting alongside usage, since together they reveal whether growing usage reflects growing value or a growing, expensive problem.
+| Metric Combination | Reveals Cost Sustainability | Reveals Quality Issues | Reveals True Value Delivered |
+| :--- | :--- | :--- | :--- |
+| **Engagement only** | No | No | Ambiguous: could mean value or frustration |
+| **Engagement + cost per interaction** | Yes | No | Partial |
+| **Engagement + cost + quality + deflection rate** | Yes | Yes | Yes: full, honest picture |
 
-### Questions to Challenge Engineering
+Failure scenarios: deflection is inflated because users give up rather than being helped; value per interaction is an optimistic guess that makes the margin look positive; cost per interaction rises as prompts and context grow; a cost-cutting model swap lowers quality unnoticed. Dependencies: token and cost tracking (LLMOps), quality evals (Level 8), support tooling that records escalations, and finance input on value estimates.
+
+## Questions to Ask Engineers
+
 1. *"What is the actual cost per interaction for this feature, and is it profitable or subsidized relative to the value or savings it generates?"*
 2. *"Is rising engagement correlated with rising or falling quality scores — could this growth reflect users re-asking due to unsatisfying answers rather than genuine value?"*
 3. *"For a feature meant to reduce human workload, what is our deflection/containment rate, and is it improving or declining over time?"*
 
-### Trade-Off Matrix
+## Scenario Exercise
 
-| Metric Combination | Reveals Cost Sustainability | Reveals Quality Issues | Reveals True Value Delivered |
-| :--- | :--- | :--- | :--- |
-| **Engagement only** | No | No | Ambiguous — could mean value or frustration |
-| **Engagement + cost per interaction** | Yes | No | Partial |
-| **Engagement + cost + quality + deflection rate** | Yes | Yes | Yes — full, honest picture |
+In a quarterly review, the chatbot team presents a single chart of rising daily interactions and asks for a larger budget.
+
+1. **Easy**: Using the table above, is the feature profitable or unprofitable per interaction, and by how much?
+2. **Medium**: Explain in plain English why "50,000 daily interactions and rising" alone does not tell you whether the feature is succeeding.
+3. **Hard**: Propose a combination of at least three metrics you would require in the quarterly review for a customer support chatbot, justify why each is necessary, and say what result would make you approve or reject the budget increase.
 
 ## Key Terms
 

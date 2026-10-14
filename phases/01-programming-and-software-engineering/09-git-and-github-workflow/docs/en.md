@@ -3,24 +3,52 @@
 > "Merge conflict" sounds scary until you know it just means two people edited the same lines and someone has to pick.
 
 **Type:** Learn
-**Languages:** Concept, Git
 **Prerequisites:** Software Engineering Fundamentals
-**Time:** ~25 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand what version control is and why every serious codebase relies on it
-- Know the core Git vocabulary: commit, branch, merge, pull request
-- Understand what a merge conflict is and why it happens
+- Explain what version control is and why every serious codebase relies on it
+- Use the core Git vocabulary correctly: commit, branch, merge, pull request
+- Explain what a merge conflict is and why it happens
 - Formulate the right questions when engineering discusses branching strategy or release timing
 
-## The Problem
+## What It Is
 
-Two engineers both edit the same file to fix related bugs. When they try to combine their work, they hit a "merge conflict" and the release is delayed by half a day. Without knowing what Git is doing, this looks like a process failure — but it's actually Git correctly refusing to silently guess which change should win when both touched the same lines.
+**Git** is a version control system. It tracks every change ever made to a codebase, who made it, and when, so teams can collaborate on the same code without overwriting each other's work and anyone can rewind to a previous state. Git works entirely on a developer's own machine; **GitHub** (or GitLab, Bitbucket) is a hosted service built around Git that adds collaboration features: pull requests, a code review interface, issue tracking, and CI/CD integration.
 
-## The Concept
+Core vocabulary:
 
-**Git** is a version control system: it tracks every change ever made to a codebase, who made it, and when — letting teams collaborate on the same code without overwriting each other's work, and letting anyone rewind to any previous state.
+- **Commit**: a saved snapshot of changes, with a message describing what changed and why.
+- **Branch**: an isolated copy of the codebase where changes can be made without affecting the stable version until ready.
+- **Merge**: combining changes from one branch into another, usually a feature branch back into `main`.
+- **Pull Request (PR)**: a request to merge one branch into another, which triggers code review and CI checks before approval.
+- **Merge Conflict**: two branches changed the exact same lines differently. Git cannot decide which is correct, so a human must choose.
+
+## Why It Matters
+
+Two engineers both edit the same file to fix related bugs. When they try to combine their work they hit a "merge conflict" and the release slips half a day. Without knowing what Git is doing, this looks like a process failure. It is actually Git correctly refusing to silently guess which change should win when both touched the same lines.
+
+## How It Works
+
+A typical day-to-day flow:
+
+1. An engineer creates a new branch from `main` for one change, such as "add retry logic."
+2. They make changes and save them as commits with descriptive messages.
+3. They upload the branch to GitHub so others can see it.
+4. They open a pull request into `main`. Reviewers comment, CI runs the tests.
+5. Once approved and green, the branch is merged and `main` now contains the change.
+6. Everyone else pulls the latest `main` to stay current.
+
+If another engineer changed the same lines on a different branch and merged first, the second merge reports a conflict in that file. A human opens the file, decides which version (or combination) is correct, saves that resolution as a new commit, and the merge proceeds.
+
+Teams standardize this to stay coordinated at scale:
+
+- `main` is always kept deployable and stable.
+- New work happens on short-lived feature branches, never directly on `main`.
+- Pull requests are the checkpoint where review, CI, and team visibility happen before code reaches production.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -32,74 +60,25 @@ graph TD
     PR2 --> Main
 ```
 
-### Core Vocabulary
-
-- **Commit**: a saved snapshot of changes, with a message describing what changed and why.
-- **Branch**: an isolated copy of the codebase where changes can be made without affecting the main, stable version until they're ready.
-- **Merge**: combining changes from one branch into another (usually a feature branch back into `main`).
-- **Pull Request (PR)**: a request to merge one branch into another, which triggers code review and CI checks before it's approved.
-- **Merge Conflict**: occurs when two branches change the exact same lines of a file differently — Git can't automatically decide which change is correct, so a human must choose.
-
-### GitHub vs. Git
-
-**Git** is the underlying version control tool (works entirely on your own machine, no internet required). **GitHub** (or GitLab, Bitbucket) is a hosted service built around Git that adds collaboration features: pull requests, code review UI, issue tracking, and CI/CD integration.
-
-## Build It
-
-A typical day-to-day Git workflow, shown as commands with plain-English explanations:
-
-```bash
-git checkout -b feature/retry-logic
-# Creates and switches to a new, isolated branch for this change.
-
-git add retry_helper.py
-git commit -m "Add exponential backoff retry logic for API calls"
-# Saves a snapshot of the change with a descriptive message.
-
-git push origin feature/retry-logic
-# Uploads this branch to GitHub so others can see and review it.
-
-# On GitHub: open a Pull Request from feature/retry-logic into main.
-# A reviewer approves it, CI passes, and it gets merged.
-
-git checkout main
-git pull origin main
-# Switches back to main and downloads the latest merged changes.
+```archify
+src: diagrams/branch-pr-flow.html
+title: Feature branches and pull requests flowing back into main
+aspect: 940/468
 ```
 
-If another engineer had also changed `retry_helper.py` on a different branch and merged first, merging the second branch might show:
+## A Real-World Example
 
-```
-CONFLICT (content): Merge conflict in retry_helper.py
-```
+Two teams work on an AI assistant for 3 weeks on long-lived branches: one rewrites the prompt templates, the other changes how pricing is displayed, and both touch the same configuration file. When the release branch is assembled, 41 files conflict, and it takes two engineers a full day to reconcile them. A third team that merged small branches every 2 days over the same period hit only 2 trivial conflicts, each solved in minutes. Conflicts are not failures of people; they are a measure of how long work stayed apart and how many people touched the same places.
 
-This means Git found overlapping changes it can't automatically reconcile — a human needs to open the file, decide which version (or combination) is correct, and commit the resolution.
+## What a TPM Needs to Understand
 
-## Use It
+- "Merge conflict" and "branching strategy" are not vague blockers; they are precise parts of how teams coordinate concurrent work safely.
+- A release delayed by one merge conflict is usually a quick, mechanical fix, not a sign of a broken process, unless conflicts happen constantly, which points to poor branch hygiene or many engineers touching the same code without coordination.
+- Pull requests are where quality gates live; code that bypasses them bypasses review and CI.
+- Git history is an audit trail: you can find who changed what and when, and revert a bad change.
+- Ready to ship versus still in review is visible in pull requests; use that instead of status meetings.
 
-Real engineering teams standardize this workflow to stay coordinated at scale:
-
-- `main` (or `master`) is always kept in a deployable, stable state.
-- All new work happens on short-lived feature branches, not directly on `main`.
-- Pull requests are the checkpoint where code review, CI, and team visibility all happen before code reaches production.
-
-## Exercises
-
-1. **Easy**: In plain English, explain the difference between a "commit" and a "branch."
-2. **Medium**: Explain why teams generally avoid letting multiple engineers work directly on `main` instead of using feature branches.
-3. **Hard**: Two engineers both modify the same function in the same file on separate branches. Describe, step by step, what happens when the second person tries to merge, and what they need to do to resolve it.
-
-## TPM Perspective
-
-### Strategic Executive Summary
-"Merge conflict" and "branching strategy" are not vague blockers — they are precise, well-understood parts of how teams coordinate concurrent work safely. A release delayed by a merge conflict is usually a quick, mechanical fix (a human picking the right combination of changes), not a sign of a broken process — unless conflicts are happening constantly, which can indicate poor branch hygiene or too many engineers touching the same code without coordination.
-
-### Questions to Challenge Engineering
-1. *"Is this delay a one-off merge conflict (quick to resolve) or a sign of a deeper coordination problem (multiple teams constantly colliding on the same files)?"*
-2. *"Does every change go through a pull request with review and CI, or can code reach `main` without those checks?"*
-3. *"What's our branching strategy for coordinating a release across multiple in-progress features — do we have a clear picture of what's ready to ship vs. still in review?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Practice | Coordination Overhead | Risk of Breaking `main` |
 | :--- | :--- | :--- |
@@ -107,6 +86,22 @@ Real engineering teams standardize this workflow to stay coordinated at scale:
 | **Feature branches + Pull Requests** | Moderate — requires review cycles | Low — changes are vetted before merging |
 | **Long-lived feature branches (weeks/months)** | High — merge conflicts grow with time apart | Medium — large, risky merges when finally combined |
 | **Short-lived feature branches (days)** | Low-Moderate | Low — small, easy-to-review, easy-to-merge changes |
+
+Dependencies and failure scenarios: a hosting outage on GitHub blocks merges and deployments; a wrongly resolved conflict can silently drop someone's change; large pull requests get shallow reviews; secrets accidentally committed stay in history and must be rotated.
+
+## Questions to Ask Engineers
+
+1. *"Is this delay a one-off merge conflict (quick to resolve) or a sign of a deeper coordination problem (multiple teams constantly colliding on the same files)?"*
+2. *"Does every change go through a pull request with review and CI, or can code reach `main` without those checks?"*
+3. *"What's our branching strategy for coordinating a release across multiple in-progress features? Do we have a clear picture of what's ready to ship versus still in review?"*
+
+## Scenario Exercise
+
+Your release is blocked: two feature branches, one for new pricing and one for a prompt update, both changed the same configuration file.
+
+1. **Easy**: In plain English, what is the difference between a commit and a branch?
+2. **Medium**: Why do teams avoid letting many engineers work directly on `main`, and what does a pull request add?
+3. **Hard**: Conflicts have blocked three of the last five releases. Diagnose likely causes, propose two process changes (for example shorter branch lifetimes, clearer file ownership), and say how you would measure improvement.
 
 ## Key Terms
 

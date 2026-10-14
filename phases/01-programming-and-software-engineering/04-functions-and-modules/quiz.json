@@ -14,7 +14,7 @@
     },
     {
       "stage": "check",
-      "question": "When a Python script has a line like `import torch` or `from openai import OpenAI`, what is happening?",
+      "question": "When engineers say a project \"imports\" a library such as PyTorch or an LLM provider SDK, what is happening?",
       "options": [
         "The script is creating a new file called torch",
         "The script is pulling in an existing library/module's already-written functionality to reuse it",

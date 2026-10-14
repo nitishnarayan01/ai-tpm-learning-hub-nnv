@@ -1,0 +1,13 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"The AI Dev Environment Dependency Stack","locale":"en","quality_profile":"showcase","output":"diagrams/ai-dev-stack.html"},
+"components":[
+{"id":"os","type":"backend","label":"Operating System","pos":[40,60],"size":[220,64]},
+{"id":"driver","type":"backend","label":"GPU Driver","sublabel":"(NVIDIA/AMD)","pos":[330,60],"size":[220,64]},
+{"id":"cuda","type":"backend","label":"CUDA / ROCm Toolkit Version","pos":[620,60],"size":[250,64]},
+{"id":"fw","type":"cloud","label":"Deep Learning Framework","sublabel":"(PyTorch, JAX, TensorFlow)","pos":[620,230],"size":[250,64]},
+{"id":"libs","type":"cloud","label":"Model/Application Libraries","sublabel":"(transformers, vLLM, LangChain, etc.)","pos":[310,230],"size":[270,64]},
+{"id":"app","type":"external","label":"Your Application Code","pos":[40,230],"size":[220,64]}],
+"boundaries":[],
+"connections":[
+{"id":"os-driver","from":"os","to":"driver"},{"id":"driver-cuda","from":"driver","to":"cuda"},{"id":"cuda-fw","from":"cuda","to":"fw"},
+{"id":"fw-libs","from":"fw","to":"libs"},{"id":"libs-app","from":"libs","to":"app"}]}

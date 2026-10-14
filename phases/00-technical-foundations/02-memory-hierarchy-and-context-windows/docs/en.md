@@ -3,26 +3,45 @@
 > Every "just increase the context window" request is a request to move more data through a narrower pipe — know the pipe before you approve the ask.
 
 **Type:** Learn
-**Languages:** Python, Concept
 **Prerequisites:** How Computers and GPUs Work
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Map the full memory hierarchy (registers → cache → RAM → VRAM → disk → network storage) and know the latency/cost trade-off at each tier
-- Understand why the KV cache — not model weights — is usually what runs out of memory first during long conversations
+- Map the full memory hierarchy (registers, cache, RAM, VRAM, disk, network storage) and know the latency/cost trade-off at each tier
+- Explain why the KV cache, not model weights, is usually what runs out of memory first during long conversations
 - Explain why "just double the context window" is a capacity-planning decision, not a config flag
 - Formulate the right follow-up questions when engineering proposes a context-window increase or a new caching layer
 
-## The Problem
+## What It Is
 
-A product manager asks engineering to extend a chatbot's context window from 8K to 128K tokens so it can "remember the whole conversation." Engineering comes back with a number: it will cost roughly 5x more per request and needs bigger GPU instances.
+Every computer, from a laptop to an H100 cluster, moves data through a **memory hierarchy**: tiers that trade capacity for speed. The closer memory is to the processor, the faster and smaller it is. GPUs keep model weights and active computations in VRAM because it is the only tier fast enough to feed thousands of parallel cores.
 
-Without understanding *why* a longer context costs more compute — not just more storage — a TPM cannot tell whether that 5x is a fair estimate, an overcautious buffer, or a sign the team is solving the problem the expensive way (larger context) instead of the cheap way (retrieval, summarization, or caching).
+The **context window** is the maximum number of tokens (input plus output) a model can attend to in one request. The memory that holds the model's working view of that text is called the **KV cache**.
 
-## The Concept
+## Why It Matters
 
-Every computer — from a laptop to an H100 cluster — moves data through a hierarchy of memory tiers. Each tier trades capacity for speed:
+A product manager asks engineering to extend a chatbot's context window from 8K to 128K tokens so it can "remember the whole conversation." Engineering comes back saying it will cost roughly 5x more per request and needs bigger GPU instances.
+
+Without understanding why a longer context costs more compute, not just more storage, a TPM cannot tell whether that 5x is a fair estimate, an overcautious buffer, or a sign the team is solving the problem the expensive way (larger context) instead of the cheap way (retrieval, summarization, or caching).
+
+## How It Works
+
+For every token already processed, the model stores two vectors (a Key and a Value) at every attention layer. Together these are the **KV cache**, and it sits in VRAM next to the model weights.
+
+- **Model weights**: fixed size, loaded once.
+- **KV cache**: grows linearly with context length and with batch size (the number of concurrent conversations).
+
+So context size is a multiplier on memory pressure, not a one-time cost. Doubling context doubles the KV cache for every concurrent conversation.
+
+Production systems avoid paying the full cost on every request with several techniques:
+
+1. **Prompt/prefix caching**: reuse the cached work for a shared system prompt across requests instead of recomputing it.
+2. **Paged attention** (for example in vLLM or TensorRT-LLM): allocate the KV cache in fixed-size blocks like operating-system memory pages, avoiding fragmentation and allowing more concurrency per GPU.
+3. **Sliding window / summarization**: summarize or drop older turns so the cache stops growing regardless of conversation length.
+4. **Quantized KV cache**: store keys and values at 8-bit instead of 16-bit, roughly halving memory at a small quality cost.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -33,77 +52,33 @@ graph TD
     D --> N["Network Storage / Object Store<br/>~PBs · 10s-100s of milliseconds"]
 ```
 
-The rule is always the same: **the closer memory is to the processor, the faster and smaller it is.** GPUs keep model weights and active computations in VRAM because it's the only tier fast enough to feed thousands of parallel cores without starving them.
-
-### Where the Context Window Lives
-
-When an LLM processes a conversation, it doesn't just store the text — for every token it has already generated, it caches two vectors (Key and Value) per attention layer, called the **KV cache**. This cache lives in VRAM alongside the model weights.
-
-- Model weights: fixed size, loaded once
-- KV cache: **grows linearly with context length and batch size (concurrent users)**
-
-This is why context window size is a multiplier on memory pressure, not a one-time cost. Doubling context length doubles the KV cache for every single concurrent conversation.
-
-## Build It
-
-A simplified estimate of KV cache memory shows why long-context, high-concurrency systems get expensive fast:
-
-```python
-def kv_cache_size_gb(
-    num_layers,
-    num_heads,
-    head_dim,
-    context_length,
-    batch_size,
-    bytes_per_value=2,  # FP16/BF16
-):
-    # 2x for Key and Value tensors
-    per_token_per_layer = 2 * num_heads * head_dim * bytes_per_value
-    per_token_all_layers = per_token_per_layer * num_layers
-    total_bytes = per_token_all_layers * context_length * batch_size
-    return total_bytes / (1024 ** 3)
-
-configs = [
-    ("8K context, 1 user", 8_000, 1),
-    ("8K context, 32 concurrent users", 8_000, 32),
-    ("128K context, 1 user", 128_000, 1),
-    ("128K context, 32 concurrent users", 128_000, 32),
-]
-
-for label, context_length, batch_size in configs:
-    size_gb = kv_cache_size_gb(
-        num_layers=80,
-        num_heads=64,
-        head_dim=128,
-        context_length=context_length,
-        batch_size=batch_size,
-    )
-    print(f"{label:38s} -> {size_gb:8.1f} GB of KV cache")
+```archify
+src: diagrams/memory-hierarchy.html
+title: Memory hierarchy from registers to network storage
+aspect: 900/362
 ```
 
-Running this for a 70B-class model shows the 128K/32-user case can require several hundred GB of VRAM for KV cache alone — often more than the model weights themselves.
+## A Real-World Example
 
-## Use It
+Take a 70B-class model with 80 layers. Under a simplified estimate (full multi-head attention, 16-bit values), each token costs roughly 2.5 MB of KV cache.
 
-Production systems avoid paying the full KV cache cost on every request through several strategies:
+| Scenario | Approx. KV cache |
+| :--- | :--- |
+| 8K context, 1 user | ~20 GB |
+| 8K context, 32 concurrent users | ~650 GB |
+| 128K context, 1 user | ~320 GB |
+| 128K context, 32 concurrent users | ~10 TB |
 
-1. **Prompt/prefix caching**: reusing the KV cache for a shared system prompt across requests instead of recomputing it (used by most major LLM APIs).
-2. **Paged attention (vLLM, TensorRT-LLM)**: allocating KV cache in fixed-size blocks like OS virtual memory pages, avoiding fragmentation and enabling higher concurrency per GPU.
-3. **Sliding window / summarization**: instead of keeping every token, older turns are summarized or dropped, capping KV cache growth regardless of conversation length.
-4. **Quantized KV cache**: storing Key/Value tensors in INT8 instead of FP16, roughly halving memory at a small quality cost.
+The larger cases need far more memory than the model weights (about 140 GB). Real systems use techniques that shrink these numbers several-fold, but the lesson holds: concurrency times context length is the number that sizes your cluster. The cheaper alternative is often retrieval (fetch only the relevant pages) plus a cached system prompt.
 
-## TPM Perspective
+## What a TPM Needs to Understand
 
-### Strategic Executive Summary
-A context-window increase is a memory capacity-planning decision that scales with *both* conversation length and concurrent users. A 16x context increase can mean a 16x (or worse, with batching) increase in the most expensive memory tier your infrastructure has. The fix is not always "buy more VRAM" — it's often "cache smarter" or "retrieve instead of remember everything."
+- A context-window increase is a memory capacity-planning decision that scales with both conversation length and concurrent users. A 16x context increase can mean a 16x or worse increase in the most expensive memory tier you own.
+- The fix is not always "buy more VRAM"; it is often "cache smarter" or "retrieve instead of remember everything."
+- Always ask whether cost estimates were modeled at expected concurrency, not single-user.
+- A bigger window does not guarantee better answers; quality can degrade on very long inputs.
 
-### Questions to Challenge Engineering
-1. *"Is this cost increase driven by the KV cache, model weights, or both — and did we model it at our expected concurrency, not just single-user?"*
-2. *"Have we evaluated prefix caching or paged attention (e.g. vLLM) before assuming we need bigger instances?"*
-3. *"Could retrieval-augmented generation (RAG) or conversation summarization solve the 'remember everything' requirement more cheaply than raw context expansion?"*
-4. *"What is our KV cache quantization strategy, and what quality regression have we measured from it?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Strategy | VRAM Savings | Complexity to Implement | Risk |
 | :--- | :--- | :--- | :--- |
@@ -111,6 +86,23 @@ A context-window increase is a memory capacity-planning decision that scales wit
 | **Prefix/prompt caching** | Moderate–High for shared prompts | Low–Medium | Minimal, well-supported by major providers |
 | **Paged attention** | High, especially at scale | Medium (usually framework-provided) | Requires compatible serving stack |
 | **RAG instead of long context** | Very High | Medium–High | Retrieval quality becomes the new bottleneck |
+
+Failure scenarios: running out of VRAM at peak concurrency (requests fail or queue), latency growth on long prompts, and quality loss from aggressive KV-cache quantization or summarization that drops important detail.
+
+## Questions to Ask Engineers
+
+1. *"Is this cost increase driven by the KV cache, model weights, or both, and did we model it at our expected concurrency, not just single-user?"*
+2. *"Have we evaluated prefix caching or paged attention (e.g. vLLM) before assuming we need bigger instances?"*
+3. *"Could retrieval-augmented generation (RAG) or conversation summarization solve the 'remember everything' requirement more cheaply than raw context expansion?"*
+4. *"What is our KV cache quantization strategy, and what quality regression have we measured from it?"*
+
+## Scenario Exercise
+
+Sales wants a contract-review assistant that can ingest 300-page agreements (about 150K tokens) for up to 20 reviewers at the same time.
+
+1. **Easy**: Name the two things that make the KV cache grow.
+2. **Medium**: Engineering says the 128K window needs a GPU instance four times larger. What would you ask to confirm the estimate reflects concurrency, and which cheaper alternative would you ask them to evaluate?
+3. **Hard**: Compare raw long context against RAG for this use case. Which risks (cost, accuracy, latency, missed clauses) does each introduce, and what pilot would you run to decide?
 
 ## Key Terms
 

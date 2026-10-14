@@ -3,24 +3,44 @@
 > "Make it faster" is not one lever — it's at least five different levers, and the right one depends entirely on where the time is actually going.
 
 **Type:** Learn
-**Languages:** Python, Concept
 **Prerequisites:** Evals in Production
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand the main sources of latency in an LLM application: time to first token, generation speed, and pipeline overhead
-- Recognize concrete optimization levers for each source, drawing on concepts from across earlier levels
-- Understand why optimizing the wrong stage wastes engineering effort without improving perceived speed
+- Identify the main sources of latency in an LLM application: time to first token, generation speed, and pipeline overhead
+- Match concrete optimization levers to each source, drawing on concepts from earlier levels
+- Explain why optimizing the wrong stage wastes engineering effort without improving perceived speed
 - Formulate the right questions when a team proposes a latency fix without first measuring where time is spent
 
-## The Problem
+## What It Is
 
-Users complain a chatbot feels slow. The team's first instinct is "switch to a faster, smaller model." After making the change, the feature is barely faster, because the actual bottleneck was a slow RAG retrieval step (Level 5) running before the model was ever called — the model's own generation time was a small fraction of the total latency. Without measuring where time is actually spent (using the tracing tools from earlier in this level), latency optimization becomes a guessing game.
+Latency in an LLM application comes from several distinct sources, each needing a different fix. That is why tracing (this level's second lesson) is the prerequisite to optimizing correctly.
 
-## The Concept
+- **Time to First Token (TTFT)**: the delay between sending a request and receiving the first generated token. It is dominated by how long the model takes to process the input prompt, which connects to attention's quadratic scaling (Level 3): longer prompts and context mean higher TTFT.
+- **Token generation speed**: once generation starts, tokens stream out at a rate influenced by model size, hardware, and whether output is streamed incrementally or returned all at once.
+- **Pipeline overhead**: every step around the model call, such as retrieval and reranking (Level 5), guardrail checks (previous lesson), or multi-step agent loops (Level 6), adds its own latency. A slow stage can dominate even if the model is fast.
 
-Latency in an LLM application comes from several distinct sources, each requiring a different fix — exactly why tracing (from this level's second lesson) is the prerequisite to optimizing latency correctly, not guessing at it.
+## Why It Matters
+
+Users complain a chatbot feels slow. The team's first instinct is "switch to a faster, smaller model." After the change, the feature is barely faster, because the real bottleneck was a slow RAG retrieval step (Level 5) that runs before the model is ever called. Model generation was a small fraction of total latency. Without measuring where time goes, latency work becomes a guessing game and engineering effort is wasted.
+
+## How It Works
+
+Matching the lever to the root cause:
+
+1. **Measure**: use per-span timings from tracing to break total latency down by stage.
+2. **Identify the dominant stage**: the biggest share is the biggest lever.
+3. **Choose a fix that targets that stage**: see the table below.
+4. **Re-measure**: confirm the change moved the number users feel, and that quality did not regress (run the evals).
+
+| Root cause | Typical fix |
+| :--- | :--- |
+| High TTFT from long prompts | Trim unnecessary context, use RAG to retrieve only relevant content instead of stuffing everything in (Level 5), or use prompt caching (Level 0) for repeated prefixes |
+| Slow token generation | Use a smaller or faster model where quality allows, or stream output so users see partial results immediately |
+| Slow retrieval or pipeline steps | Optimize similarity search (Level 5's ANN discussion), cut unnecessary reranking, or run independent steps in parallel (Level 1's async programming) |
+
+## Architecture and Workflow
 
 ```mermaid
 graph LR
@@ -30,98 +50,35 @@ graph LR
     Gen --> Post["Post-processing / Guardrails<br/>(output validation, redaction)"]
 ```
 
-### Time to First Token (TTFT)
-
-The delay between sending a request and receiving the very first generated token — dominated by how long the model takes to process the input prompt, which connects directly to the attention mechanism's quadratic scaling (Level 3): longer prompts and context mean higher TTFT.
-
-### Token Generation Speed
-
-Once generation starts, tokens stream out at a certain rate — influenced by model size, hardware, and whether the response is streamed to the user incrementally (perceived as faster) versus returned all at once after full generation completes.
-
-### Pipeline Overhead
-
-Any additional steps around the model call itself — retrieval (Level 5), reranking (Level 5), guardrail checks (previous lesson), or multi-step agent loops (Level 6) — each add their own latency, and a slow pipeline stage can dominate total latency even if the model itself is fast.
-
-### Concrete Optimization Levers, Matched to Root Cause
-
-- **High TTFT from long prompts**: trim unnecessary context, use RAG to retrieve only relevant content instead of stuffing everything into context (Level 5), or use prompt caching (Level 0) for repeated prefixes.
-- **Slow token generation**: use a smaller/faster model where quality allows, or stream output so users see partial results immediately rather than waiting for the full response.
-- **Slow retrieval/pipeline steps**: optimize similarity search (Level 5's ANN discussion), reduce unnecessary reranking overhead, or parallelize independent steps (Level 1's async programming).
-
-## Build It
-
-A simplified latency breakdown, showing why measuring first matters before optimizing:
-
-```python
-import time
-
-def simulate_retrieval():
-    time.sleep(0.8)
-    return "retrieved context"
-
-def simulate_model_call(context):
-    time.sleep(0.3)
-    return "generated answer"
-
-def simulate_guardrail_check(answer):
-    time.sleep(0.1)
-    return answer
-
-def run_pipeline_with_timing():
-    timings = {}
-
-    start = time.perf_counter()
-    context = simulate_retrieval()
-    timings["retrieval"] = time.perf_counter() - start
-
-    start = time.perf_counter()
-    answer = simulate_model_call(context)
-    timings["model_call"] = time.perf_counter() - start
-
-    start = time.perf_counter()
-    final_answer = simulate_guardrail_check(answer)
-    timings["guardrail_check"] = time.perf_counter() - start
-
-    total = sum(timings.values())
-    print("Latency breakdown:")
-    for stage, duration in timings.items():
-        percentage = (duration / total) * 100
-        print(f"  {stage:20s}: {duration*1000:6.0f}ms ({percentage:.0f}% of total)")
-    print(f"  {'TOTAL':20s}: {total*1000:6.0f}ms")
-
-    bottleneck = max(timings, key=timings.get)
-    print(f"\nBiggest lever: optimizing '{bottleneck}' would have the largest impact on total latency.")
-
-run_pipeline_with_timing()
+```archify
+src: diagrams/latency-pipeline.html
+title: Where latency accrues across an AI request
+aspect: 940/312
 ```
 
-This makes explicit what the opening scenario's team skipped: measuring first reveals that retrieval, not the model call, is the dominant cost — meaning "switch to a faster model" was never going to meaningfully help, no matter how much faster the new model actually was.
+## A Real-World Example
 
-## Use It
+A chatbot pipeline is measured with traces:
 
-Real production teams treat latency optimization as measurement-first, not intuition-first:
+| Stage | Time | Share of total |
+| :--- | :--- | :--- |
+| Retrieval | 800 ms | 67% |
+| Model call | 300 ms | 25% |
+| Guardrail check | 100 ms | 8% |
+| **Total** | **1,200 ms** | 100% |
 
-- **Trace-driven optimization**: using the per-span latency data from tracing (previous lesson) to identify the actual bottleneck before choosing a fix.
-- **Streaming responses**: showing partial output as it generates, dramatically improving *perceived* speed even when total generation time is unchanged — a UX-level lever independent of the underlying pipeline's actual speed.
-- **Caching**: reusing previous retrieval or generation results for repeated or similar queries, avoiding redundant work entirely for cacheable cases.
+Retrieval is the biggest lever. Swapping to a model twice as fast would save at most 150 ms (about 12%), while halving retrieval time saves 400 ms (about 33%). This is exactly what the opening scenario's team skipped: measuring first reveals that "switch to a faster model" was never going to help much.
 
-## Exercises
+Other measurement-first practices: streaming responses (dramatically improves perceived speed even when total generation time is unchanged), and caching results for repeated or similar queries to avoid redundant work.
 
-1. **Easy**: In the code above, which stage is the biggest latency contributor, and would switching to a faster model meaningfully help here?
-2. **Medium**: Explain in plain English why streaming a response token-by-token can make a feature feel faster even if the total time to generate the full response is unchanged.
-3. **Hard**: A team's chatbot has high TTFT specifically for long conversations. Propose two distinct fixes drawing on concepts from Level 0 (context/caching) and Level 5 (retrieval) respectively.
+## What a TPM Needs to Understand
 
-## TPM Perspective
+- "Make it faster" without a measured breakdown risks optimizing the wrong stage. Insist on a trace-based latency breakdown before approving an optimization effort.
+- Total latency and perceived latency are different problems. Streaming is a UX-level lever that improves perception without changing the pipeline.
+- Most latency fixes trade against quality or cost: a smaller model may regress quality, caching may serve stale answers.
+- Set latency targets as budgets per stage (for example, a 2-second end-to-end budget split across retrieval, model, and guardrails) so trade-offs are explicit.
 
-### Strategic Executive Summary
-"Make it faster" without first measuring where time is actually spent risks optimizing the wrong stage entirely — exactly what happened in the opening scenario, where a model swap didn't help because the real bottleneck was retrieval. Insisting on a trace-based latency breakdown before approving an optimization effort ensures engineering time is spent on the change that will actually move the needle.
-
-### Questions to Challenge Engineering
-1. *"Do we have a latency breakdown by pipeline stage (retrieval, model call, guardrails, etc.), or are we guessing at where the bottleneck is?"*
-2. *"Is this a total-latency problem or a perceived-latency problem — would streaming the response meaningfully improve user experience even without reducing total generation time?"*
-3. *"For the specific bottleneck identified, is the proposed fix actually targeting that stage, or is it a generic fix (like 'use a faster model') that may not address the real cause?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Optimization Lever | Addresses | Effort | Risk |
 | :--- | :--- | :--- | :--- |
@@ -129,6 +86,22 @@ Real production teams treat latency optimization as measurement-first, not intui
 | **Trim/optimize prompt and context (RAG, caching)** | Time to First Token | Moderate | Low, if done carefully |
 | **Stream responses to the user** | Perceived speed, not total time | Low-Moderate (UI/engineering work) | Low |
 | **Optimize retrieval/pipeline steps** | Pipeline overhead | Varies (depends on specific bottleneck) | Low, if correctly targeted via tracing |
+
+Failure scenarios: a model swap ships without evals and quietly lowers answer quality; a cache returns outdated policy information; removing a guardrail to save 100 ms reintroduces a safety gap; high TTFT appears only on long conversations and is missed because tests use short ones. Dependencies: tracing in place, an eval suite to verify quality after each change, and UI work for streaming.
+
+## Questions to Ask Engineers
+
+1. *"Do we have a latency breakdown by pipeline stage (retrieval, model call, guardrails, etc.), or are we guessing at where the bottleneck is?"*
+2. *"Is this a total-latency problem or a perceived-latency problem — would streaming the response meaningfully improve user experience even without reducing total generation time?"*
+3. *"For the specific bottleneck identified, is the proposed fix actually targeting that stage, or is it a generic fix (like 'use a faster model') that may not address the real cause?"*
+
+## Scenario Exercise
+
+Your support chatbot's median response time is 4.5 seconds against a 3-second target. A senior engineer proposes migrating to a smaller model, a six-week effort.
+
+1. **Easy**: In the 1,200 ms breakdown above, which stage is the biggest contributor, and would a faster model meaningfully help?
+2. **Medium**: Explain in plain English why streaming a response token by token can make a feature feel faster even if total generation time is unchanged.
+3. **Hard**: The chatbot has high TTFT specifically in long conversations. Propose two distinct fixes, one drawing on Level 0 (context and caching) and one on Level 5 (retrieval), and say what quality check you would require before shipping either.
 
 ## Key Terms
 

@@ -1,0 +1,8 @@
+{"schema_version":1,"diagram_type":"sequence",
+"meta":{"title":"API Request and Response with JSON","locale":"en","quality_profile":"showcase","output":"diagrams/llm-api-request.html","viewBox":[800,480],"column_fit":"spread"},
+"participants":[
+{"id":"client","type":"frontend","label":"Your App","sublabel":"(Client)"},
+{"id":"api","type":"cloud","label":"LLM Provider API"}],
+"messages":[
+{"id":"req","from":"client","to":"api","y":200,"label":"POST request with JSON body (model, messages, temperature)","variant":"emphasis"},
+{"id":"res","from":"api","to":"client","y":260,"label":"JSON response (answer text, token usage)","variant":"return"}]}

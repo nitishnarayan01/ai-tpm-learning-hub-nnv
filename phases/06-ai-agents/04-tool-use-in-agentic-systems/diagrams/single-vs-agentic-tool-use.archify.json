@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Single Tool Call vs Agentic Tool Use",
+    "output": "diagrams/single-vs-agentic-tool-use.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "single",
+      "type": "backend",
+      "label": "Single Tool Call",
+      "sublabel": "(Level 4) One decision, easy to review beforehand",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        440,
+        64
+      ]
+    },
+    {
+      "id": "agentic",
+      "type": "messagebus",
+      "label": "Agentic Tool Use",
+      "sublabel": "Many autonomous, chained decisions, each building on the last",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        440,
+        64
+      ]
+    },
+    {
+      "id": "risk",
+      "type": "security",
+      "label": "Compounding Risk:",
+      "sublabel": "an early mistaken action can lead to further mistaken actions building on it",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        440,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "single-to-agentic",
+      "from": "single",
+      "to": "agentic"
+    },
+    {
+      "id": "agentic-to-risk",
+      "from": "agentic",
+      "to": "risk"
+    }
+  ]
+}

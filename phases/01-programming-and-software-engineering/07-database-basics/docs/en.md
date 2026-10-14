@@ -3,26 +3,41 @@
 > An AI model's answer is only as good as the data behind it — and that data almost always lives in a database.
 
 **Type:** Learn
-**Languages:** SQL, Concept
 **Prerequisites:** Async Programming
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand what a database is and why applications don't just store everything in plain files
-- Know the difference between relational (SQL) databases and vector databases used in AI/RAG systems
-- Read a simple SQL query and understand what it retrieves
+- Explain what a database is and why applications do not just store everything in plain files
+- Distinguish relational (SQL) databases, vector databases used in AI/RAG systems, and key-value stores or caches
+- Describe in plain English what a typical database query retrieves and why an index speeds it up
 - Formulate the right questions when engineering discusses schema changes, migrations, or query performance
 
-## The Problem
+## What It Is
 
-A feature that shows a user's chat history takes 8 seconds to load once a customer has 10,000 past messages. Engineering says "we need to add an index" or "the query isn't using the right index." Without knowing what a database index is, a TPM can't judge whether this is a quick, low-risk fix or a bigger structural problem.
+A **database** is organized, persistent storage designed for fast, reliable reading and writing of data. It is the alternative to loose files, which become slow and unmanageable at scale. Three families matter for AI work:
 
-Databases are where almost all persistent application data lives — user accounts, chat history, embeddings for retrieval — and basic fluency here is essential for evaluating both cost and performance trade-offs.
+- **Relational (SQL), e.g. Postgres, MySQL**: data in **tables** (like spreadsheets) of **rows** (records) and **columns** (fields). Tables link through shared identifiers; a users table and a messages table can be joined by a user ID. Great for structured, related data.
+- **Vector database, e.g. Pinecone, pgvector, Chroma**: stores **embeddings**, lists of numbers representing the meaning of text, and finds "similar meaning" content rather than exact matches. Central to RAG systems.
+- **Key-value / NoSQL, e.g. Redis, MongoDB**: simple or flexible key-based storage, great for caching and unstructured data.
 
-## The Concept
+## Why It Matters
 
-A **database** is organized, persistent storage designed for fast, reliable reading and writing of structured data — the alternative to storing everything in loose text files, which becomes unmanageable and slow at scale.
+A feature that shows a user's chat history takes 8 seconds to load once a customer has 10,000 past messages. Engineering says "we need to add an index" or "the query isn't using the right index." Without knowing what an index is, a TPM cannot judge whether this is a quick, low-risk fix or a bigger structural problem.
+
+Databases hold almost all persistent application data: user accounts, chat history, embeddings for retrieval. Basic fluency is essential for evaluating cost and performance trade-offs.
+
+## How It Works
+
+**Reading a query in plain English.** Typical request: "From the messages table, get the ID, content, and creation time, only for rows belonging to user 42, newest first, and return only the first 20." Each clause has a job: which table, which columns, which rows (the filter), what order, and how many. A TPM can read this as a sentence without knowing the syntax.
+
+**Why indexes matter.** An **index** is a separate sorted structure that lets the database jump directly to matching rows instead of scanning every row, like a book's index versus reading cover to cover. Without an index on the user column, the query above scans every message from every user; adding one lets it go straight to user 42's rows. The cost: indexes take extra storage and slightly slow every future write, because the index must be updated too.
+
+**Schema migrations.** A change to a table's structure, such as adding a column, must be planned: on a large production table it can lock the table, take hours, or fail partway through.
+
+Real AI applications combine database types: Postgres for accounts and chat metadata, a vector database for document embeddings, and Redis for rate-limit counters and session tokens that do not need full durability.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -31,69 +46,46 @@ graph TD
     C["Key-Value / NoSQL<br/>Redis, MongoDB"] --> C1["Flexible or simple key-based storage<br/>Great for caching, unstructured data"]
 ```
 
-### Relational Databases (SQL)
-
-Data is organized into **tables** (like spreadsheets), with **rows** (individual records) and **columns** (fields). Tables can be linked together — a `users` table and a `messages` table can be joined by a shared `user_id`.
-
-### Vector Databases
-
-AI applications (especially RAG systems) also use **vector databases**, which store **embeddings** — lists of numbers representing the meaning of text — and are optimized for finding "similar meaning" content instead of exact matches. This is covered in depth in the RAG & Vector Databases level; here it's enough to know it's a different tool for a different job.
-
-### Why Indexes Matter
-
-An **index** is a separate, sorted structure that lets a database jump directly to matching rows instead of scanning every row — similar to a book's index letting you jump to a page instead of reading cover to cover. Without an index on a frequently searched column, a query that should take milliseconds can take seconds as the table grows.
-
-## Build It
-
-A simple SQL query, read step by step:
-
-```sql
-SELECT id, content, created_at
-FROM messages
-WHERE user_id = 42
-ORDER BY created_at DESC
-LIMIT 20;
+```archify
+src: diagrams/database-types.html
+title: Relational, vector, and key-value databases and what each is best for
+aspect: 700/428
 ```
 
-Reading this in plain English: "From the `messages` table, get the `id`, `content`, and `created_at` columns, but only for rows where `user_id` equals 42, sorted newest first, and give me only the first 20 results."
+## A Real-World Example
 
-```sql
-CREATE INDEX idx_messages_user_id ON messages (user_id);
-```
+A chat product stores 80 million messages in one table. Loading a user's last 20 messages takes 4 seconds because the database scans all 80 million rows. Engineering adds an index on the user column: the same query drops to about 5 milliseconds. The migration itself, building the index on a live table, takes 40 minutes and is scheduled for a low-traffic window with a tested rollback plan. Separately, the team's "find similar past tickets" feature does not live in Postgres at all: it uses a vector database, because exact-match columns cannot answer "which tickets mean the same thing?"
 
-This creates an index on the `user_id` column specifically, so the query above no longer has to scan the entire `messages` table — it can jump straight to the relevant rows.
+## What a TPM Needs to Understand
 
-## Use It
+- Database design directly drives cost and latency at scale. A missing index, an unoptimized query, or the wrong kind of database for the data are common, well-understood root causes of "the feature got slow as we grew," not mysterious scaling problems.
+- Choose the tool to fit the data: relational for structured records, vector for similarity, cache for ephemeral fast access.
+- Schema migrations on live tables carry real risk and need a schedule and a rollback plan.
+- Indexes are a trade: faster reads, slower writes, more storage.
 
-Real AI applications typically combine multiple database types:
-
-- **Relational database (Postgres)**: user accounts, subscription status, chat session metadata.
-- **Vector database (pgvector, Pinecone)**: document embeddings for a RAG system's retrieval step.
-- **Cache (Redis)**: frequently accessed, temporary data (e.g. rate-limit counters, session tokens) that doesn't need full database durability.
-
-## Exercises
-
-1. **Easy**: In the SQL query above, which part filters to a single user, and which part limits how many results come back?
-2. **Medium**: Explain, in plain English, why adding an index speeds up a search but can slightly slow down every future write (insert/update) to that table.
-3. **Hard**: A table has 50 million rows and a query filtering by `email` takes 4 seconds. Propose a hypothesis for why, and one specific fix to test.
-
-## TPM Perspective
-
-### Strategic Executive Summary
-Database design decisions directly drive both cost and latency at scale. A missing index, an unoptimized query, or storing the wrong kind of data in the wrong kind of database (e.g. using a relational database for pure similarity search) are common, well-understood root causes of "the feature got slow as we grew" — not mysterious scaling problems.
-
-### Questions to Challenge Engineering
-1. *"Is this slow query missing an index on the column it's filtering or sorting by?"*
-2. *"Are we using the right tool for this data — relational for structured/related records, vector for similarity search, cache for ephemeral fast-access data?"*
-3. *"Before we run a schema migration on this table in production, what's the rollback plan if it fails partway through?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Database Type | Best For | Weakness |
 | :--- | :--- | :--- |
 | **Relational (SQL)** | Structured, related data with strong consistency needs | Not built for semantic similarity search |
 | **Vector Database** | Semantic/similarity search over embeddings (RAG) | Not ideal for complex relational queries or strict transactions |
 | **Key-Value / Cache** | Extremely fast, simple lookups; temporary data | Not durable or structured enough for core business data |
+
+Failure scenarios: a migration failing partway through and leaving the table half changed; a cache losing data on restart and users being logged out; a vector index drifting out of sync with the source documents so retrieval returns stale answers; database costs growing faster than traffic because of unbounded history.
+
+## Questions to Ask Engineers
+
+1. *"Is this slow query missing an index on the column it's filtering or sorting by?"*
+2. *"Are we using the right tool for this data: relational for structured/related records, vector for similarity search, cache for ephemeral fast-access data?"*
+3. *"Before we run a schema migration on this table in production, what's the rollback plan if it fails partway through?"*
+
+## Scenario Exercise
+
+Your analytics team reports that the "order lookup by customer email" screen takes 4 seconds on a table of 50 million rows, and a new RAG feature needs to find documents by meaning.
+
+1. **Easy**: In plain English, what is a database index and what problem does it solve?
+2. **Medium**: Explain why adding an index speeds up searches but can slightly slow every future write, and what you would ask before approving it on a live table.
+3. **Hard**: Propose which database type you would use for the order lookup and which for the RAG feature, and describe the risks of a migration plan that builds the new index during business hours.
 
 ## Key Terms
 

@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Latency Sources in an AI Request",
+    "output": "diagrams/latency-pipeline.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "req",
+      "type": "external",
+      "label": "Request",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "retrieval",
+      "type": "database",
+      "label": "Retrieval/RAG Latency",
+      "sublabel": "(Level 5)",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "ttft",
+      "type": "backend",
+      "label": "Time to First Token (TTFT)",
+      "sublabel": "(model processing the prompt)",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "gen",
+      "type": "messagebus",
+      "label": "Token Generation Speed",
+      "sublabel": "(tokens/second, scales with output length)",
+      "pos": [
+        640,
+        180
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "post",
+      "type": "security",
+      "label": "Post-processing / Guardrails",
+      "sublabel": "(output validation, redaction)",
+      "pos": [
+        340,
+        180
+      ],
+      "size": [
+        260,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "req-to-retrieval",
+      "from": "req",
+      "to": "retrieval"
+    },
+    {
+      "id": "retrieval-to-ttft",
+      "from": "retrieval",
+      "to": "ttft"
+    },
+    {
+      "id": "ttft-to-gen",
+      "from": "ttft",
+      "to": "gen"
+    },
+    {
+      "id": "gen-to-post",
+      "from": "gen",
+      "to": "post"
+    }
+  ]
+}

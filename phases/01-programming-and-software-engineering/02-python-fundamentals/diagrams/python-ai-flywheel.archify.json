@@ -1,0 +1,9 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"Why Python Became the Language of AI","locale":"en","quality_profile":"showcase","output":"diagrams/python-ai-flywheel.html"},
+"components":[
+{"id":"a","type":"backend","label":"Readable Syntax","pos":[40,60],"size":[190,64]},
+{"id":"b","type":"cloud","label":"Huge ML/AI Library Ecosystem","sublabel":"(PyTorch, NumPy, Transformers)","pos":[290,60],"size":[260,64]},
+{"id":"c","type":"backend","label":"Fast Prototyping","pos":[610,60],"size":[190,64]},
+{"id":"d","type":"external","label":"Became the De Facto Standard","sublabel":"for AI Research & Engineering","pos":[860,60],"size":[260,64]}],
+"boundaries":[],
+"connections":[{"id":"a-b","from":"a","to":"b"},{"id":"b-c","from":"b","to":"c"},{"id":"c-d","from":"c","to":"d"}]}

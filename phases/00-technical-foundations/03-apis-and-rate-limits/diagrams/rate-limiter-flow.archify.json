@@ -1,0 +1,17 @@
+{"schema_version":2,"diagram_type":"workflow",
+"meta":{"title":"Rate Limiting: Request, Limit Check, 429 and Retry","locale":"en","quality_profile":"showcase","output":"diagrams/rate-limiter-flow.html"},
+"lanes":[{"id":"lim","label":"Rate Limiter"},{"id":"rej","label":"Rejected","variant":"exception"},{"id":"cli","label":"Client"}],
+"mainPath":["a","b","c"],
+"nodes":[
+{"id":"b","lane":"lim","col":1,"type":"security","label":"Rate Limiter","width":140},
+{"id":"c","lane":"lim","col":3,"type":"backend","label":"Request Processed","width":150},
+{"id":"d","lane":"rej","col":2,"type":"security","label":"429 Too Many Requests","width":160},
+{"id":"a","lane":"cli","col":0,"type":"external","label":"Incoming Requests","width":150},
+{"id":"e","lane":"cli","col":2,"type":"external","label":"Client waits / retries with backoff","width":250}],
+"edges":[
+{"id":"a-b","from":"a","to":"b"},
+{"id":"b-c","from":"b","to":"c","label":"Under RPM & TPM limits"},
+{"id":"b-d-rpm","from":"b","to":"d","label":"RPM limit exceeded","variant":"security","role":"error"},
+{"id":"b-d-tpm","from":"b","to":"d","label":"TPM limit exceeded","variant":"security","role":"error"},
+{"id":"d-e","from":"d","to":"e","variant":"security","role":"error"},
+{"id":"e-a","from":"e","to":"a","role":"return","variant":"dashed"}]}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Function Calling: Order Status Lookup",
+    "locale": "en",
+    "output": "phases/04-llm-application-engineering/03-function-calling-and-tool-use/diagrams/order-status-tool-call.html",
+    "viewBox": [
+      1280,
+      580
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User"
+    },
+    {
+      "id": "app",
+      "type": "backend",
+      "label": "Your Application"
+    },
+    {
+      "id": "model",
+      "type": "cloud",
+      "label": "LLM"
+    },
+    {
+      "id": "tool",
+      "type": "database",
+      "label": "External Tool/API"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg1",
+      "from": "user",
+      "to": "app",
+      "y": 160,
+      "label": "What's the status of order #4821?",
+      "variant": "default"
+    },
+    {
+      "id": "msg2",
+      "from": "app",
+      "to": "model",
+      "y": 202,
+      "label": "User message + list of available tools",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg3",
+      "from": "model",
+      "to": "app",
+      "y": 244,
+      "label": "Call get_order_status(order_id='4821')",
+      "variant": "return"
+    },
+    {
+      "id": "msg4",
+      "from": "app",
+      "to": "tool",
+      "y": 286,
+      "label": "Actually calls the real function",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg5",
+      "from": "tool",
+      "to": "app",
+      "y": 328,
+      "label": "{\"status\": \"shipped\", \"eta\": \"2 days\"}",
+      "variant": "return"
+    },
+    {
+      "id": "msg6",
+      "from": "app",
+      "to": "model",
+      "y": 370,
+      "label": "Tool result + original conversation",
+      "variant": "emphasis"
+    },
+    {
+      "id": "msg7",
+      "from": "model",
+      "to": "app",
+      "y": 412,
+      "label": "Your order has shipped and should arrive in 2 days!",
+      "variant": "return"
+    },
+    {
+      "id": "msg8",
+      "from": "app",
+      "to": "user",
+      "y": 454,
+      "label": "Final response",
+      "variant": "return"
+    }
+  ]
+}

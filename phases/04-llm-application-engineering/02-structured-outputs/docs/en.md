@@ -3,24 +3,44 @@
 > If your code has to `.parse()` an LLM's free-form text with regular expressions, you're one phrasing change away from a production incident.
 
 **Type:** Learn
-**Languages:** Python, JSON
 **Prerequisites:** Prompt Chaining
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand why unstructured LLM text output is risky for any feature that feeds into other code
-- Understand how JSON schemas and structured output modes constrain a model's response format
-- Recognize the difference between "asking nicely for JSON" and using a provider's enforced structured output feature
+- Explain why unstructured LLM text output is risky for any feature that feeds into other systems
+- Describe how schemas and structured output modes constrain a model's response format
+- Distinguish "asking nicely for JSON" from a provider's enforced structured output feature
 - Formulate the right questions when reviewing a feature that parses LLM output programmatically
 
-## The Problem
+## What It Is
 
-A feature asks an LLM to extract a customer's name, order number, and issue category from an email, then parses the response as JSON. It works in testing, but occasionally in production the model adds a friendly preamble ("Sure! Here's the extracted information:") before the JSON, breaking the parser and crashing the feature. This isn't a rare fluke — it's the expected, well-documented risk of relying on a model to "just format it correctly" without an enforced mechanism.
+**Structured output** means constraining an LLM's response to a specific, machine-readable format (usually JSON), reliably, rather than hoping the model follows a formatting instruction.
 
-## The Concept
+A **schema** is the contract: it lists which fields must exist, each field's type (text, number, true/false, list), and any constraints, such as an **enum** (a field that may only hold one of a fixed set of values). When the schema is handed to the provider's structured output feature, the provider enforces the shape during generation instead of merely suggesting it.
 
-**Structured output** means constraining an LLM's response to match a specific, machine-readable format (usually JSON) reliably — not just hoping the model follows a formatting instruction.
+## Why It Matters
+
+A feature asks an LLM to extract a customer's name, order number, and issue category from an email, and feeds the answer to a program. It works in testing, but occasionally in production the model adds a friendly preamble ("Sure! Here's the extracted information:") before the data, the receiving program cannot read it, and the feature crashes. This is not a rare fluke. It is the expected, well-documented risk of relying on a model to "just format it correctly" with no enforcement.
+
+## How It Works
+
+There are two levels of asking for structure:
+
+1. **Prompt-only request**: the prompt says "respond only with JSON". Better than nothing, but the model can still add extra text, rename fields, or produce invalid JSON, especially in long or complex prompts.
+2. **Enforced structured output**: the provider's "JSON mode", "structured outputs", or schema parameter constrains generation itself, so the response is valid and matches the defined shape.
+
+Even with enforcement, a second line of defense is validation on the receiving side: check that all required fields are present and that enum fields hold allowed values before the data is used.
+
+An example schema for the email extraction, described in words:
+
+| Field | Type | Rule |
+| :--- | :--- | :--- |
+| `customer_name` | Text | Required |
+| `order_number` | Text | Required |
+| `issue_category` | Enum | Required; one of shipping, billing, product defect, other |
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -28,107 +48,54 @@ graph TD
     B["Structured Output Mode<br/>(JSON schema enforced by the API)"] --> B1["Response guaranteed to match<br/>the exact schema every time"]
 ```
 
-### Two Levels of "Asking for JSON"
-
-1. **Prompt-only request**: including "respond only with JSON" in the prompt text — better than nothing, but the model can still occasionally add extra text, use inconsistent field names, or produce invalid JSON, especially under longer or more complex prompts.
-2. **Enforced structured output**: many providers offer a dedicated feature (e.g. "JSON mode," "structured outputs," or a **JSON schema** parameter) that constrains the model's output at the generation level, guaranteeing valid JSON matching a defined shape every time — a fundamentally more reliable mechanism than a written instruction alone.
-
-### JSON Schema
-
-A **JSON schema** precisely defines the expected shape of a response: which fields must exist, their types (string, number, boolean, array), and any constraints (e.g. an enum of allowed values). Providing this schema to an API's structured output feature is what lets the provider enforce the format, rather than merely suggest it.
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "customer_name": {"type": "string"},
-    "order_number": {"type": "string"},
-    "issue_category": {"type": "string", "enum": ["shipping", "billing", "product_defect", "other"]}
-  },
-  "required": ["customer_name", "order_number", "issue_category"]
-}
+```archify
+src: diagrams/structured-vs-free-json.html
+title: Unstructured prompt versus structured output mode
+aspect: 880/312
 ```
 
-## Build It
+## A Real-World Example
 
-Comparing a fragile prompt-only parsing approach to a schema-validated approach:
+An email says the customer's shipment from order A-4821 never arrived.
 
-```python
-import json
+| Approach | What the model returns | What happens downstream |
+| :--- | :--- | :--- |
+| Prompt-only | Friendly sentence, then the data | Parser fails on the sentence; the ticket is never created |
+| Enforced schema | Only the three fields, category "shipping" | Ticket is created and routed to the shipping team |
+| Enforced schema, model invents category "refund" | Rejected by validation, since "refund" is not in the enum | Request is retried or sent to human review |
 
-def fake_model_call_unstructured(prompt):
-    return 'Sure! Here is the extracted information:\n{"customer_name": "Alex Kim", "order_number": "A-4821", "issue_category": "shipping"}'
+Where it is used: extracting data from documents for a database, function calling (next lesson), and any UI that renders model output into components like charts or forms.
 
-def fake_model_call_structured(prompt, schema):
-    return json.dumps({"customer_name": "Alex Kim", "order_number": "A-4821", "issue_category": "shipping"})
+## What a TPM Needs to Understand
 
-schema = {
-    "type": "object",
-    "properties": {
-        "customer_name": {"type": "string"},
-        "order_number": {"type": "string"},
-        "issue_category": {"type": "string", "enum": ["shipping", "billing", "product_defect", "other"]},
-    },
-    "required": ["customer_name", "order_number", "issue_category"],
-}
+- Any AI feature whose output is consumed by other systems, not only displayed to a human, needs enforced structured output, not a polite instruction.
+- Prompt-only formatting is a known reliability risk that tends to appear unpredictably in production rather than in testing.
+- Structure guarantees the shape, not the truth: a perfectly formatted answer can still contain a wrong order number. Content accuracy needs separate evaluation.
+- The schema is a product decision: fewer, tighter fields (with enums) are easier to validate and route.
 
-def validate_against_schema(data, schema):
-    for field in schema["required"]:
-        if field not in data:
-            raise ValueError(f"Missing required field: {field}")
-    category = data.get("issue_category")
-    allowed = schema["properties"]["issue_category"]["enum"]
-    if category not in allowed:
-        raise ValueError(f"Invalid issue_category: {category}, must be one of {allowed}")
-    return True
-
-fragile_response = fake_model_call_unstructured("Extract fields as JSON")
-try:
-    parsed = json.loads(fragile_response)
-    print("Fragile parsing succeeded (got lucky this time):", parsed)
-except json.JSONDecodeError as e:
-    print(f"Fragile parsing FAILED: {e}")
-    print(f"Raw response was: {fragile_response!r}")
-
-structured_response = fake_model_call_structured("Extract fields", schema)
-parsed_structured = json.loads(structured_response)
-validate_against_schema(parsed_structured, schema)
-print("Structured parsing succeeded and validated:", parsed_structured)
-```
-
-The "fragile" version's `json.loads()` call fails here because the model added a friendly preamble before the JSON — exactly the kind of production incident that enforced structured output modes are designed to prevent entirely.
-
-## Use It
-
-Structured outputs are essential wherever LLM responses feed directly into other code:
-
-- **Extracting structured data from documents/emails** (names, dates, categories) for storage in a database.
-- **Function calling / tool use** (next lesson) — the model's decision about which tool to call and with what arguments must be reliably structured.
-- **Any UI that renders LLM output into specific components** (e.g. a chart, a form) rather than freeform chat text.
-
-## Exercises
-
-1. **Easy**: In the schema above, what would happen if the model returned `"issue_category": "refund"` — would it pass or fail validation, and why?
-2. **Medium**: Explain why "respond only with JSON" in a prompt is a weaker guarantee than a provider's dedicated structured output/JSON schema feature.
-3. **Hard**: Design a JSON schema (in plain English or as a JSON schema block) for extracting a meeting's date, time, attendees list, and whether it's virtual or in-person from an email.
-
-## TPM Perspective
-
-### Strategic Executive Summary
-Any AI feature whose output is consumed by other code — not just displayed as chat text to a human — needs enforced structured output, not just a polite prompt instruction. Relying on prompt-only formatting for anything programmatically parsed is a known, well-documented reliability risk that tends to surface unpredictably in production rather than in testing.
-
-### Questions to Challenge Engineering
-1. *"Is this feature's output parsed by downstream code, and if so, are we using an enforced structured output/JSON schema feature, or just a prompt instruction asking for JSON?"*
-2. *"What happens to this feature if the model ever returns malformed JSON or an unexpected field — does it crash, silently fail, or degrade gracefully?"*
-3. *"Is our JSON schema tight enough to catch invalid values (e.g. an enum field) at validation time, not just missing fields?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Approach | Reliability | Setup Effort | Risk |
 | :--- | :--- | :--- | :--- |
 | **Prompt-only 'please respond in JSON'** | Low-Moderate | Very low | Occasional malformed output reaching production |
 | **Enforced structured output / JSON schema** | High | Low-Moderate (define schema once) | Minimal, if schema is well-designed and validated |
 | **No structure, freeform text parsing (regex, string search)** | Very low | Low initially, high maintenance | Frequent, hard-to-predict parsing failures |
+
+Dependencies: provider support for schema enforcement (differs by vendor and model). Failure scenarios: schema changes breaking downstream consumers; overly strict schemas causing refusals or empty fields; a malformed response with no fallback path crashing the feature.
+
+## Questions to Ask Engineers
+
+1. *"Is this feature's output parsed by downstream code, and if so, are we using an enforced structured output/JSON schema feature, or just a prompt instruction asking for JSON?"*
+2. *"What happens to this feature if the model ever returns malformed JSON or an unexpected field: does it crash, silently fail, or degrade gracefully?"*
+3. *"Is our JSON schema tight enough to catch invalid values (e.g. an enum field) at validation time, not just missing fields?"*
+
+## Scenario Exercise
+
+You manage an invoice-processing feature that extracts vendor, amount, due date, and payment status from emailed invoices and writes them to the finance system.
+
+1. **Easy**: The model returns payment status "paid-ish", which is not one of the allowed values. Does it pass validation, and why?
+2. **Medium**: Explain to a stakeholder why "respond only with JSON" in the prompt is a weaker guarantee than the provider's schema enforcement.
+3. **Hard**: Describe, in plain English, the fields and rules of a schema for extracting a meeting's date, time, attendees, and virtual-or-in-person flag from an email, and say what the system should do when validation fails.
 
 ## Key Terms
 

@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Reranking: Two-Stage Retrieval",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/05-rag-and-vector-databases/04-reranking/diagrams/two-stage-retrieval.html"
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Retrieval pipeline"
+    }
+  ],
+  "mainPath": [
+    "q",
+    "s1",
+    "s2",
+    "final"
+  ],
+  "nodes": [
+    {
+      "id": "q",
+      "lane": "main",
+      "col": 0,
+      "type": "external",
+      "label": "Query",
+      "width": 130
+    },
+    {
+      "id": "s1",
+      "lane": "main",
+      "col": 1,
+      "type": "database",
+      "label": "Stage 1: Similarity Search",
+      "sublabel": "fast, approximate, broad - Retrieve top 50 candidates",
+      "width": 266
+    },
+    {
+      "id": "s2",
+      "lane": "main",
+      "col": 2,
+      "type": "backend",
+      "label": "Stage 2: Reranker",
+      "sublabel": "slower, more precise - Re-score and reorder those 50",
+      "width": 261
+    },
+    {
+      "id": "final",
+      "lane": "main",
+      "col": 3,
+      "type": "cloud",
+      "label": "Final Top 5",
+      "sublabel": "sent to the LLM",
+      "width": 130
+    }
+  ],
+  "edges": [
+    {
+      "id": "q-s1",
+      "from": "q",
+      "to": "s1"
+    },
+    {
+      "id": "s1-s2",
+      "from": "s1",
+      "to": "s2"
+    },
+    {
+      "id": "s2-final",
+      "from": "s2",
+      "to": "final"
+    }
+  ]
+}

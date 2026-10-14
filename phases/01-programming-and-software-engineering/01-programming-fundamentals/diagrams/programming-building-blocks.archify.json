@@ -1,0 +1,9 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"Programming Building Blocks","locale":"en","quality_profile":"showcase","output":"diagrams/programming-building-blocks.html"},
+"components":[
+{"id":"a","type":"backend","label":"Sequence","sublabel":"Do this, then this, then this","pos":[40,60],"size":[210,64]},
+{"id":"b","type":"database","label":"Variables","sublabel":"Store and reuse values","pos":[310,60],"size":[210,64]},
+{"id":"c","type":"security","label":"Conditionals","sublabel":"If X, do this; otherwise do that","pos":[580,60],"size":[230,64]},
+{"id":"d","type":"messagebus","label":"Loops","sublabel":"Repeat until a condition is met","pos":[870,60],"size":[230,64]}],
+"boundaries":[],
+"connections":[{"id":"a-b","from":"a","to":"b"},{"id":"b-c","from":"b","to":"c"},{"id":"c-d","from":"c","to":"d"}]}

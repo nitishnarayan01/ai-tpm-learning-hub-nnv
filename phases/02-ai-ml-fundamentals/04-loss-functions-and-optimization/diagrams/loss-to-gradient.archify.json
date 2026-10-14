@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "From Loss to Training Update",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/02-ai-ml-fundamentals/04-loss-functions-and-optimization/diagrams/loss-to-gradient.html"
+  },
+  "components": [
+    {
+      "id": "p",
+      "type": "backend",
+      "label": "Model's Prediction",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "t",
+      "type": "external",
+      "label": "True/Correct Answer",
+      "pos": [
+        40,
+        200
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "l",
+      "type": "security",
+      "label": "Loss Function",
+      "sublabel": "compares prediction to true answer",
+      "pos": [
+        340,
+        120
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "n",
+      "type": "backend",
+      "label": "Single Number:",
+      "sublabel": "how wrong was this?",
+      "pos": [
+        690,
+        120
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "g",
+      "type": "messagebus",
+      "label": "Gradient computed from this number",
+      "sublabel": "drives the next training update",
+      "pos": [
+        990,
+        120
+      ],
+      "size": [
+        300,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "p-to-l",
+      "from": "p",
+      "to": "l",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "t-to-l",
+      "from": "t",
+      "to": "l",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "l-to-n",
+      "from": "l",
+      "to": "n"
+    },
+    {
+      "id": "n-to-g",
+      "from": "n",
+      "to": "g"
+    }
+  ]
+}

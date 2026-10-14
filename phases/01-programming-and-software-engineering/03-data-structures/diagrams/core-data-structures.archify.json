@@ -1,0 +1,8 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"Core Python Data Structures","locale":"en","quality_profile":"showcase","output":"diagrams/core-data-structures.html"},
+"components":[
+{"id":"l","type":"backend","label":"List: [10, 20, 30]","sublabel":"Ordered, allows duplicates","tag":"Good for: sequences, order matters","pos":[40,60],"size":[290,70]},
+{"id":"d","type":"database","label":"Dictionary: name to value","sublabel":"Key-value lookup","tag":"Good for: fast lookups by key","pos":[420,60],"size":[290,70]},
+{"id":"s","type":"cloud","label":"Set: {1, 2, 3}","sublabel":"Unordered, no duplicates","tag":"Good for: membership checks, dedup","pos":[40,220],"size":[290,70]},
+{"id":"t","type":"security","label":"Tuple: (x, y)","sublabel":"Ordered, unchangeable","tag":"Good for: fixed groupings","pos":[420,220],"size":[290,70]}],
+"boundaries":[],"connections":[]}

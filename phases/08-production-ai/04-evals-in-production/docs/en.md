@@ -3,24 +3,43 @@
 > An eval suite is a test suite (Level 1) for a system that doesn't always give the same answer twice — which is exactly why you need one.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** Guardrails and Safety Controls
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand what an "eval" is in the LLM context and how it extends traditional software testing
-- Recognize the difference between offline evals (pre-deployment) and online evals (production monitoring)
-- Understand common eval approaches: golden datasets, LLM-as-judge, and human review
+- Explain what an "eval" is in the LLM context and how it extends traditional software testing
+- Distinguish offline evals (pre-deployment) from online evals (production monitoring)
+- Describe common eval approaches: golden datasets, LLM-as-judge, and human review
 - Formulate the right questions when reviewing whether a team can confidently say a prompt/model change improved or regressed quality
 
-## The Problem
+## What It Is
 
-A team changes their system prompt, and someone asks "did this make things better or worse?" The honest answer is "we're not sure" — there's no golden dataset of representative queries, no consistent scoring method, and no before/after comparison. Without an evaluation process, every prompt or model change is a judgment call based on a few spot checks, not a measured, comparable result — the AI equivalent of shipping code changes with no test suite (Level 1).
+**Evals** (evaluations) are the LLM-specific evolution of automated testing (Level 1). Because LLM outputs are non-deterministic (Level 2) and often open-ended, evals need different techniques than a traditional exact-match check.
 
-## The Concept
+- **Offline evals** run before deployment against a **golden dataset**: a curated set of representative inputs paired with a known-good answer or clear scoring criteria. They measure whether a candidate prompt or model change improved, stayed flat, or regressed compared to production.
+- **Online evals** sample and score actual production traffic continuously, catching issues the golden dataset did not anticipate.
 
-**Evals** (evaluations) are the LLM-specific evolution of automated testing (Level 1) — but because LLM outputs are non-deterministic (Level 2) and often open-ended (not simply right/wrong), evals need different techniques than a traditional `assert result == expected_value`.
+How do you score an open-ended answer?
+
+- **Exact match / rule-based scoring**: works for structured outputs (Level 4) with clear correctness criteria, such as "must mention a 30-day window and a receipt."
+- **LLM-as-judge**: a separate LLM scores responses against defined criteria (helpfulness, faithfulness). It scales far better than manual review but is itself imperfect and must be periodically validated against humans.
+- **Human review**: most reliable, least scalable. Used on samples and to validate the LLM judge.
+
+## Why It Matters
+
+A team changes its system prompt and someone asks "did this make things better or worse?" The honest answer is "we're not sure." There is no golden dataset, no consistent scoring, and no before/after comparison. Every change is a judgment call based on a few spot checks, the AI equivalent of shipping code with no test suite.
+
+## How It Works
+
+1. Build a golden dataset of representative queries with expected content or criteria.
+2. Run the current production prompt and the candidate prompt against the whole dataset.
+3. Score each response and average the scores per version.
+4. Compare: ship, fix, or reject based on the gap and on any individually failing cases.
+5. After release, sample live traffic with online evals and feed regressions back to development.
+6. Add newly discovered failure cases to the golden dataset.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -29,104 +48,58 @@ graph TD
     Online -->|"Regression detected"| Iterate["Back to Development"]
 ```
 
-### Offline Evals: Testing Before Deployment
-
-A **golden dataset** is a curated set of representative inputs paired with either a known-good expected output or clear scoring criteria — run against a candidate prompt or model change before deploying it, to measure whether quality improved, stayed flat, or regressed, compared to the current production version.
-
-### Online Evals: Monitoring Live Traffic
-
-Since a golden dataset can't cover every real-world input, **online evals** sample and score actual production traffic continuously — catching quality issues that only appear with real, unpredictable user inputs the golden dataset didn't anticipate.
-
-### Scoring Methods: How Do You Score an Open-Ended Answer?
-
-- **Exact match / rule-based scoring**: works well for structured outputs (Level 4) with clear correctness criteria (e.g. did it return valid JSON matching the schema).
-- **LLM-as-judge**: using a separate LLM call to score a response against defined criteria (helpfulness, faithfulness, from the RAG evaluation lesson) — scales far better than manual review, though it's itself an imperfect, probabilistic judge worth periodically validating against human review.
-- **Human review**: the most reliable but least scalable method, typically reserved for a sample of cases or for validating that LLM-as-judge scoring is itself trustworthy.
-
-## Build It
-
-A simplified offline eval comparing two prompt versions against a golden dataset:
-
-```python
-golden_dataset = [
-    {"query": "What is your return policy?", "must_mention": ["30 days", "receipt"]},
-    {"query": "Do you offer refunds on digital downloads?", "must_mention": ["final sale", "no refunds"]},
-    {"query": "Can I get an exception for a damaged product?", "must_mention": ["manager", "approval"]},
-]
-
-def fake_model_call(query, prompt_version):
-    responses_v1 = {
-        "What is your return policy?": "We accept returns.",
-        "Do you offer refunds on digital downloads?": "Digital downloads are final sale, no refunds.",
-        "Can I get an exception for a damaged product?": "Contact support.",
-    }
-    responses_v2 = {
-        "What is your return policy?": "Returns are accepted within 30 days with a receipt.",
-        "Do you offer refunds on digital downloads?": "Digital downloads are final sale, no refunds.",
-        "Can I get an exception for a damaged product?": "Yes, with manager approval, exceptions can be made.",
-    }
-    return (responses_v1 if prompt_version == "v1" else responses_v2)[query]
-
-def score_response(response, must_mention):
-    response_lower = response.lower()
-    mentioned = [term for term in must_mention if term.lower() in response_lower]
-    return len(mentioned) / len(must_mention)
-
-def run_eval(prompt_version):
-    scores = []
-    for case in golden_dataset:
-        response = fake_model_call(case["query"], prompt_version)
-        score = score_response(response, case["must_mention"])
-        scores.append(score)
-        print(f"  [{prompt_version}] '{case['query'][:40]}...' -> score {score:.2f}")
-    average = sum(scores) / len(scores)
-    print(f"  Average score for {prompt_version}: {average:.2f}\n")
-    return average
-
-print("Evaluating Prompt v1:")
-score_v1 = run_eval("v1")
-
-print("Evaluating Prompt v2:")
-score_v2 = run_eval("v2")
-
-print(f"Result: v2 {'improved' if score_v2 > score_v1 else 'did not improve'} on the golden dataset "
-      f"({score_v1:.2f} -> {score_v2:.2f})")
+```archify
+src: diagrams/offline-online-evals.html
+title: Offline evals, deployment decision, and online evals
+aspect: 1000/362
 ```
 
-This gives a concrete, repeatable, comparable answer to "did this change make things better" — exactly the kind of measurement the opening scenario's team lacked.
+## A Real-World Example
 
-## Use It
+A retail support bot has a three-case golden dataset, each scored by the share of required facts mentioned:
 
-Mature AI teams treat evals as a required gate, not an optional nicety:
+| Query | Required facts | Prompt v1 score | Prompt v2 score |
+| :--- | :--- | :--- | :--- |
+| What is your return policy? | "30 days", "receipt" | 0.00 ("We accept returns.") | 1.00 |
+| Refunds on digital downloads? | "final sale", "no refunds" | 1.00 | 1.00 |
+| Exception for a damaged product? | "manager", "approval" | 0.00 ("Contact support.") | 1.00 |
+| **Average** | | **0.33** | **1.00** |
 
-- **Every prompt/model change runs against the golden dataset** before deployment, similar to how code changes run against a test suite before merging (Level 1).
-- **Online evals sample live traffic continuously**, feeding into the quality monitoring dashboards from the LLMOps lesson.
-- **Golden datasets are actively maintained**, adding new representative cases as new failure modes are discovered in production — an evolving asset, not a one-time setup task.
+The return-policy query shows the clearest improvement: v1 gave a vague answer with neither required fact. This is a concrete, repeatable answer to "did the change help," exactly what the opening scenario's team lacked. Real suites have hundreds of cases, and teams typically set a gate, for example "average at least 0.90 and no drop of more than 2 points on any category."
 
-## Exercises
+Mature teams treat evals as a required gate: every prompt or model change runs against the golden dataset before deployment, online evals feed quality dashboards (LLMOps lesson), and the dataset is actively maintained as new failure modes appear.
 
-1. **Easy**: In the code above, which specific query showed the clearest quality improvement between v1 and v2, and why?
-2. **Medium**: Explain in plain English why LLM-as-judge scoring, despite being imperfect, is often more practical than pure human review for evaluating production traffic at scale.
-3. **Hard**: Propose three golden dataset test cases you'd add for a customer support bot, specifically designed to catch a regression in how it handles refund policy exceptions.
+## What a TPM Needs to Understand
 
-## TPM Perspective
+- Without evals, every change ships on faith. "It looked fine on a few examples" is not a measurement.
+- A golden dataset plus a repeatable scoring method turns "better or worse" from an opinion into a number tracked over time.
+- The dataset is a living asset that needs an owner and a refresh cadence. A stale dataset gives false confidence.
+- Offline and online evals answer different questions: "is this change safe to ship" versus "is production still healthy."
 
-### Strategic Executive Summary
-Without an eval process, every prompt or model change is shipped on faith — "it looked fine when I tried a few examples" is not a measurement, and it doesn't scale to catching subtle regressions. A golden dataset plus a repeatable scoring method turns "did this change help or hurt" from an opinion into a number that can be tracked over time and compared before every deployment, exactly mirroring the discipline traditional software applies via automated testing (Level 1).
+## Risks, Dependencies, and Trade-Offs
 
-### Questions to Challenge Engineering
+| Eval Approach | Scalability | Accuracy | Setup Effort |
+| :--- | :--- | :--- | :--- |
+| **No formal evals (spot-checking)** | High (fast, easy) | Low: subjective, inconsistent | None |
+| **Golden dataset + rule-based scoring** | High | Good for structured/well-defined tasks | Moderate |
+| **Golden dataset + LLM-as-judge** | High | Good for open-ended tasks, needs periodic validation | Moderate |
+| **Human review** | Low: doesn't scale | Highest | High (ongoing reviewer time) |
+
+Failure scenarios: the golden dataset is too small or unrepresentative, so a change passes offline and fails in production; the LLM judge shares the same blind spots as the model being judged; the team optimizes the prompt against the dataset until it overfits; scores average out and hide a serious regression in one customer segment. Dependencies: dataset ownership, reviewer time, and compute budget for running evals on every change.
+
+## Questions to Ask Engineers
+
 1. *"Do we have a golden dataset and repeatable scoring method to measure whether a prompt or model change improved or regressed quality, before it ships?"*
 2. *"Are we running online evals on live production traffic to catch regressions that our golden dataset didn't anticipate?"*
 3. *"If we're using LLM-as-judge scoring, have we validated it against human review periodically to confirm it's actually measuring what we think it's measuring?"*
 
-### Trade-Off Matrix
+## Scenario Exercise
 
-| Eval Approach | Scalability | Accuracy | Setup Effort |
-| :--- | :--- | :--- | :--- |
-| **No formal evals (spot-checking)** | High (fast, easy) | Low — subjective, inconsistent | None |
-| **Golden dataset + rule-based scoring** | High | Good for structured/well-defined tasks | Moderate |
-| **Golden dataset + LLM-as-judge** | High | Good for open-ended tasks, needs periodic validation | Moderate |
-| **Human review** | Low — doesn't scale | Highest | High (ongoing reviewer time) |
+Your team wants to ship a new prompt for the refund bot on Friday. Engineering says "it looks better in our tests."
+
+1. **Easy**: In the retail example above, which query showed the clearest quality improvement between v1 and v2, and why?
+2. **Medium**: Explain in plain English why LLM-as-judge scoring, despite being imperfect, is often more practical than pure human review for evaluating production traffic at scale.
+3. **Hard**: Propose three golden dataset cases designed to catch a regression in how the bot handles refund policy exceptions, and define a release gate (pass rate and what blocks the launch).
 
 ## Key Terms
 

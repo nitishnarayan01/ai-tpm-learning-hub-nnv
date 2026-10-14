@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Sync vs Async Document Processing",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/01-programming-and-software-engineering/06-async-programming/diagrams/sync-vs-async.html"
+  },
+  "components": [
+    {
+      "id": "s1",
+      "type": "backend",
+      "label": "Doc 1 (wait 3s)",
+      "pos": [
+        60,
+        80
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "s2",
+      "type": "backend",
+      "label": "Doc 2 (wait 3s)",
+      "pos": [
+        290,
+        80
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "s3",
+      "type": "backend",
+      "label": "Doc 3 (wait 3s)",
+      "pos": [
+        520,
+        80
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "a1",
+      "type": "cloud",
+      "label": "Doc 1 (wait 3s)",
+      "pos": [
+        60,
+        240
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "a2",
+      "type": "cloud",
+      "label": "Doc 2 (wait 3s)",
+      "pos": [
+        290,
+        240
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "a3",
+      "type": "cloud",
+      "label": "Doc 3 (wait 3s)",
+      "pos": [
+        520,
+        240
+      ],
+      "size": [
+        170,
+        60
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Synchronous: 3 docs x 3s each = 9s total",
+      "wraps": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Asynchronous: 3 docs started together = ~3s total",
+      "wraps": [
+        "a1",
+        "a2",
+        "a3"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "s1-to-s2",
+      "from": "s1",
+      "to": "s2"
+    },
+    {
+      "id": "s2-to-s3",
+      "from": "s2",
+      "to": "s3"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Three Kinds of Database",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/01-programming-and-software-engineering/07-database-basics/diagrams/database-types.html"
+  },
+  "components": [
+    {
+      "id": "a",
+      "type": "database",
+      "label": "Relational Database (SQL)",
+      "sublabel": "Postgres, MySQL",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        240,
+        60
+      ]
+    },
+    {
+      "id": "a1",
+      "type": "database",
+      "label": "Tables with rows & columns",
+      "sublabel": "Great for structured, related data",
+      "pos": [
+        400,
+        40
+      ],
+      "size": [
+        260,
+        60
+      ]
+    },
+    {
+      "id": "b",
+      "type": "database",
+      "label": "Vector Database",
+      "sublabel": "Pinecone, pgvector, Chroma",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        240,
+        60
+      ]
+    },
+    {
+      "id": "b1",
+      "type": "database",
+      "label": "Stores embeddings (number lists)",
+      "sublabel": "Great for semantic/similarity search",
+      "pos": [
+        400,
+        170
+      ],
+      "size": [
+        260,
+        60
+      ]
+    },
+    {
+      "id": "c",
+      "type": "database",
+      "label": "Key-Value / NoSQL",
+      "sublabel": "Redis, MongoDB",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        240,
+        60
+      ]
+    },
+    {
+      "id": "c1",
+      "type": "database",
+      "label": "Flexible or simple key-based storage",
+      "sublabel": "Great for caching, unstructured data",
+      "pos": [
+        400,
+        300
+      ],
+      "size": [
+        260,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "a-to-a1",
+      "from": "a",
+      "to": "a1"
+    },
+    {
+      "id": "b-to-b1",
+      "from": "b",
+      "to": "b1"
+    },
+    {
+      "id": "c-to-c1",
+      "from": "c",
+      "to": "c1"
+    }
+  ]
+}

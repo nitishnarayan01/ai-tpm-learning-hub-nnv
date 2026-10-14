@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Choosing between a small language model and a frontier LLM",
+    "output": "diagrams/slm-vs-frontier-decision.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "task",
+      "type": "external",
+      "label": "Task Complexity",
+      "pos": [
+        40,
+        160
+      ],
+      "size": [
+        160,
+        60
+      ]
+    },
+    {
+      "id": "dec",
+      "type": "security",
+      "label": "Does this task need broad, general reasoning across many domains?",
+      "pos": [
+        290,
+        160
+      ],
+      "size": [
+        450,
+        60
+      ]
+    },
+    {
+      "id": "slm",
+      "type": "backend",
+      "label": "Small Language Model",
+      "sublabel": "Lower cost, lower latency, can run on-device/edge",
+      "pos": [
+        1000,
+        40
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "front",
+      "type": "cloud",
+      "label": "Frontier-Scale LLM",
+      "sublabel": "Higher capability ceiling, higher cost and latency",
+      "pos": [
+        1000,
+        280
+      ],
+      "size": [
+        300,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "task-to-dec",
+      "from": "task",
+      "to": "dec"
+    },
+    {
+      "id": "dec-to-slm",
+      "from": "dec",
+      "to": "slm",
+      "label": "No — narrow, well-defined task"
+    },
+    {
+      "id": "dec-to-front",
+      "from": "dec",
+      "to": "front",
+      "label": "Yes — broad, open-ended reasoning"
+    }
+  ]
+}

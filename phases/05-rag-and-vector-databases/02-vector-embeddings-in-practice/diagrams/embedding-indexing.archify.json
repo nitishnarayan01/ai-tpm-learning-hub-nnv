@@ -1,0 +1,106 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Vector Embeddings in Practice: Indexing and Re-indexing",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/05-rag-and-vector-databases/02-vector-embeddings-in-practice/diagrams/embedding-indexing.html"
+  },
+  "lanes": [
+    {
+      "id": "idx",
+      "label": "Indexing"
+    },
+    {
+      "id": "upd",
+      "label": "Updates"
+    }
+  ],
+  "mainPath": [
+    "chunks",
+    "model",
+    "vectors",
+    "store"
+  ],
+  "nodes": [
+    {
+      "id": "chunks",
+      "lane": "idx",
+      "col": 0,
+      "type": "external",
+      "label": "Document Chunks",
+      "width": 130
+    },
+    {
+      "id": "model",
+      "lane": "idx",
+      "col": 1,
+      "type": "backend",
+      "label": "Embedding Model Choice",
+      "sublabel": "general-purpose vs. domain-specific",
+      "width": 181
+    },
+    {
+      "id": "vectors",
+      "lane": "idx",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Vectors of a Fixed Dimensionality",
+      "sublabel": "e.g. 384, 768, 1536 numbers",
+      "width": 238
+    },
+    {
+      "id": "store",
+      "lane": "idx",
+      "col": 3,
+      "type": "database",
+      "label": "Stored in a Vector Database",
+      "width": 197
+    },
+    {
+      "id": "newdoc",
+      "lane": "upd",
+      "col": 2,
+      "type": "external",
+      "label": "New/Updated Document",
+      "width": 150
+    },
+    {
+      "id": "reindex",
+      "lane": "upd",
+      "col": 3,
+      "type": "backend",
+      "label": "Re-embed and update index",
+      "sublabel": "re-indexing",
+      "width": 184
+    }
+  ],
+  "edges": [
+    {
+      "id": "chunks-model",
+      "from": "chunks",
+      "to": "model"
+    },
+    {
+      "id": "model-vectors",
+      "from": "model",
+      "to": "vectors"
+    },
+    {
+      "id": "vectors-store",
+      "from": "vectors",
+      "to": "store"
+    },
+    {
+      "id": "newdoc-reindex",
+      "from": "newdoc",
+      "to": "reindex"
+    },
+    {
+      "id": "reindex-store",
+      "from": "reindex",
+      "to": "store"
+    }
+  ]
+}

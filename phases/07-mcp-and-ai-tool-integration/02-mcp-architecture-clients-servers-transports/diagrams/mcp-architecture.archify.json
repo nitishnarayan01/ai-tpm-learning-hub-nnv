@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MCP Architecture",
+    "output": "diagrams/mcp-architecture.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "host",
+      "type": "external",
+      "label": "Host Application",
+      "sublabel": "(e.g. an AI assistant app)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "MCP Client",
+      "sublabel": "(manages the connection)",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "server",
+      "type": "messagebus",
+      "label": "MCP Server",
+      "sublabel": "(exposes tools/resources/prompts)",
+      "pos": [
+        900,
+        40
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "Tools",
+      "sublabel": "(callable functions)",
+      "pos": [
+        600,
+        230
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "resources",
+      "type": "database",
+      "label": "Resources",
+      "sublabel": "(readable data, like files or records)",
+      "pos": [
+        900,
+        230
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "prompts",
+      "type": "cloud",
+      "label": "Prompts",
+      "sublabel": "(reusable prompt templates)",
+      "pos": [
+        1200,
+        230
+      ],
+      "size": [
+        260,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "host-to-client",
+      "from": "host",
+      "to": "client"
+    },
+    {
+      "id": "client-to-server",
+      "from": "client",
+      "to": "server",
+      "label": "Transport: stdio (local) or HTTP (remote)"
+    },
+    {
+      "id": "server-to-tools",
+      "from": "server",
+      "to": "tools"
+    },
+    {
+      "id": "server-to-resources",
+      "from": "server",
+      "to": "resources"
+    },
+    {
+      "id": "server-to-prompts",
+      "from": "server",
+      "to": "prompts"
+    }
+  ]
+}
