@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Robust AI API Call Flow",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/01-programming-and-software-engineering/10-api-engineering-for-ai-applications/diagrams/api-call-flow.html"
+  },
+  "components": [
+    {
+      "id": "a",
+      "type": "external",
+      "label": "User Input",
+      "pos": [
+        40,
+        200
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "b",
+      "type": "security",
+      "label": "Validate Input",
+      "sublabel": "(empty? too long?)",
+      "pos": [
+        260,
+        200
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "c",
+      "type": "backend",
+      "label": "Build Request (JSON)",
+      "sublabel": "model, messages, temperature",
+      "pos": [
+        520,
+        200
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "d",
+      "type": "cloud",
+      "label": "Call API (async, with retries)",
+      "pos": [
+        830,
+        200
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "e",
+      "type": "backend",
+      "label": "Parse Response (JSON)",
+      "pos": [
+        830,
+        360
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "f",
+      "type": "messagebus",
+      "label": "Backoff & Retry",
+      "pos": [
+        830,
+        40
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "g",
+      "type": "security",
+      "label": "Fallback / Error Message",
+      "pos": [
+        1220,
+        200
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "h",
+      "type": "external",
+      "label": "Return Answer to User",
+      "pos": [
+        830,
+        500
+      ],
+      "size": [
+        250,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "a-to-b",
+      "from": "a",
+      "to": "b"
+    },
+    {
+      "id": "b-to-c",
+      "from": "b",
+      "to": "c"
+    },
+    {
+      "id": "c-to-d",
+      "from": "c",
+      "to": "d"
+    },
+    {
+      "id": "d-to-e",
+      "from": "d",
+      "to": "e",
+      "label": "Success",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "d-to-f",
+      "from": "d",
+      "to": "f",
+      "label": "Rate limited (429)",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "d-to-g",
+      "from": "d",
+      "to": "g",
+      "label": "Server error (500)",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "e-to-h",
+      "from": "e",
+      "to": "h"
+    },
+    {
+      "id": "f-to-d",
+      "from": "f",
+      "to": "d",
+      "fromSide": "left",
+      "toSide": "left",
+      "variant": "dashed",
+      "via": [
+        [
+          790,
+          70
+        ],
+        [
+          790,
+          230
+        ]
+      ]
+    }
+  ]
+}

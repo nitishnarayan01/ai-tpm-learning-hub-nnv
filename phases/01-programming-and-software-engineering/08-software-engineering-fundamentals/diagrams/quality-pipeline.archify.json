@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "From Code to Production",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/01-programming-and-software-engineering/08-software-engineering-fundamentals/diagrams/quality-pipeline.html"
+  },
+  "components": [
+    {
+      "id": "a",
+      "type": "frontend",
+      "label": "Write Code",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "b",
+      "type": "backend",
+      "label": "Tests",
+      "sublabel": "(catch bugs automatically)",
+      "pos": [
+        250,
+        60
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "c",
+      "type": "backend",
+      "label": "Code Review",
+      "sublabel": "(a second person checks it)",
+      "pos": [
+        500,
+        60
+      ],
+      "size": [
+        190,
+        60
+      ]
+    },
+    {
+      "id": "d",
+      "type": "cloud",
+      "label": "CI/CD Pipeline",
+      "sublabel": "(automated checks before merge/deploy)",
+      "pos": [
+        40,
+        200
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "e",
+      "type": "external",
+      "label": "Production",
+      "pos": [
+        350,
+        200
+      ],
+      "size": [
+        150,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "a-to-b",
+      "from": "a",
+      "to": "b"
+    },
+    {
+      "id": "b-to-c",
+      "from": "b",
+      "to": "c"
+    },
+    {
+      "id": "c-to-d",
+      "from": "c",
+      "to": "d",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [
+        [
+          595,
+          150
+        ],
+        [
+          165,
+          150
+        ]
+      ]
+    },
+    {
+      "id": "d-to-e",
+      "from": "d",
+      "to": "e"
+    }
+  ]
+}

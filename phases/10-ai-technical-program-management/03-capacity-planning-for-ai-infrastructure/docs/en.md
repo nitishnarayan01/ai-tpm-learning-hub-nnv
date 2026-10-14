@@ -3,24 +3,19 @@
 > "We'll scale it up if we need to" is not a capacity plan — it's a bet that nobody calculated the odds on.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** Technical Risk Management for AI Programs
-**Time:** ~30 minutes
+**Time:** ~25 minutes
 
 ## Learning Objectives
 
-- Understand capacity planning for AI systems as the combination of rate limit math (Level 0), token economics (Level 4), and traffic projections
+- Explain capacity planning for AI systems as the combination of rate limit math (Level 0), token economics (Level 4), and traffic projections
 - Recognize the specific capacity variables an AI system depends on, beyond typical server capacity planning
-- Understand how to build a capacity plan that accounts for growth and traffic spikes, not just current-day averages
-- Formulate the right questions when reviewing whether a launch plan's capacity assumptions are realistic
+- Describe how a capacity plan accounts for growth and traffic spikes, not just current-day averages
+- Ask the right questions when reviewing whether a launch plan's capacity assumptions are realistic
 
-## The Problem
+## What It Is
 
-A team plans to launch an AI feature to their full user base of 200,000 users. Their capacity plan is a single sentence: "our current API tier should be fine." When asked what "fine" means in RPM/TPM terms (Level 0) at expected concurrency, or what happens during a traffic spike (e.g. a marketing email driving a surge), there's no answer — the plan was an assumption, not a calculation, and it fails within hours of a real launch.
-
-## The Concept
-
-Capacity planning for an AI system combines several distinct calculations this curriculum has already covered individually, brought together into one forward-looking projection.
+Capacity planning for an AI system combines several calculations this curriculum has covered individually into one forward-looking projection: how many users, how much of that load arrives at peak, how many requests and tokens per minute that implies, whether the provider's limits allow it, and what it costs.
 
 ```mermaid
 graph TD
@@ -31,100 +26,83 @@ graph TD
     Cost --> Headroom
 ```
 
-### Peak Concurrency, Not Daily Average
-
-A daily average of "1,000 requests per day" hides enormous variation — if most usage clusters in a 2-hour peak window, actual concurrent load during that window could be 10x the naive average-per-hour figure. Capacity planning must estimate **peak concurrency**, not just total daily volume, since rate limits (Level 0) are enforced per-minute, not per-day.
-
-### RPM/TPM Requirements at Peak
-
-Using the peak concurrency estimate, calculate the actual RPM and TPM requirements (Level 0) needed to serve that load without hitting provider rate limits — and compare this against the current API tier's actual limits, not an assumption that "it should be fine."
-
-### Cost Projection at Scale
-
-Using token economics (Level 4), project total cost at the expected peak and average usage levels — a capacity plan without a cost projection is incomplete, since infrastructure capacity and cost are two sides of the same scaling question.
-
-### Headroom and Escalation Path
-
-A responsible capacity plan includes headroom (e.g. planning for 150% of the projected peak, not exactly 100%) and a concrete escalation path — who to contact, how long a rate/tier increase request typically takes with the provider — for when real usage exceeds projections, rather than discovering the escalation process for the first time during an actual capacity crisis.
-
-## Build It
-
-A simplified capacity planning calculator combining peak concurrency, rate limit requirements, and cost projection:
-
-```python
-def capacity_plan(
-    total_users,
-    percent_active_daily=0.30,
-    requests_per_active_user_per_day=3,
-    peak_concentration_factor=8,
-    avg_tokens_per_request=1500,
-    price_per_1k_tokens=0.004,
-    current_tpm_limit=200_000,
-):
-    active_users = total_users * percent_active_daily
-    daily_requests = active_users * requests_per_active_user_per_day
-
-    avg_requests_per_minute = daily_requests / (24 * 60)
-    peak_requests_per_minute = avg_requests_per_minute * peak_concentration_factor
-
-    peak_tpm_needed = peak_requests_per_minute * avg_tokens_per_request
-    headroom_tpm_needed = peak_tpm_needed * 1.5
-
-    daily_cost = (daily_requests * avg_tokens_per_request / 1000) * price_per_1k_tokens
-
-    print(f"Total users: {total_users:,}")
-    print(f"Estimated daily requests: {daily_requests:,.0f}")
-    print(f"Average RPM: {avg_requests_per_minute:.1f}")
-    print(f"Estimated PEAK RPM (concentration factor {peak_concentration_factor}x): {peak_requests_per_minute:.1f}")
-    print(f"Peak TPM needed: {peak_tpm_needed:,.0f}")
-    print(f"Recommended capacity with 50% headroom: {headroom_tpm_needed:,.0f} TPM")
-    print(f"Current provider TPM limit: {current_tpm_limit:,}")
-
-    if headroom_tpm_needed > current_tpm_limit:
-        shortfall = headroom_tpm_needed - current_tpm_limit
-        print(f"\nGAP DETECTED: current limit is short by {shortfall:,.0f} TPM.")
-        print("ACTION REQUIRED: request a tier increase before launch, not after hitting the limit.")
-    else:
-        print("\nCurrent limit appears sufficient with recommended headroom.")
-
-    print(f"\nProjected daily cost: ${daily_cost:,.2f}")
-
-capacity_plan(total_users=200_000)
+```archify
+src: diagrams/capacity-plan-flow.html
+title: From user base to a capacity plan with headroom
+aspect: 1270/348
 ```
 
-Running this reveals a concrete gap and a specific required action (requesting a tier increase before launch) — a fundamentally different, defensible position than the opening scenario's "our current tier should be fine."
+## Why It Matters
 
-## Use It
+A team plans to launch an AI feature to its full base of 200,000 users. The capacity plan is one sentence: "our current API tier should be fine." Asked what "fine" means in RPM/TPM terms at expected concurrency, or what happens when a marketing email drives a surge, there is no answer. The plan was an assumption, not a calculation, and it fails within hours of a real launch.
 
-Mature AI programs treat capacity planning as a required, calculated deliverable before any significant launch:
+## How It Works
 
-- **Launch readiness reviews requiring a capacity plan document**, with the specific numbers shown above, not a verbal assurance.
-- **Provider tier increase requests submitted well in advance of launch**, given that these often have real processing lead times that can't be compressed under launch-day pressure.
-- **Load testing against realistic peak concurrency estimates**, not just average daily volume, to validate the capacity plan's assumptions before real users are affected.
+1. **Peak concurrency, not daily average.** A daily average hides variation. If most usage clusters in a 2-hour window, load in that window can be many times the flat average. Provider rate limits are enforced per minute, not per day, so the peak is what matters. A **peak concentration factor** (for example 8x) captures this.
+2. **RPM/TPM at peak.** Convert the peak into requests per minute and tokens per minute, then compare against the current tier's actual limits, not an assumption.
+3. **Cost at scale.** Use token economics to project cost at average and peak usage. Capacity and cost are two sides of the same scaling question.
+4. **Headroom and escalation.** Plan for more than 100% of the projected peak (for example 150%) and know in advance who to contact and how long a tier increase takes, instead of learning the process during a crisis.
 
-## Exercises
+## Architecture and Workflow
 
-1. **Easy**: In the code above, what does the "peak_concentration_factor" represent, and why is it higher than 1?
-2. **Medium**: Explain in plain English why "our daily average is well within limits" doesn't guarantee a launch won't hit rate limits.
-3. **Hard**: Propose a specific headroom percentage and escalation plan for a launch you expect to have unusually unpredictable traffic (e.g. a feature announced in a viral social media post), and justify your choices.
+1. Estimate active users and requests per active user per day.
+2. Divide daily requests by minutes in a day to get average RPM; multiply by the concentration factor to get peak RPM.
+3. Multiply peak RPM by average tokens per request to get peak TPM; multiply by 1.5 for headroom.
+4. Compare to the provider tier's TPM limit; if short, submit a tier increase request before launch.
+5. Project daily cost; validate assumptions with a load test at the peak estimate.
 
-## TPM Perspective
+## A Real-World Example
 
-### Strategic Executive Summary
-A capacity plan that isn't backed by a calculation — peak concurrency, RPM/TPM requirements, cost projection, and headroom — is an assumption dressed up as a plan, and it tends to fail exactly when it matters most: during a real launch or a traffic spike. A TPM should require a specific, numbers-based capacity plan document before any significant AI feature launch, the same way a traditional infrastructure launch would require load testing and capacity sign-off.
+Launching to 200,000 users, assuming 30% active daily, 3 requests per active user per day, a peak concentration factor of 8, 1,500 tokens per request, a price of $0.004 per 1,000 tokens, and a current limit of 200,000 TPM:
 
-### Questions to Challenge Engineering
+| Step | Calculation | Result |
+| :--- | :--- | :--- |
+| Active users per day | 200,000 x 30% | 60,000 |
+| Daily requests | 60,000 x 3 | 180,000 |
+| Average RPM | 180,000 / 1,440 minutes | 125 |
+| Peak RPM | 125 x 8 | 1,000 |
+| Peak TPM needed | 1,000 x 1,500 | 1,500,000 |
+| With 50% headroom | 1,500,000 x 1.5 | 2,250,000 |
+| Current provider limit | Given | 200,000 |
+| Shortfall | 2,250,000 - 200,000 | about 2,050,000 TPM (over 11x) |
+| Daily cost | 180,000 x 1.5 thousand tokens x $0.004 | about $1,080 per day |
+
+The calculation exposes a gap an order of magnitude wide and a specific action: request a tier increase before launch. That is a defensible position, unlike "our current tier should be fine."
+
+## What a TPM Needs to Understand
+
+- A capacity plan not backed by a calculation (peak concurrency, RPM/TPM, cost, headroom) is an assumption dressed up as a plan.
+- Require a numbers-based capacity document before any significant AI launch, as you would require load testing and capacity sign-off for traditional infrastructure.
+- Tier increases have real lead times that cannot be compressed on launch day. Start early.
+- Concentration factor and tokens per request are the most sensitive assumptions. Ask where each came from (measured, or guessed).
+- Capacity and cost move together. A fix for one (bigger tier) usually changes the other.
+
+## Risks, Dependencies, and Trade-Offs
+
+| Capacity Planning Approach | Launch Risk | Preparation Effort | Cost Predictability |
+| :--- | :--- | :--- | :--- |
+| **"Should be fine" assumption, no calculation** | High, likely to hit limits under real load | Minimal | Low, surprises common |
+| **Daily average calculation only** | Moderate, misses peak concentration risk | Low-Moderate | Moderate |
+| **Peak concurrency + RPM/TPM + cost + headroom** | Low, planned for realistic worst case | Higher, but front-loaded | High, defensible projection |
+
+- **Dependency:** the model provider's tier approval process and its lead time; any second provider used as a fallback.
+- **Failure scenario: viral spike.** Traffic exceeds even the headroom; requests are throttled and users see errors. Mitigation: queueing, graceful degradation, a pre-agreed escalation contact.
+- **Failure scenario: prompt growth.** A longer system prompt raises tokens per request, silently pushing TPM over the limit even with flat traffic.
+- **Trade-off:** more headroom means safer launches but a higher committed tier cost.
+
+## Questions to Ask Engineers
+
 1. *"What's our peak concurrency estimate, not just our daily average, and what RPM/TPM does that require compared to our current provider tier?"*
 2. *"Have we requested any necessary tier increases well before launch, given that these often have real processing lead times?"*
 3. *"What headroom are we building in above our peak estimate, and what's our escalation plan if real traffic exceeds even that?"*
 
-### Trade-Off Matrix
+## Scenario Exercise
 
-| Capacity Planning Approach | Launch Risk | Preparation Effort | Cost Predictability |
-| :--- | :--- | :--- | :--- |
-| **"Should be fine" assumption, no calculation** | High — likely to hit limits under real load | Minimal | Low, surprises common |
-| **Daily average calculation only** | Moderate — misses peak concentration risk | Low-Moderate | Moderate |
-| **Peak concurrency + RPM/TPM + cost + headroom** | Low — planned for realistic worst case | Higher, but front-loaded | High, defensible projection |
+You are the TPM for the 200,000-user launch above.
+
+1. **Easy**: What does the peak concentration factor represent, and why is it higher than 1?
+2. **Medium**: Explain in plain English why "our daily average is well within limits" does not guarantee the launch will avoid rate limits.
+3. **Hard**: The feature may be announced in a viral social media post. Propose a headroom percentage and escalation plan, and justify your choices, including what you would do if the provider cannot approve the increase in time.
 
 ## Key Terms
 

@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Branches and Pull Requests",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/01-programming-and-software-engineering/09-git-and-github-workflow/diagrams/branch-pr-flow.html"
+  },
+  "components": [
+    {
+      "id": "main",
+      "type": "database",
+      "label": "main branch",
+      "sublabel": "(the stable, shipped code)",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        240,
+        60
+      ]
+    },
+    {
+      "id": "b1",
+      "type": "backend",
+      "label": "feature/retry-logic",
+      "sublabel": "(an engineer's isolated branch)",
+      "pos": [
+        40,
+        190
+      ],
+      "size": [
+        260,
+        60
+      ]
+    },
+    {
+      "id": "b2",
+      "type": "backend",
+      "label": "feature/new-pricing",
+      "sublabel": "(another engineer's isolated branch)",
+      "pos": [
+        620,
+        190
+      ],
+      "size": [
+        280,
+        60
+      ]
+    },
+    {
+      "id": "p1",
+      "type": "security",
+      "label": "Pull Request",
+      "sublabel": "reviewed, then merged",
+      "pos": [
+        60,
+        340
+      ],
+      "size": [
+        220,
+        60
+      ]
+    },
+    {
+      "id": "p2",
+      "type": "security",
+      "label": "Pull Request",
+      "sublabel": "reviewed, then merged",
+      "pos": [
+        650,
+        340
+      ],
+      "size": [
+        220,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "main-to-b1",
+      "from": "main",
+      "to": "b1",
+      "fromSide": "left",
+      "toSide": "top"
+    },
+    {
+      "id": "main-to-b2",
+      "from": "main",
+      "to": "b2",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "b1-to-p1",
+      "from": "b1",
+      "to": "p1"
+    },
+    {
+      "id": "b2-to-p2",
+      "from": "b2",
+      "to": "p2"
+    },
+    {
+      "id": "p1-to-main",
+      "from": "p1",
+      "to": "main",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "variant": "emphasis"
+    },
+    {
+      "id": "p2-to-main",
+      "from": "p2",
+      "to": "main",
+      "fromSide": "left",
+      "toSide": "bottom",
+      "variant": "emphasis"
+    }
+  ]
+}

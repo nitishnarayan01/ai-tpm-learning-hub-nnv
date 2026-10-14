@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Frozen weights plus small LoRA matrices",
+    "output": "diagrams/lora-combined-output.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "orig",
+      "type": "database",
+      "label": "Original Model Weights",
+      "sublabel": "(frozen, unchanged)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "lora",
+      "type": "backend",
+      "label": "Small LoRA Matrices",
+      "sublabel": "(the only thing trained)",
+      "pos": [
+        40,
+        180
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "comb",
+      "type": "backend",
+      "label": "Combined Output",
+      "pos": [
+        380,
+        110
+      ],
+      "size": [
+        180,
+        60
+      ]
+    },
+    {
+      "id": "out",
+      "type": "external",
+      "label": "Model Output",
+      "sublabel": "(adapted behavior)",
+      "pos": [
+        670,
+        110
+      ],
+      "size": [
+        200,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "orig-to-comb",
+      "from": "orig",
+      "to": "comb"
+    },
+    {
+      "id": "lora-to-comb",
+      "from": "lora",
+      "to": "comb"
+    },
+    {
+      "id": "comb-to-out",
+      "from": "comb",
+      "to": "out"
+    }
+  ]
+}

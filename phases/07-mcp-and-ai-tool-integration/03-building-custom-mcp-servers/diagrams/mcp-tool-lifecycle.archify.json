@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Custom MCP Tool Lifecycle",
+    "output": "diagrams/mcp-tool-lifecycle.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "def",
+      "type": "database",
+      "label": "Tool Definition",
+      "sublabel": "(name, description, input schema)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        380,
+        64
+      ]
+    },
+    {
+      "id": "reg",
+      "type": "messagebus",
+      "label": "Server Registers Tool",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        380,
+        64
+      ]
+    },
+    {
+      "id": "discover",
+      "type": "backend",
+      "label": "Client Discovers Tool",
+      "sublabel": "via MCP",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        380,
+        64
+      ]
+    },
+    {
+      "id": "call",
+      "type": "cloud",
+      "label": "Model Decides to Call Tool",
+      "sublabel": "(function calling, Level 4)",
+      "pos": [
+        40,
+        370
+      ],
+      "size": [
+        380,
+        64
+      ]
+    },
+    {
+      "id": "handler",
+      "type": "security",
+      "label": "Server's Handler",
+      "sublabel": "validates input, executes, returns result",
+      "pos": [
+        40,
+        480
+      ],
+      "size": [
+        380,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "def-to-reg",
+      "from": "def",
+      "to": "reg"
+    },
+    {
+      "id": "reg-to-discover",
+      "from": "reg",
+      "to": "discover"
+    },
+    {
+      "id": "discover-to-call",
+      "from": "discover",
+      "to": "call"
+    },
+    {
+      "id": "call-to-handler",
+      "from": "call",
+      "to": "handler"
+    }
+  ]
+}

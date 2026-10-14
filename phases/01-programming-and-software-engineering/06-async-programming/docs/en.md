@@ -3,28 +3,51 @@
 > LLM API calls take seconds, not milliseconds — a system that waits for one at a time will never feel fast.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** APIs and JSON
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand the difference between synchronous ("wait, then continue") and asynchronous ("start many things, handle them as they finish") execution
-- Recognize why AI applications rely heavily on async programming, given slow LLM API response times
-- Understand basic concurrency vocabulary: blocking, non-blocking, concurrency vs. parallelism
+- Explain the difference between synchronous ("wait, then continue") and asynchronous ("start many things, handle them as they finish") execution
+- Explain why AI applications rely heavily on async design, given slow LLM API response times
+- Use basic concurrency vocabulary: blocking, non-blocking, concurrency versus parallelism
 - Formulate the right questions when engineering says a feature is "blocking" or needs to be "made async"
 
-## The Problem
+## What It Is
 
-A product feature summarizes 50 documents by calling an LLM API once per document. Done the naive way (one at a time, waiting for each to finish before starting the next), if each call takes 3 seconds, the whole feature takes 150 seconds. Done asynchronously (starting many calls at once and handling responses as they arrive), the same feature might finish in under 10 seconds.
+**Synchronous** execution does one thing at a time, waiting for each to finish before starting the next, like a single checkout line where every customer must finish before the next begins.
 
-A TPM who doesn't understand this distinction might think "150 seconds sounds like a data problem" when it's actually a concurrency design problem with a well-known, standard fix.
+**Asynchronous** execution starts a task (such as an API call), moves on to start other tasks while waiting, and handles each result as it arrives, like a barista starting several drinks at once and serving whichever is ready first.
 
-## The Concept
+- **Blocking**: a task that halts everything else until it finishes.
+- **Non-blocking**: a task that is started and "let go of" so other work proceeds meanwhile.
+- **Concurrency**: managing multiple tasks in progress at overlapping times. One worker can juggle many waiting tasks.
+- **Parallelism**: literally running multiple tasks at the same instant, which needs multiple CPU cores.
 
-**Synchronous** code runs one instruction at a time, waiting for each to fully finish before starting the next — like standing in a single checkout line where every customer must finish before the next one starts.
+Async for API calls is almost always about concurrency (efficiently juggling many "waiting on a response" tasks), not parallelism.
 
-**Asynchronous** code can start a task (like an API call), move on to start other tasks while waiting, and come back to handle each one as it completes — like a barista starting several drinks at once and finishing whichever is ready first.
+## Why It Matters
+
+A feature summarizes 50 documents by calling an LLM API once per document. Done one at a time at 3 seconds each, it takes 150 seconds. Done asynchronously, with many calls in flight and responses handled as they arrive, it can finish in under 10 seconds.
+
+A TPM who misses this distinction might read "150 seconds" as a data problem when it is a concurrency design problem with a well-known, standard fix.
+
+## How It Works
+
+The time spent in an LLM call is almost entirely waiting for the provider, not computing locally. A synchronous design wastes that waiting time; an asynchronous design overlaps it.
+
+- **Synchronous**: total time is the sum of all waits. Three documents at 3 seconds each takes 9 seconds.
+- **Asynchronous**: total time is close to the longest single wait. The same three documents take about 3 seconds.
+
+Async is not free. Firing everything at once hits provider rate limits abruptly (see the APIs, Tokens, and Rate Limits lesson), so mature systems use **async with a concurrency limit**: for example at most 10 calls in flight at a time, with backoff on 429 errors.
+
+Where AI systems use it:
+
+- **Batch summarization or classification**: many LLM calls concurrently instead of sequentially.
+- **Chat applications**: many users' conversations at once, so one slow response does not block everyone.
+- **RAG pipelines**: querying the vector database and calling an LLM concurrently when the steps do not depend on each other.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -38,79 +61,24 @@ graph TD
     end
 ```
 
-### Blocking vs. Non-Blocking
-
-- **Blocking**: a task that halts everything else until it finishes (e.g. waiting for a slow API response with nothing else happening).
-- **Non-blocking**: a task that can be started and then "let go of," so other work can proceed while it's in progress.
-
-### Concurrency vs. Parallelism (a common mix-up)
-
-- **Concurrency**: managing multiple tasks that are in progress at overlapping times (doesn't require multiple CPUs — one worker can juggle many waiting tasks).
-- **Parallelism**: literally running multiple tasks at the exact same instant, which does require multiple CPU cores.
-
-Async programming for API calls is almost always about **concurrency** (juggling many "waiting on a response" tasks efficiently), not parallelism.
-
-## Build It
-
-The same "summarize 3 documents" task, written synchronously and asynchronously, to show the structural difference:
-
-```python
-import asyncio
-import time
-
-async def fake_llm_call(doc_id, delay=1.5):
-    print(f"Started summarizing document {doc_id}")
-    await asyncio.sleep(delay)
-    print(f"Finished summarizing document {doc_id}")
-    return f"Summary of document {doc_id}"
-
-async def synchronous_style():
-    start = time.perf_counter()
-    results = []
-    for doc_id in range(1, 4):
-        result = await fake_llm_call(doc_id)
-        results.append(result)
-    print(f"Synchronous-style total time: {time.perf_counter() - start:.2f}s\n")
-    return results
-
-async def asynchronous_style():
-    start = time.perf_counter()
-    tasks = [fake_llm_call(doc_id) for doc_id in range(1, 4)]
-    results = await asyncio.gather(*tasks)
-    print(f"Asynchronous total time: {time.perf_counter() - start:.2f}s\n")
-    return results
-
-asyncio.run(synchronous_style())
-asyncio.run(asynchronous_style())
+```archify
+src: diagrams/sync-vs-async.html
+title: Synchronous vs asynchronous processing of three documents
+aspect: 760/388
 ```
 
-The synchronous-style version takes roughly 4.5 seconds (1.5s x 3, one after another). The asynchronous version takes roughly 1.5 seconds total, because all three "waits" happen at the same time.
+## A Real-World Example
 
-## Use It
+A legal-tech team summarizes 20 contracts per request at 3 seconds per call. Synchronous: 60 seconds, and users abandon the page. Fully async: about 3 to 4 seconds. But the provider allows 10 requests per second, and during a demo with 15 simultaneous users, 300 calls fire at once, producing a wall of 429 errors and blank summaries. The team adds a concurrency limit of 10 in flight with retry-after-delay. Total time rises to roughly 6 seconds per request, with no failures. The lesson: speed came from overlapping waits, reliability came from limiting how many.
 
-Real AI systems use async programming for exactly this reason:
+## What a TPM Needs to Understand
 
-- **Batch summarization/classification**: processing many documents by firing off many LLM calls concurrently instead of one at a time.
-- **Chat applications**: handling many users' concurrent conversations without one slow response blocking everyone else.
-- **RAG pipelines**: fetching from a vector database and calling an LLM API concurrently instead of sequentially when they don't depend on each other.
+- For any AI feature that makes external API calls, sync versus async is often the single biggest lever on perceived speed, sometimes 10x or more, without more powerful hardware.
+- Async interacts directly with rate limits: more concurrency reaches RPM/TPM ceilings sooner.
+- Async only helps when the bottleneck is waiting. If the real bottleneck is a single shared resource that cannot be parallelized, it will not help.
+- Async code is harder to reason about and debug (ordering, partial failures, timeouts), so complexity is a real cost.
 
-## Exercises
-
-1. **Easy**: In plain English, explain the difference between "blocking" and "non-blocking" using a real-life analogy other than the barista example above.
-2. **Medium**: If summarizing 20 documents synchronously takes 60 seconds (3 seconds each), roughly how long would you expect it to take if fully parallelized with async calls, assuming no other bottlenecks?
-3. **Hard**: Describe a scenario where making a feature "more async" would *not* help — i.e., where the bottleneck isn't waiting time but something else (hint: think about what happens if all 20 async calls hit the same rate limit at once).
-
-## TPM Perspective
-
-### Strategic Executive Summary
-For any AI feature that makes external API calls, "synchronous vs. asynchronous" is often the single biggest lever on perceived speed — sometimes a 10x or greater difference — without needing more powerful hardware. But async isn't free: it interacts directly with rate limits (Level 0), since firing off many requests at once can hit RPM/TPM ceilings faster than a slow, sequential approach would.
-
-### Questions to Challenge Engineering
-1. *"Is this slow feature making API calls one at a time (synchronous), and if so, is there a reason it can't be made concurrent?"*
-2. *"If we make this fully async, will we hit our rate limits faster — and do we have backoff/retry logic ready for that?"*
-3. *"Is the bottleneck actually waiting time (a good fit for async), or something else like a single shared resource that can't be parallelized?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Approach | Total Time for 20 Slow API Calls | Complexity | Risk |
 | :--- | :--- | :--- | :--- |
@@ -118,10 +86,26 @@ For any AI feature that makes external API calls, "synchronous vs. asynchronous"
 | **Fully async (all at once)** | Fastest (close to a single delay) | Medium — requires async-aware code | Can hit rate limits abruptly if not throttled |
 | **Async with a concurrency limit** | Fast, but controlled | Medium-High | Best balance — speed without instantly hitting limits |
 
+Failure scenarios: a burst of calls triggers rate limiting; one slow or failed call among many needs a timeout so it does not stall the whole batch; partial results need a decision (return what we have, or fail entirely).
+
+## Questions to Ask Engineers
+
+1. *"Is this slow feature making API calls one at a time (synchronous), and if so, is there a reason it can't be made concurrent?"*
+2. *"If we make this fully async, will we hit our rate limits faster, and do we have backoff and retry logic ready for that?"*
+3. *"Is the bottleneck actually waiting time (a good fit for async), or something else like a single shared resource that can't be parallelized?"*
+
+## Scenario Exercise
+
+A report-generation feature calls an LLM 40 times per report and takes about 2 minutes. Customers complain.
+
+1. **Easy**: In plain English, explain "blocking" versus "non-blocking" using an everyday analogy of your own.
+2. **Medium**: If each call takes 3 seconds and the calls are independent, roughly how long should the report take with unrestricted async calls, and what new risk appears?
+3. **Hard**: Describe a case where making the feature "more async" would not help (for example all calls hitting the same rate limit at once, or a final step that needs all results), and what you would propose instead.
+
 ## Key Terms
 
-- **Synchronous**: Code that executes one instruction at a time, waiting for each to complete before starting the next.
-- **Asynchronous**: Code that can start a task, move on to other work, and handle results as they complete, rather than waiting idly.
+- **Synchronous**: Execution that handles one step at a time, waiting for each to complete before starting the next.
+- **Asynchronous**: Execution that can start a task, move on to other work, and handle results as they complete, rather than waiting idly.
 - **Blocking**: A task that halts all other progress until it finishes.
 - **Concurrency**: Managing multiple in-progress tasks over overlapping time periods (does not require multiple CPU cores).
 - **Parallelism**: Executing multiple tasks at the exact same instant, requiring multiple CPU cores.

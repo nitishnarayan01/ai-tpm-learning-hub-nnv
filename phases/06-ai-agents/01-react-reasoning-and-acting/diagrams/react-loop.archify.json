@@ -1,0 +1,136 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "ReAct: Thought, Action, Observation Loop",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/06-ai-agents/01-react-reasoning-and-acting/diagrams/react-loop.html"
+  },
+  "lanes": [
+    {
+      "id": "loop",
+      "label": "Reasoning loop"
+    },
+    {
+      "id": "end",
+      "label": "Exits"
+    }
+  ],
+  "mainPath": [
+    "start",
+    "thought",
+    "action",
+    "obs",
+    "check"
+  ],
+  "nodes": [
+    {
+      "id": "start",
+      "lane": "loop",
+      "col": 0,
+      "type": "external",
+      "label": "User Task",
+      "width": 130
+    },
+    {
+      "id": "thought",
+      "lane": "loop",
+      "col": 1,
+      "type": "backend",
+      "label": "Thought: What's the next step,",
+      "sublabel": "given what I know so far?",
+      "width": 217
+    },
+    {
+      "id": "action",
+      "lane": "loop",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Action: Call a tool",
+      "width": 144
+    },
+    {
+      "id": "obs",
+      "lane": "loop",
+      "col": 3,
+      "type": "database",
+      "label": "Observation: Tool result",
+      "sublabel": "added to context",
+      "width": 177
+    },
+    {
+      "id": "check",
+      "lane": "loop",
+      "col": 4,
+      "type": "security",
+      "label": "Step limit reached?",
+      "sublabel": "max_steps",
+      "width": 144
+    },
+    {
+      "id": "final",
+      "lane": "end",
+      "col": 1,
+      "type": "cloud",
+      "label": "Final Answer",
+      "width": 130
+    },
+    {
+      "id": "stop",
+      "lane": "end",
+      "col": 4,
+      "type": "security",
+      "label": "Stop: max_steps reached",
+      "sublabel": "no final answer",
+      "width": 171
+    }
+  ],
+  "edges": [
+    {
+      "id": "start-thought",
+      "from": "start",
+      "to": "thought"
+    },
+    {
+      "id": "thought-action",
+      "from": "thought",
+      "to": "action",
+      "label": "Need more information",
+      "variant": "emphasis"
+    },
+    {
+      "id": "action-obs",
+      "from": "action",
+      "to": "obs"
+    },
+    {
+      "id": "obs-check",
+      "from": "obs",
+      "to": "check"
+    },
+    {
+      "id": "check-thought",
+      "from": "check",
+      "to": "thought",
+      "label": "No: loop again",
+      "variant": "dashed",
+      "role": "return"
+    },
+    {
+      "id": "check-stop",
+      "from": "check",
+      "to": "stop",
+      "label": "Yes",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "thought-final",
+      "from": "thought",
+      "to": "final",
+      "label": "I have enough information",
+      "variant": "emphasis"
+    }
+  ]
+}

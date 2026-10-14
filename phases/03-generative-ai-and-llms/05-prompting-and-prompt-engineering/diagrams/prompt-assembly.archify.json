@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "How a Full Prompt Is Assembled",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/03-generative-ai-and-llms/05-prompting-and-prompt-engineering/diagrams/prompt-assembly.html"
+  },
+  "components": [
+    {
+      "id": "sp",
+      "type": "security",
+      "label": "System Prompt",
+      "sublabel": "(role, rules, tone, format instructions)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        270,
+        64
+      ]
+    },
+    {
+      "id": "up",
+      "type": "external",
+      "label": "User Prompt",
+      "sublabel": "(the actual question/request)",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        270,
+        64
+      ]
+    },
+    {
+      "id": "ex",
+      "type": "frontend",
+      "label": "Optional: Examples",
+      "sublabel": "(few-shot demonstrations)",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        270,
+        64
+      ]
+    },
+    {
+      "id": "comb",
+      "type": "messagebus",
+      "label": "Full Prompt Sent to Model",
+      "pos": [
+        420,
+        150
+      ],
+      "size": [
+        260,
+        64
+      ]
+    },
+    {
+      "id": "model",
+      "type": "backend",
+      "label": "Model Generates Response",
+      "pos": [
+        790,
+        150
+      ],
+      "size": [
+        260,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "m1",
+      "from": "sp",
+      "to": "comb",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "up",
+      "to": "comb",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m3",
+      "from": "ex",
+      "to": "comb",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m4",
+      "from": "comb",
+      "to": "model",
+      "variant": "emphasis"
+    }
+  ]
+}

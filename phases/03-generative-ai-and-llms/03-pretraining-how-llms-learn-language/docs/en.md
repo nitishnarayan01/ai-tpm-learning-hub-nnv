@@ -3,24 +3,40 @@
 > Before an LLM can answer your questions, it spends months predicting the next word in trillions of sentences it will never be asked about directly.
 
 **Type:** Learn
-**Languages:** Python, Concept
 **Prerequisites:** Transformers and the Attention Mechanism
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand what pre-training actually is: next-token prediction at massive scale
-- Understand why pre-training is expensive, slow, and requires enormous amounts of data and compute
-- Recognize the difference between a "base model" (freshly pre-trained) and an assistant-like model (fine-tuned, next lesson)
+- Explain what pre-training actually is: next-token prediction at massive scale
+- Explain why pre-training is expensive, slow, and requires enormous amounts of data and compute
+- Distinguish a "base model" (freshly pre-trained) from an assistant-like model (fine-tuned, next lesson)
 - Formulate the right questions when a team proposes pre-training a model from scratch
 
-## The Problem
+## What It Is
 
-A team proposes "training our own foundation model from scratch" to have full control over an AI product. Without understanding what pre-training actually involves — the data scale, compute cost, and time required — a TPM might treat this as a reasonable, standard engineering task, when in reality it is one of the most expensive and highest-risk options on the table, usually reserved for a small number of well-funded labs.
+**Pre-training** is the initial, foundational training phase where a model learns general language patterns from a massive amount of text using a deceptively simple task: **predict the next token** given all previous tokens.
 
-## The Concept
+By getting extremely good at "what comes next" across diverse text, the model is forced to implicitly learn grammar, facts about the world, reasoning patterns, and even some coding ability. None of these were directly labeled or taught; they emerged from the scale and diversity of the task. The result is a **base model** (or **foundation model**).
 
-**Pre-training** is the initial, foundational training phase where a model learns general language patterns from a massive amount of text, using a deceptively simple task: **predict the next token**.
+## Why It Matters
+
+A team proposes "training our own foundation model from scratch" for full control. Without understanding the data scale, compute cost, and time involved, a TPM might treat this as a standard engineering task. It is actually one of the most expensive and highest-risk options on the table, usually reserved for a small number of well-funded labs.
+
+## How It Works
+
+**The learning loop.** Take a sentence from the corpus, hide the next token, ask the model to guess it, measure how wrong the guess was (the loss), and adjust weights via gradient descent. Repeat billions of times.
+
+**A toy intuition.** Imagine a model that only counts which word follows which in a tiny corpus about cats and dogs. After "the" it has seen "cat" and "dog" most often, so it predicts one of those; after a rarer word with only one observed follower, it predicts that follower with certainty. A real LLM does the same job with attention over the entire context and billions of parameters, but the training signal is identical: given what came before, predict what comes next.
+
+**Why it is so expensive.**
+- **Data scale**: trillions of tokens, and collecting and cleaning them is a massive engineering effort.
+- **Compute scale**: thousands of GPUs for weeks to months, tens to hundreds of millions of dollars for frontier-scale models.
+- **Iteration cost**: a mistake discovered late (bad architecture choice, data-quality issue) can mean rerunning an enormous job, unlike a normal software bug fix.
+
+**Base model vs. assistant.** A base model is excellent at plausible text continuation but not naturally good at following instructions. Asked a question, it may continue with more questions as if writing a list, rather than answering. Turning it into an assistant takes fine-tuning (next lesson).
+
+## Architecture and Workflow
 
 ```mermaid
 graph LR
@@ -29,86 +45,48 @@ graph LR
     Loop --> Base["Base Model:<br/>Learns grammar, facts, reasoning patterns,<br/>purely from next-token prediction"]
 ```
 
-By training on enough diverse text to predict "what word comes next" extremely well, the model is forced to implicitly learn grammar, facts about the world, reasoning patterns, and even some coding ability — none of these were directly labeled or taught; they emerged from the sheer scale and diversity of the prediction task.
-
-### Why Pre-training Is So Expensive
-
-- **Data scale**: modern frontier models are pre-trained on trillions of tokens — a scale of text collection and cleaning that itself is a massive engineering effort.
-- **Compute scale**: pre-training runs on thousands of GPUs for weeks to months, representing tens to hundreds of millions of dollars in compute cost for frontier-scale models.
-- **Iteration cost**: unlike a typical software bug fix, a mistake discovered late in a pre-training run (a bad architecture choice, a data quality issue) can mean re-running an enormous, expensive training job.
-
-### Base Model vs. Assistant Model
-
-A freshly pre-trained model (a **base model**) is very good at predicting plausible next text, but it isn't naturally good at *following instructions* or *being a helpful assistant* — it will often just continue your prompt as if it were more of the same kind of text, rather than answering it directly. Turning a base model into something like ChatGPT or Claude requires an additional step: **fine-tuning** (the next lesson).
-
-## Build It
-
-A tiny illustration of the "predict the next token" objective that drives pre-training, using a toy word-frequency model instead of a real neural network:
-
-```python
-import random
-
-training_text = (
-    "the cat sat on the mat the cat likes fish "
-    "the dog sat on the rug the dog likes bones "
-    "the cat and the dog are friends"
-).split()
-
-def build_next_word_counts(tokens):
-    counts = {}
-    for current_word, next_word in zip(tokens, tokens[1:]):
-        counts.setdefault(current_word, {})
-        counts[current_word][next_word] = counts[current_word].get(next_word, 0) + 1
-    return counts
-
-next_word_counts = build_next_word_counts(training_text)
-
-def predict_next_word(word, counts):
-    if word not in counts:
-        return None
-    options = counts[word]
-    total = sum(options.values())
-    weighted_choices = [(w, c / total) for w, c in options.items()]
-    return max(weighted_choices, key=lambda pair: pair[1])
-
-for word in ["the", "cat", "dog"]:
-    prediction = predict_next_word(word, next_word_counts)
-    print(f"Given '{word}', most likely next word: {prediction}")
+```archify
+src: diagrams/next-token-training.html
+title: Pretraining: predicting the next token to produce a base model
+aspect: 1060/332
 ```
 
-This is a wildly simplified stand-in (a real LLM predicts using attention over the entire context and a vastly larger vocabulary/parameter count), but the underlying training signal is exactly this: given what came before, predict what comes next, and get incrementally better at it over enormous amounts of text.
+## A Real-World Example
 
-## Use It
+A startup says "we'll pre-train a small model to avoid API costs." The compute bill is only the visible part. Hidden costs include assembling and licensing a clean multi-billion-token corpus, hiring researchers who have run large training jobs, months before a first usable result, ongoing retraining as knowledge goes stale, and the fine-tuning and safety work still needed afterward. Meanwhile an API call to an existing model could ship in days. The realistic options for a typical product team are to prompt an existing model, or fine-tune one, not pre-train.
 
-Understanding pre-training clarifies real strategic conversations:
+Hallucination also traces back here: pre-training optimizes for plausible next-token prediction, not verified truth, so a model can sound right with no built-in fact-checking.
 
-- **"Should we pre-train our own model?"** → almost always no for a typical product team; the cost and expertise required rival building a new chip fab, not shipping a feature.
-- **"Should we fine-tune an existing model?"** → a much more common, tractable choice — starting from an already pre-trained model and adapting it (next lesson).
-- **"Why does the model sometimes state confident-sounding but wrong facts (hallucination)?"** → because pre-training optimizes for plausible next-token prediction, not verified truth — a model can be very good at sounding right without a built-in fact-checking mechanism.
+## What a TPM Needs to Understand
 
-## Exercises
+- Pre-training from scratch is a massive, high-risk, high-cost undertaking for a few organizations; the cost and expertise rival building a chip fab, not shipping a feature.
+- For nearly every team the choices are use as-is, prompt well, or fine-tune. The three differ by orders of magnitude in cost and risk.
+- Hallucination is a property of how the model is trained, so it is designed around (RAG, verification), not fixed once.
+- Ask what is really driving the wish to own a base model: cost, data privacy, or capability.
 
-1. **Easy**: In the toy example above, why does "the" have multiple possible next words while a rarer word might only have one?
-2. **Medium**: Explain in plain English why a freshly pre-trained "base model" might respond to a question by continuing it with more questions, rather than answering it.
-3. **Hard**: A team says "we'll just pre-train our own small model to avoid API costs." List three real costs/risks of this plan beyond just compute.
-
-## TPM Perspective
-
-### Strategic Executive Summary
-Pre-training from scratch is a massive, high-risk, high-cost undertaking reserved for a small number of organizations with the data, compute, and expertise to do it well. For nearly every product team, the realistic choices are using an existing pre-trained model as-is, fine-tuning it, or prompting it effectively — not training a new one from scratch. Recognizing this distinction avoids enormously expensive, low-probability-of-success roadmap bets.
-
-### Questions to Challenge Engineering
-1. *"Are we proposing to pre-train a model from scratch, fine-tune an existing pre-trained model, or just prompt an existing model — because the cost and risk profile of these three options differ by orders of magnitude?"*
-2. *"If hallucination is a concern, is that a fundamental property of next-token-prediction pre-training we need to design around (e.g. with RAG or verification), rather than something a single fix eliminates?"*
-3. *"What's driving the desire to control our own base model — cost, data privacy, or capability — and are there lower-risk ways to address that specific concern?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Approach | Cost | Time | Realistic For |
 | :--- | :--- | :--- | :--- |
 | **Pre-train a new base model from scratch** | Extremely high (tens-hundreds of millions $) | Months | Large, well-funded AI labs only |
 | **Fine-tune an existing pre-trained model** | Low-Moderate | Days-Weeks | Most product teams with a specific adaptation need |
 | **Prompt an existing model (no training)** | Very low | Hours | Most product teams, especially for prototyping and many production use cases |
+
+Failure scenarios: a late-discovered data defect forces a rerun; a base model that cannot follow instructions is mistaken for a finished product; knowledge cutoff leaves the model unaware of recent events. Dependencies: GPU supply, data licensing and legal review, and scarce research talent.
+
+## Questions to Ask Engineers
+
+1. *"Are we proposing to pre-train a model from scratch, fine-tune an existing pre-trained model, or just prompt an existing model — because the cost and risk profile of these three options differ by orders of magnitude?"*
+2. *"If hallucination is a concern, is that a fundamental property of next-token-prediction pre-training we need to design around (e.g. with RAG or verification), rather than something a single fix eliminates?"*
+3. *"What's driving the desire to control our own base model — cost, data privacy, or capability — and are there lower-risk ways to address that specific concern?"*
+
+## Scenario Exercise
+
+A director wants to pre-train a proprietary model so the company is "not dependent on a vendor."
+
+1. **Easy**: In one sentence, what task is a model learning during pre-training?
+2. **Medium**: Explain why a freshly pre-trained base model might respond to a question by continuing it with more questions instead of answering.
+3. **Hard**: List three real costs or risks of the from-scratch plan beyond compute, and propose a lower-risk way to address the vendor-dependence concern.
 
 ## Key Terms
 

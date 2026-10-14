@@ -3,24 +3,36 @@
 > One giant prompt asking for five things at once usually does all five worse than five small prompts asking for one thing each.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** Prompting and Prompt Engineering
-**Time:** ~30 minutes
+**Time:** ~20 minutes
 
 ## Learning Objectives
 
-- Understand what prompt chaining is: breaking a complex task into a sequence of smaller LLM calls
+- Explain what prompt chaining is: breaking a complex task into a sequence of smaller LLM calls
 - Recognize when chaining improves reliability versus when it just adds cost and latency
-- Understand how each step's output becomes the next step's input
+- Describe how each step's output becomes the next step's input
 - Formulate the right questions when reviewing a multi-step AI feature's design
 
-## The Problem
+## What It Is
 
-A team builds a feature that reads a customer email, summarizes it, classifies its urgency, and drafts a reply — all in a single giant prompt. It works inconsistently: sometimes the summary is good but the classification is wrong, or the reply ignores the classification entirely. The single-prompt approach is asking one model call to juggle four distinct jobs at once, and quality suffers exactly where a human would also struggle if asked to do four things simultaneously without pausing between them.
+**Prompt chaining** breaks a complex task into a sequence of smaller, focused LLM calls, where each step's output feeds the next step's input. Think of a pipeline of specialized workers instead of one generalist doing everything at once.
 
-## The Concept
+## Why It Matters
 
-**Prompt chaining** breaks a complex task into a sequence of smaller, focused LLM calls, where each step's output feeds into the next step's input — similar to a pipeline of specialized workers instead of one generalist doing everything at once.
+A team builds a feature that reads a customer email, summarizes it, classifies its urgency, and drafts a reply, all in one giant prompt. It works inconsistently: sometimes the summary is good but the urgency is wrong, or the reply ignores the urgency entirely. One model call is juggling four distinct jobs, and quality suffers exactly where a human would also struggle if asked to do four things at once without pausing between them.
+
+## How It Works
+
+1. The first call does one narrow job (for example, summarize the email in one sentence).
+2. Its output is passed, as plain text, into the second call (classify urgency as low, medium, or high).
+3. The third call receives both earlier outputs and drafts the reply.
+4. Each intermediate output can be stored and inspected.
+
+Each step is simpler for the model to get right because it has one job. It is also far easier to debug: if the final reply is wrong, you can look at the summary and the urgency label and see which step introduced the problem, which is impossible with one opaque call.
+
+The price is that each step is a separate API call: more tokens billed, more total latency (steps that depend on each other cannot run at the same time), and more places a call can fail.
+
+## Architecture and Workflow
 
 ```mermaid
 graph LR
@@ -30,83 +42,57 @@ graph LR
     Step3 --> Output["Final Output"]
 ```
 
-### Why Smaller Steps Often Work Better
-
-Each individual step is simpler for the model to get right, because it only has one job. It's also easier for a human to debug: if the final reply is wrong, you can look at each intermediate output (the summary, the urgency classification) and pinpoint exactly which step introduced the problem — something impossible with a single opaque call doing everything at once.
-
-### The Real Trade-off: Reliability vs. Cost and Latency
-
-Chaining isn't free: each step is a separate API call, meaning more total tokens billed, more total latency (especially if steps run sequentially rather than concurrently, connecting back to the async programming lesson), and more places a call could fail. The right amount of chaining balances reliability gains against this added cost and complexity — not every task needs to be split into five steps.
-
-## Build It
-
-The same "summarize, classify, draft reply" task, implemented as a chain of three focused calls instead of one giant prompt:
-
-```python
-def fake_llm_call(prompt):
-    if "Summarize" in prompt:
-        return "Customer's order arrived damaged and they want a replacement urgently."
-    if "Classify the urgency" in prompt:
-        return "high"
-    if "Draft a reply" in prompt:
-        return "Hi, we're sorry your order arrived damaged. We're shipping a free replacement today, no return needed."
-    return "unknown"
-
-def summarize_email(email_text):
-    prompt = f"Summarize this customer email in one sentence:\n\n{email_text}"
-    return fake_llm_call(prompt)
-
-def classify_urgency(summary):
-    prompt = f"Classify the urgency of this issue as low, medium, or high:\n\n{summary}"
-    return fake_llm_call(prompt)
-
-def draft_reply(summary, urgency):
-    prompt = f"Draft a reply. Summary: {summary}\nUrgency: {urgency}"
-    return fake_llm_call(prompt)
-
-email = "Hi, I ordered a laptop stand last week and it arrived cracked. I need this fixed ASAP for a work trip."
-
-summary = summarize_email(email)
-urgency = classify_urgency(summary)
-reply = draft_reply(summary, urgency)
-
-print(f"Step 1 (Summary): {summary}")
-print(f"Step 2 (Urgency): {urgency}")
-print(f"Step 3 (Reply): {reply}")
+```archify
+src: diagrams/support-email-chain.html
+title: Prompt chain from customer email to final reply
+aspect: 1250/172
 ```
 
-If the final reply had been wrong, this structure makes it obvious to check: was the summary accurate? Was the urgency classification correct? Only then look at whether the reply-drafting step used that information well.
+## A Real-World Example
 
-## Use It
+A support team receives: "I ordered a laptop stand last week and it arrived cracked. I need this fixed ASAP for a work trip."
 
-Real AI applications use chaining constantly:
+| Step | Input | Output |
+| :--- | :--- | :--- |
+| 1. Summarize | Raw email | "Order arrived damaged; customer wants a replacement urgently." |
+| 2. Classify urgency | The summary | "high" |
+| 3. Draft reply | Summary + "high" | Apology plus an offer to ship a free replacement today |
 
-- **Document processing pipelines**: extract key fields, then validate them, then generate a summary — as separate steps.
-- **Multi-step reasoning tasks**: plan an approach first, then execute each planned step, rather than asking for a final answer directly (a technique closely related to agentic patterns, covered in a later level).
-- **Content moderation + response generation**: check if input violates policy first (a fast, focused call), only generating a full response if it passes — avoiding wasted cost on requests that will be rejected anyway.
+If the reply is wrong, the team checks step 1 (was the summary accurate?), then step 2 (was "high" correct?), and only then step 3. Other common uses:
 
-## Exercises
+- **Document pipelines**: extract key fields, validate them, then generate a summary.
+- **Plan then execute**: plan an approach first, then carry out each planned step (closely related to the agent patterns in a later level).
+- **Moderation first**: a fast, cheap policy check runs before the full response, so rejected requests do not waste a full-cost call.
 
-1. **Easy**: In the email example above, if `classify_urgency` returned the wrong value, which single step would you look at first to debug it?
-2. **Medium**: Propose a scenario where chaining would be overkill — where a single well-crafted prompt would be simpler and just as reliable.
-3. **Hard**: The three steps above currently run one after another (sequentially). Explain why they can't simply be made to run concurrently with async, given that each step depends on the previous one's output.
+## What a TPM Needs to Understand
 
-## TPM Perspective
+- Chaining trades extra cost and latency for better reliability and debuggability on multi-part tasks. It is a design decision with a clear cost/benefit, not automatic over-engineering, and not something to apply reflexively to simple tasks.
+- The signal that chaining may help: inconsistent quality on a prompt that asks for several distinct jobs.
+- Steps with a sequential dependency cannot be parallelized, so latency adds up. Independent steps can run concurrently.
+- Intermediate outputs should be logged; that is what makes failures diagnosable.
 
-### Strategic Executive Summary
-Prompt chaining trades some additional cost and latency for meaningfully better reliability and debuggability on complex, multi-part tasks. It's a design decision with a clear cost/benefit trade-off, not automatically "more engineering for no reason" — but it also shouldn't be applied reflexively to simple tasks that don't need it.
+## Risks, Dependencies, and Trade-Offs
 
-### Questions to Challenge Engineering
+| Approach | Reliability on Complex Tasks | Cost | Latency | Debuggability |
+| :--- | :--- | :--- | :--- | :--- |
+| **Single giant prompt** | Lower for multi-part tasks | Lowest (one call) | Lowest | Poor, hard to isolate what went wrong |
+| **Prompt chain (multiple focused calls)** | Higher for multi-part tasks | Higher (multiple calls) | Higher (unless parallelized where possible) | Good, each step's output is inspectable |
+
+Failure scenarios: an early step's mistake is passed down and amplified by later steps (error propagation); one failed call in the middle breaks the whole chain unless retries are designed in; chains with many steps can push response time past what users tolerate. Dependency: every step relies on the same provider, so rate limits and outages affect the whole pipeline.
+
+## Questions to Ask Engineers
+
 1. *"Is this feature's inconsistent quality caused by asking one prompt to do too many distinct jobs at once, and would splitting it into focused steps likely help?"*
 2. *"For this multi-step feature, what's the added latency and token cost of chaining, and is that acceptable for the user experience we need?"*
 3. *"When this feature produces a wrong final output, can we inspect the intermediate outputs of each step to pinpoint exactly where it went wrong?"*
 
-### Trade-Off Matrix
+## Scenario Exercise
 
-| Approach | Reliability on Complex Tasks | Cost | Latency | Debuggability |
-| :--- | :--- | :--- | :--- | :--- |
-| **Single giant prompt** | Lower for multi-part tasks | Lowest (one call) | Lowest | Poor — hard to isolate what went wrong |
-| **Prompt chain (multiple focused calls)** | Higher for multi-part tasks | Higher (multiple calls) | Higher (unless parallelized where possible) | Good — each step's output is inspectable |
+Your team's email-triage feature (summarize, classify, draft reply) is live. Users report that some replies are cheerful in response to angry emails.
+
+1. **Easy**: Which step's output would you inspect first to find out whether the urgency or tone information was wrong, and why?
+2. **Medium**: Describe a feature where chaining would be overkill, and a single well-written prompt would be simpler and just as reliable.
+3. **Hard**: Leadership wants the three steps to run at the same time to cut latency. Explain why that does not work here, and propose two other ways to reduce response time (for example, a faster model on the classification step).
 
 ## Key Terms
 

@@ -2,19 +2,19 @@
   "questions": [
     {
       "stage": "pre",
-      "question": "Why does Python use indentation (spaces) instead of curly braces `{ }`?",
+      "question": "Why does indentation (spacing) matter in Python, and why would a TPM hear engineers mention it?",
       "options": [
-        "It doesn't — Python uses curly braces just like most languages",
-        "Indentation defines which lines of code belong inside a loop, conditional, or function, and incorrect indentation is a real syntax error",
-        "Indentation is optional and purely stylistic",
-        "Python only runs code written on a single line"
+        "It does not matter; Python ignores spacing entirely",
+        "Python uses spacing to define which lines belong inside a loop, conditional, or function, so incorrect indentation is a real, common bug",
+        "Indentation is purely stylistic and only affects how code looks",
+        "Python only runs code that is written on a single line"
       ],
       "correct": 1,
       "explanation": "Python uses indentation, not braces, to group code blocks. This makes code visually consistent but also means indentation mistakes can break a script."
     },
     {
       "stage": "check",
-      "question": "What does Python's `None` typically represent?",
+      "question": "When an engineer says a bug is \"expected a value, got None,\" what does None represent in Python?",
       "options": [
         "The number zero",
         "An empty text string",
@@ -29,7 +29,7 @@
       "question": "An engineer says a script 'crashed on an unhandled exception' when calling an AI model API. Which question best identifies whether this is a production risk?",
       "options": [
         "Why is the script written in Python instead of a faster language?",
-        "Is there a try/except around this API call, and if not, could one provider outage or bad response crash the whole service?",
+        "Is there error handling around this API call, and if not, could one provider outage or bad response crash the whole service?",
         "Can we just delete the script?",
         "What color is the terminal text?"
       ],

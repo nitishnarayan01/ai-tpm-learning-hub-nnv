@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "LLMOps Lifecycle",
+    "output": "diagrams/llmops-lifecycle.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "dev",
+      "type": "backend",
+      "label": "Development",
+      "sublabel": "(prompts, chains, agents)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "eval",
+      "type": "security",
+      "label": "Evaluation",
+      "sublabel": "(pre-deployment quality checks)",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "deploy",
+      "type": "cloud",
+      "label": "Deployment",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "monitor",
+      "type": "messagebus",
+      "label": "Monitoring",
+      "sublabel": "(uptime AND output quality)",
+      "pos": [
+        640,
+        200
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "iterate",
+      "type": "database",
+      "label": "Iteration",
+      "sublabel": "(prompt/model/architecture updates)",
+      "pos": [
+        40,
+        200
+      ],
+      "size": [
+        240,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "dev-to-eval",
+      "from": "dev",
+      "to": "eval"
+    },
+    {
+      "id": "eval-to-deploy",
+      "from": "eval",
+      "to": "deploy"
+    },
+    {
+      "id": "deploy-to-monitor",
+      "from": "deploy",
+      "to": "monitor"
+    },
+    {
+      "id": "monitor-to-iterate",
+      "from": "monitor",
+      "to": "iterate"
+    },
+    {
+      "id": "iterate-to-dev",
+      "from": "iterate",
+      "to": "dev"
+    }
+  ]
+}

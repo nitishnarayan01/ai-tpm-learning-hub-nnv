@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Effective TPM leadership sits between over-reach and abdication",
+    "output": "diagrams/tpm-leadership-balance.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "over",
+      "type": "security",
+      "label": "Technical Over-Reach",
+      "sublabel": "(dictating implementation details)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "abd",
+      "type": "security",
+      "label": "Technical Abdication",
+      "sublabel": "(no substantive engagement)",
+      "pos": [
+        40,
+        180
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "sweet",
+      "type": "backend",
+      "label": "Effective TPM Leadership",
+      "sublabel": "(asking sharp questions, ensuring good process)",
+      "pos": [
+        400,
+        110
+      ],
+      "size": [
+        300,
+        70
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "over-to-sweet",
+      "from": "over",
+      "to": "sweet"
+    },
+    {
+      "id": "abd-to-sweet",
+      "from": "abd",
+      "to": "sweet"
+    }
+  ]
+}

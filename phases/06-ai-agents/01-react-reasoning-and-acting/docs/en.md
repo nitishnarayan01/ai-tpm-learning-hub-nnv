@@ -3,24 +3,38 @@
 > An agent isn't a smarter model — it's the same model, given a loop and permission to check its own work.
 
 **Type:** Learn
-**Languages:** Python
 **Prerequisites:** RAG Evaluation Frameworks
-**Time:** ~30 minutes
+**Time:** ~25 minutes
 
 ## Learning Objectives
 
-- Understand the ReAct pattern: interleaving reasoning ("thought") with actions (tool calls) and observations
-- Understand why this loop, not a single prompt, is what turns an LLM into an "agent"
+- Explain the ReAct pattern: interleaving reasoning ("thought") with actions (tool calls) and observations
+- Explain why this loop, not a single prompt, is what turns an LLM into an "agent"
 - Recognize why ReAct improves reliability on multi-step tasks compared to a single-shot response
 - Formulate the right questions when reviewing an agent's reasoning loop design
 
-## The Problem
+## What It Is
 
-A team builds a chatbot that tries to answer "what's the total cost of the last 3 orders for customer #4821?" in a single LLM call with tool access. It fails, because answering requires multiple steps: look up the customer, look up their orders, look up each order's cost, and add them up — a single-shot prompt can't reliably chain all of this together. Without a defined loop structure, the model either gives up, guesses, or calls only one tool and stops.
+**ReAct** (Reasoning + Acting) is a pattern where a model alternates between three steps in a loop: think about what to do next (**thought**), take an action, usually a tool call from the function calling lesson (**action**), and read the result (**observation**). It repeats until the task is done or a limit is hit.
 
-## The Concept
+When a team says a feature "uses an agent," this loop is usually what they mean. The model is the same one used elsewhere in the course. What changes is that it is allowed to act, look at what happened, and decide again.
 
-**ReAct** (Reasoning + Acting) is a pattern where a model alternates between three steps in a loop: think about what to do next, take an action (usually a tool call, from the function calling lesson), observe the result, and repeat until the task is done.
+## Why It Matters
+
+A team builds a chatbot that must answer "what's the total cost of the last 3 orders for customer #4821?" in a single LLM call with tool access. It fails, because the answer needs several dependent steps: look up the customer, look up their orders, look up each order's cost, add them up. A single-shot prompt cannot reliably chain these together. Without a loop, the model gives up, guesses, or calls one tool and stops.
+
+## How It Works
+
+1. The user gives the agent a task.
+2. **Thought**: the model reasons about the next step given everything it knows so far.
+3. **Action**: it calls a tool (or decides it has enough information).
+4. **Observation**: the tool's result is added to the model's context.
+5. The model loops back to a new thought, now informed by the observation.
+6. The loop ends with a **final answer**, or when a hard limit such as a maximum step count is reached.
+
+Two properties matter. First, explicit thoughts let the model plan, reconsider and catch its own mistakes, and give engineers and TPMs something concrete to inspect when an agent does something unexpected. Second, each observation becomes new context, so the agent does not decide its entire plan up front. This is what separates ReAct from prompt chaining (Level 4): chaining follows a fixed, predetermined sequence, while a ReAct agent decides its sequence dynamically, one step at a time.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -33,96 +47,63 @@ graph TD
     Thought -->|"I have enough information"| Final["Final Answer"]
 ```
 
-### Why "Thought" Steps Matter
-
-Explicitly generating a reasoning step before each action — rather than jumping straight to a tool call — gives the model a chance to plan, reconsider, and catch its own mistakes based on what it has learned so far. This visible reasoning also gives engineers and TPMs something concrete to inspect when debugging why an agent took a particular action.
-
-### Why This Is a Loop, Not a Single Call
-
-Each "Observation" (a tool's result) becomes new context for the next "Thought" — the agent doesn't decide its entire plan upfront; it adapts step by step based on what it actually learns. This makes ReAct fundamentally different from prompt chaining (Level 4): chaining follows a fixed, pre-determined sequence of steps, while ReAct's sequence of actions is decided dynamically by the model itself, one step at a time.
-
-## Build It
-
-A simplified ReAct-style loop, using fake tools to solve a multi-step lookup task:
-
-```python
-customers = {"4821": {"name": "Alex Kim", "order_ids": ["A1", "A2", "A3"]}}
-orders = {"A1": 49.99, "A2": 120.00, "A3": 15.50}
-
-def get_customer(customer_id):
-    return customers.get(customer_id)
-
-def get_order_cost(order_id):
-    return orders.get(order_id)
-
-def fake_agent_step(step_number, context):
-    if step_number == 1:
-        return {"thought": "I need to find this customer's order IDs first.", "action": "get_customer", "args": {"customer_id": "4821"}}
-    if step_number == 2:
-        return {"thought": f"Found orders {context['order_ids']}. I need each order's cost.", "action": "get_order_cost", "args": {"order_id": context["order_ids"][context["next_index"]]}}
-    return {"thought": "I have all order costs. Computing total.", "action": "final_answer", "args": {}}
-
-def run_agent_loop(max_steps=6):
-    context = {}
-    total_cost = 0
-    order_index = 0
-
-    for step in range(1, max_steps + 1):
-        decision = fake_agent_step(1 if step == 1 else (2 if order_index < 3 else 3), {**context, "next_index": order_index})
-        print(f"Step {step} - Thought: {decision['thought']}")
-
-        if decision["action"] == "get_customer":
-            result = get_customer(**decision["args"])
-            context["order_ids"] = result["order_ids"]
-            print(f"  Action: get_customer(4821) -> Observation: {result}")
-
-        elif decision["action"] == "get_order_cost":
-            order_id = decision["args"]["order_id"]
-            result = get_order_cost(order_id)
-            total_cost += result
-            print(f"  Action: get_order_cost({order_id}) -> Observation: ${result}")
-            order_index += 1
-
-        elif decision["action"] == "final_answer":
-            print(f"  Final Answer: Total cost of last 3 orders = ${total_cost:.2f}")
-            return total_cost
-
-run_agent_loop()
+```archify
+src: diagrams/react-loop.html
+title: The ReAct loop: Thought, Action, Observation
+aspect: 1185/404
 ```
 
-Each step's "Observation" (the customer's order IDs, then each order's cost) directly informs the next "Thought" — the agent couldn't have decided which order IDs to look up cost for until it observed the result of the first tool call.
+## A Real-World Example
 
-## Use It
+The "total cost of the last 3 orders" task, traced step by step:
 
-The ReAct pattern (or close variants of it) underlies most real-world "AI agent" products:
+| Step | Thought | Action | Observation |
+| :--- | :--- | :--- | :--- |
+| 1 | I need this customer's order IDs first. | Look up customer 4821 | Customer Alex Kim, orders A1, A2, A3 |
+| 2 | I have the IDs. I need each order's cost. | Get cost of order A1 | $49.99 |
+| 3 | Now order A2. | Get cost of order A2 | $120.00 |
+| 4 | Now order A3. | Get cost of order A3 | $15.50 |
+| 5 | I have all three costs and can total them. | None (final answer) | Total: $185.49 |
 
-- **Coding assistants**: reason about what file to check, read it, reason about what to change, make the edit, run tests, observe the result, repeat.
-- **Research assistants**: reason about what to search for, search, read results, reason about what's still missing, search again.
-- **Customer support agents**: reason about what information is needed, look it up, reason about whether it's sufficient to answer, look up more if not.
+The agent could not have chosen which orders to price until it observed the result of step 1. That dependency is why a fixed script or single prompt struggles here.
 
-## Exercises
+The same loop underlies most real agent products:
 
-1. **Easy**: In the code above, identify one "Thought," one "Action," and one "Observation" from the printed output.
-2. **Medium**: Explain in plain English why a single-shot prompt (no loop) would likely fail at the "total cost of last 3 orders" task, even with tool access.
-3. **Hard**: Propose a stopping condition for an agent loop to prevent it from running forever if it never reaches a clear "final answer" state (hint: think about `max_steps` in the code above, and what else might be needed).
+- **Coding assistants**: decide which file to check, read it, decide what to change, edit, run tests, observe, repeat.
+- **Research assistants**: decide what to search, read results, decide what is still missing, search again.
+- **Customer support agents**: decide what information is needed, look it up, judge whether it is enough to answer.
 
-## TPM Perspective
+## What a TPM Needs to Understand
 
-### Strategic Executive Summary
-The ReAct loop is the mechanical foundation of "AI agents" — understanding it demystifies what's actually happening when a team says a feature "uses an agent." It also reveals a key operational risk: an agent that never reaches a clear stopping condition can loop indefinitely, consuming cost and time without resolving — a distinctly different failure mode from a single-call feature simply returning a wrong answer.
+- The ReAct loop demystifies "agent": it is a model in a loop with tools, not a separate kind of intelligence.
+- The key operational risk is the missing stopping condition. An agent that never reaches a final answer can loop indefinitely, burning cost and time without resolving. That is a different failure mode from a single call returning a wrong answer.
+- Variable step count means variable cost and latency per run. Plan budgets and SLAs accordingly.
+- Thoughts are a debugging asset: ask for them to be logged so unexpected actions can be explained.
+- Not every multi-step task needs a loop. If the steps are known in advance, a fixed chain is cheaper and more predictable.
 
-### Questions to Challenge Engineering
-1. *"Does this agent have a maximum step count or other hard stopping condition, to prevent runaway loops that keep calling tools without converging?"*
-2. *"Can we inspect the agent's 'thought' steps when it takes an unexpected action, to understand its reasoning rather than treating it as an unexplainable black box?"*
-3. *"For this task, is a full ReAct loop actually necessary, or would a simpler, fixed prompt chain (Level 4) achieve the same result more cheaply and predictably?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Approach | Handles Multi-Step, Adaptive Tasks | Cost | Predictability |
 | :--- | :--- | :--- | :--- |
 | **Single-shot prompt (no loop)** | Poor for tasks requiring multiple dependent lookups | Lowest | High (one call, one outcome) |
 | **Prompt chaining (fixed sequence)** | Good for known, fixed multi-step tasks | Moderate | High (sequence is predetermined) |
 | **ReAct loop (dynamic, agent-decided steps)** | Best for tasks where the needed steps aren't known upfront | Higher (variable number of calls) | Lower (steps and step count vary by run) |
+
+Dependencies: the reliability of every tool the agent calls, since a failed or misleading observation feeds directly into the next thought. Failure scenarios: runaway loops that never converge, repeated calls to the same tool with the same inputs, and early misreadings that steer all later steps.
+
+## Questions to Ask Engineers
+
+1. *"Does this agent have a maximum step count or other hard stopping condition, to prevent runaway loops that keep calling tools without converging?"*
+2. *"Can we inspect the agent's 'thought' steps when it takes an unexpected action, to understand its reasoning rather than treating it as an unexplainable black box?"*
+3. *"For this task, is a full ReAct loop actually necessary, or would a simpler, fixed prompt chain (Level 4) achieve the same result more cheaply and predictably?"*
+
+## Scenario Exercise
+
+Your team ships a support agent that looks up orders and refunds status. Some tickets cost ten times more than average, and a few never finish.
+
+1. **Easy**: Using the order-cost table above, point to one thought, one action and one observation.
+2. **Medium**: Explain in plain English why a single-shot prompt would likely fail the "total cost of last 3 orders" task, even with tool access.
+3. **Hard**: Propose stopping conditions for the agent loop so it cannot run forever (beyond a maximum step count, what else would you require?), and say what you would want logged for the tickets that hit the limit.
 
 ## Key Terms
 

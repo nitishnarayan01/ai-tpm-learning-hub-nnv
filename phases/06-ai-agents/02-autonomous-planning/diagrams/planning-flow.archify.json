@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Autonomous Planning: Plan, Execute, Re-plan",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/06-ai-agents/02-autonomous-planning/diagrams/planning-flow.html"
+  },
+  "lanes": [
+    {
+      "id": "l1",
+      "label": "Sub-task 1 path"
+    },
+    {
+      "id": "l2",
+      "label": "Planning path"
+    },
+    {
+      "id": "l3",
+      "label": "Sub-task 3 path"
+    }
+  ],
+  "mainPath": [
+    "goal",
+    "plan",
+    "t2",
+    "exec",
+    "replan"
+  ],
+  "nodes": [
+    {
+      "id": "goal",
+      "lane": "l1",
+      "col": 0,
+      "type": "external",
+      "label": "Complex Goal:",
+      "sublabel": "'Research competitor pricing and draft a report'",
+      "width": 256
+    },
+    {
+      "id": "plan",
+      "lane": "l2",
+      "col": 0,
+      "type": "backend",
+      "label": "Planning Stage",
+      "sublabel": "break into sub-tasks, in order",
+      "width": 166
+    },
+    {
+      "id": "t1",
+      "lane": "l1",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Sub-task 1:",
+      "sublabel": "Identify competitors",
+      "width": 130
+    },
+    {
+      "id": "t2",
+      "lane": "l2",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Sub-task 2:",
+      "sublabel": "Research each competitor's pricing",
+      "width": 176
+    },
+    {
+      "id": "t3",
+      "lane": "l3",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Sub-task 3:",
+      "sublabel": "Draft comparison report",
+      "width": 130
+    },
+    {
+      "id": "exec",
+      "lane": "l2",
+      "col": 2,
+      "type": "backend",
+      "label": "Execution: run each sub-task",
+      "sublabel": "often using ReAct internally per sub-task",
+      "width": 214
+    },
+    {
+      "id": "replan",
+      "lane": "l2",
+      "col": 3,
+      "type": "backend",
+      "label": "Re-planning",
+      "sublabel": "adjust remaining sub-tasks",
+      "width": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "goal-plan",
+      "from": "goal",
+      "to": "plan"
+    },
+    {
+      "id": "plan-t1",
+      "from": "plan",
+      "to": "t1"
+    },
+    {
+      "id": "plan-t2",
+      "from": "plan",
+      "to": "t2"
+    },
+    {
+      "id": "plan-t3",
+      "from": "plan",
+      "to": "t3"
+    },
+    {
+      "id": "t1-exec",
+      "from": "t1",
+      "to": "exec"
+    },
+    {
+      "id": "t2-exec",
+      "from": "t2",
+      "to": "exec"
+    },
+    {
+      "id": "t3-exec",
+      "from": "t3",
+      "to": "exec"
+    },
+    {
+      "id": "exec-replan",
+      "from": "exec",
+      "to": "replan",
+      "label": "New info changes the plan",
+      "variant": "emphasis"
+    }
+  ]
+}

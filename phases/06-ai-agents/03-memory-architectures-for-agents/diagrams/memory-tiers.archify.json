@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Agent Memory Tiers",
+    "output": "diagrams/memory-tiers.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "st",
+      "type": "backend",
+      "label": "Short-Term Memory",
+      "sublabel": "The current context window (this conversation only)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        420,
+        64
+      ]
+    },
+    {
+      "id": "sess",
+      "type": "messagebus",
+      "label": "Session Memory",
+      "sublabel": "Persists across turns in one session, often summarized to save context space",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        420,
+        64
+      ]
+    },
+    {
+      "id": "lt",
+      "type": "database",
+      "label": "Long-Term Memory",
+      "sublabel": "Persists across sessions, usually stored in a database + retrieved via RAG",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        420,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "st-to-sess",
+      "from": "st",
+      "to": "sess"
+    },
+    {
+      "id": "sess-to-lt",
+      "from": "sess",
+      "to": "lt"
+    }
+  ]
+}

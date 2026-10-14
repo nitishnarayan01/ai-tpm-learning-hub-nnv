@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": { "title": "Risk Register and Its Five Categories", "locale": "en", "quality_profile": "showcase", "output": "phases/10-ai-technical-program-management/02-technical-risk-management/diagrams/risk-categories.html" },
+  "components": [
+    { "id": "reg", "type": "backend", "label": "Risk Register", "pos": [40, 200], "size": [170, 164] },
+    { "id": "q", "type": "backend", "label": "Quality Risk", "sublabel": "regression, hallucination, poor eval coverage", "pos": [360, 40], "size": [300, 64] },
+    { "id": "c", "type": "backend", "label": "Cost Risk", "sublabel": "token economics underestimated, usage scaling", "pos": [360, 145], "size": [300, 64] },
+    { "id": "l", "type": "backend", "label": "Latency Risk", "sublabel": "untested at scale, wrong bottleneck assumed", "pos": [360, 250], "size": [300, 64] },
+    { "id": "s", "type": "backend", "label": "Security Risk", "sublabel": "prompt injection, missing per-user auth", "pos": [360, 355], "size": [300, 64] },
+    { "id": "d", "type": "backend", "label": "Dependency Risk", "sublabel": "provider outage, rate limits, model deprecation", "pos": [360, 460], "size": [300, 64] }
+  ],
+  "connections": [
+    { "id": "e1", "from": "reg", "to": "q" },
+    { "id": "e2", "from": "reg", "to": "c" },
+    { "id": "e3", "from": "reg", "to": "l" },
+    { "id": "e4", "from": "reg", "to": "s" },
+    { "id": "e5", "from": "reg", "to": "d" }
+  ]
+}

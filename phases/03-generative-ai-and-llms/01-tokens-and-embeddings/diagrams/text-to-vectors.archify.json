@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "From Raw Text to Token Vectors",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/03-generative-ai-and-llms/01-tokens-and-embeddings/diagrams/text-to-vectors.html"
+  },
+  "components": [
+    {
+      "id": "t",
+      "type": "external",
+      "label": "Raw Text:",
+      "sublabel": "'AI TPMs are valuable'",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "tok",
+      "type": "backend",
+      "label": "Tokenizer",
+      "sublabel": "splits into sub-word pieces",
+      "pos": [
+        250,
+        40
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "tokens",
+      "type": "messagebus",
+      "label": "Tokens:",
+      "sublabel": "['AI', ' TP', 'Ms', ' are', ' valuable']",
+      "pos": [
+        490,
+        40
+      ],
+      "size": [
+        250,
+        64
+      ]
+    },
+    {
+      "id": "emb",
+      "type": "backend",
+      "label": "Embedding Model",
+      "sublabel": "converts each token to a vector",
+      "pos": [
+        780,
+        40
+      ],
+      "size": [
+        210,
+        64
+      ]
+    },
+    {
+      "id": "vec",
+      "type": "database",
+      "label": "Vectors:",
+      "sublabel": "[0.2, -1.1, 0.4, ...], ...",
+      "pos": [
+        1030,
+        40
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c1",
+      "from": "t",
+      "to": "tok",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c2",
+      "from": "tok",
+      "to": "tokens",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c3",
+      "from": "tokens",
+      "to": "emb",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c4",
+      "from": "emb",
+      "to": "vec",
+      "variant": "emphasis"
+    }
+  ]
+}

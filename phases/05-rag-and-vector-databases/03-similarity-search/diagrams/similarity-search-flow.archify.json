@@ -1,0 +1,89 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Similarity Search: From Query to LLM Context",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/05-rag-and-vector-databases/03-similarity-search/diagrams/similarity-search-flow.html"
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Query path"
+    }
+  ],
+  "mainPath": [
+    "q",
+    "qe",
+    "search",
+    "top",
+    "ctx"
+  ],
+  "nodes": [
+    {
+      "id": "q",
+      "lane": "main",
+      "col": 0,
+      "type": "external",
+      "label": "User Query",
+      "width": 130
+    },
+    {
+      "id": "qe",
+      "lane": "main",
+      "col": 1,
+      "type": "backend",
+      "label": "Embed the Query",
+      "sublabel": "same embedding model as documents",
+      "width": 172
+    },
+    {
+      "id": "search",
+      "lane": "main",
+      "col": 2,
+      "type": "database",
+      "label": "Similarity Search",
+      "sublabel": "against stored document vectors",
+      "width": 162
+    },
+    {
+      "id": "top",
+      "lane": "main",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Top-K Most Similar Chunks",
+      "width": 184
+    },
+    {
+      "id": "ctx",
+      "lane": "main",
+      "col": 4,
+      "type": "cloud",
+      "label": "Fed to LLM as Context",
+      "width": 157
+    }
+  ],
+  "edges": [
+    {
+      "id": "q-qe",
+      "from": "q",
+      "to": "qe"
+    },
+    {
+      "id": "qe-search",
+      "from": "qe",
+      "to": "search"
+    },
+    {
+      "id": "search-top",
+      "from": "search",
+      "to": "top"
+    },
+    {
+      "id": "top-ctx",
+      "from": "top",
+      "to": "ctx"
+    }
+  ]
+}

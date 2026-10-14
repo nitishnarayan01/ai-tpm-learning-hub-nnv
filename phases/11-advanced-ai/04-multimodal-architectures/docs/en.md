@@ -3,24 +3,36 @@
 > An image isn't fundamentally different from text to the model — it's just tokenized differently before the same attention mechanism takes over.
 
 **Type:** Learn
-**Languages:** Concept
 **Prerequisites:** Reasoning Models
-**Time:** ~30 minutes
+**Time:** ~25 minutes
 
 ## Learning Objectives
 
-- Understand what "multimodal" means and how non-text inputs are converted into a form transformers can process
-- Understand the general architecture pattern connecting modality-specific encoders to a shared transformer backbone
-- Recognize the specific cost, latency, and evaluation implications of adding image, audio, or video inputs
-- Formulate the right questions when reviewing a proposed multimodal AI feature's scope and cost
+- Explain what "multimodal" means and how non-text inputs are converted into a form transformers can process
+- Describe the general architecture pattern connecting modality-specific encoders to a shared transformer backbone
+- Recognize the cost, latency, and evaluation implications of adding image, audio, or video inputs
+- Ask the right questions when reviewing a proposed multimodal AI feature's scope and cost
 
-## The Problem
+## What It Is
 
-A team proposes adding image upload support to their support chatbot "since the model supports images now," without considering that image inputs consume dramatically more tokens than an equivalent text description would, directly multiplying costs (Level 4's token economics) for every image-containing request — a detail easy to overlook when "the model can do it" is treated as the only relevant question.
+**Multimodal models** process multiple types of input (text, images, audio, sometimes video) within a shared architecture, extending the tokens-and-embeddings foundation from Level 3 to non-text data. Each input type has its own specialized **encoder** that converts it into tokens or embeddings, and a single shared transformer backbone then processes everything together.
 
-## The Concept
+## Why It Matters
 
-**Multimodal models** process multiple types of input (text, images, audio, sometimes video) within a shared architecture — extending the tokens-and-embeddings foundation from Level 3 to non-text data.
+A team proposes adding image upload to its support chatbot "since the model supports images now." They overlook that image inputs consume dramatically more tokens than an equivalent text description, multiplying cost (Level 4) on every request that includes an image. "The model can do it" was treated as the only relevant question.
+
+## How It Works
+
+1. Each input passes through its own encoder: a text tokenizer, an image encoder, an audio encoder.
+2. The encoders output sequences of tokens or embeddings in a shared representation.
+3. The same attention mechanism (Level 3) processes all modalities together, which is why the model can reason across an image and a text question about it in one response.
+4. The output is usually text, sometimes other modalities.
+
+**Why images cost more.** An image is split into a grid of patches, each turned into one or more tokens. A single moderate-resolution image can consume hundreds to thousands of tokens, often far more than a short text description of the same content. Higher resolution means more patches and more tokens. Audio and video scale with duration in the same way.
+
+**Why evaluation gets harder.** A text-only eval framework cannot score "did the model correctly describe what is in this image." Multimodal evaluation (Level 8) needs golden datasets and scoring methods built for non-text inputs and outputs.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -33,80 +45,59 @@ graph TD
     Backbone --> Output["Unified Output<br/>(text, and sometimes other modalities)"]
 ```
 
-### The General Pattern: Modality-Specific Encoders + Shared Backbone
-
-Each input type (image, audio) has its own specialized encoder that converts it into a sequence of tokens or embeddings compatible with the same underlying transformer architecture (Level 3) that processes text. Once converted into this shared representation, the same attention mechanism processes all modalities together — this is why a multimodal model can "reason across" an image and a text question about it in the same response.
-
-### Why Images (and Other Modalities) Consume More Tokens Than Expected
-
-An image is typically broken into a grid of patches, each converted into one or more tokens — a single moderate-resolution image can consume hundreds to thousands of tokens, often far more than a short text description of the same content would require. This directly connects to token economics (Level 4): adding image support isn't a "free" capability unlock, it's a new, potentially significant cost driver that should be modeled explicitly.
-
-### Evaluation Gets Harder, Not Just the Architecture
-
-Evaluating multimodal outputs (Level 8's evals lesson) requires extending golden datasets and scoring methods to handle non-text inputs and outputs — a text-only eval framework doesn't automatically know how to score "did the model correctly describe what's in this image," requiring dedicated multimodal eval design, not an assumption that existing text evals transfer directly.
-
-## Build It
-
-A simplified cost comparison showing why adding image input isn't cost-neutral compared to an equivalent text description:
-
-```python
-def estimate_request_cost(input_tokens, output_tokens, price_per_1k_input=0.003, price_per_1k_output=0.015):
-    input_cost = (input_tokens / 1000) * price_per_1k_input
-    output_cost = (output_tokens / 1000) * price_per_1k_output
-    return input_cost + output_cost
-
-text_description_tokens = 40
-image_tokens = 1200
-
-text_only_cost = estimate_request_cost(input_tokens=text_description_tokens, output_tokens=150)
-image_based_cost = estimate_request_cost(input_tokens=image_tokens, output_tokens=150)
-
-print(f"Text-only request (text description of an issue): {text_description_tokens} input tokens")
-print(f"  Estimated cost: ${text_only_cost:.4f}")
-
-print(f"\nImage-based request (photo of the same issue): {image_tokens} input tokens")
-print(f"  Estimated cost: ${image_based_cost:.4f}")
-
-print(f"\nImage-based request costs {image_based_cost / text_only_cost:.1f}x more per request "
-      f"than the equivalent text-only version.")
-
-daily_volume = 10_000
-print(f"\nAt {daily_volume:,} requests/day, choosing image support over text-only adds "
-      f"${(image_based_cost - text_only_cost) * daily_volume:,.2f}/day in additional cost.")
+```archify
+src: diagrams/multimodal-shared-backbone.html
+title: Text, image and audio feed one shared backbone
+aspect: 1310/408
 ```
 
-This makes the "the model supports images now" decision concrete: at meaningful scale, the additional token cost of image inputs is a real, calculable, and potentially significant budget line item — not a free capability unlock.
+## A Real-World Example
 
-## Use It
+Compare a support request described in text (about 40 input tokens) with a photo of the same issue (about 1,200 input tokens), each producing a 150-token answer. Assumed prices: $0.003 per 1,000 input tokens and $0.015 per 1,000 output tokens.
 
-Real production teams treat multimodal feature additions with the same rigor as any other scope decision:
+| | Text description | Photo |
+| :--- | :--- | :--- |
+| Input tokens | 40 | 1,200 |
+| Input cost | $0.00012 | $0.0036 |
+| Output cost (150 tokens) | $0.00225 | $0.00225 |
+| **Total per request** | **about $0.0024** | **about $0.0059** |
 
-- **Cost modeling before enabling a new modality**: projecting the token cost difference at expected scale, the same way any other feature's cost is projected (Level 4).
-- **Modality-specific eval design**: building or extending golden datasets specifically for image/audio inputs, rather than assuming existing text-only evals transfer automatically.
-- **Selective enablement**: offering image upload only where it genuinely improves the user experience enough to justify the added cost, rather than enabling it everywhere by default just because the underlying model supports it.
+The image request costs about 2.5x more overall, and its input cost is 30x higher; output cost dilutes the total. At 10,000 requests per day, choosing images adds about $35 per day, or roughly $12,700 per year. That is modest here but scales linearly, and larger images, video, or higher volume change the picture quickly. Teams treat a new modality like any scope decision: model the cost before enabling it, build modality-specific evals, and enable it selectively where it improves the experience enough to justify the expense.
 
-## Exercises
+## What a TPM Needs to Understand
 
-1. **Easy**: In the code example, roughly how many times more expensive is the image-based request compared to the text-only version?
-2. **Medium**: Explain in plain English why a text-only evaluation framework can't automatically evaluate whether a multimodal model correctly described an image.
-3. **Hard**: Propose a scoped rollout plan for adding image upload support to a support chatbot, considering cost projection, eval design, and which specific use cases justify the added expense.
+- "The model supports it now" is a capability statement, not a cost or product justification.
+- A new modality brings higher token consumption and needs its own evaluation approach; neither comes free with the model.
+- Require the same cost projection and eval planning for a new modality as for any other significant feature.
+- Ask about resolution and size limits; they are the main lever on token cost and latency.
+- Privacy and security change too: images may contain personal data, and uploaded files are a new input channel for malicious content.
 
-## TPM Perspective
-
-### Strategic Executive Summary
-"The model supports it now" is a capability statement, not a cost or product justification — adding a new modality (images, audio) to a feature has real, calculable cost implications (often significantly higher token consumption) and requires its own evaluation approach, neither of which should be assumed to come for free alongside the underlying model capability. A TPM should require the same cost projection and eval planning rigor for a new modality that any other significant feature addition would require.
-
-### Questions to Challenge Engineering
-1. *"Have we projected the token cost difference of adding this modality at our expected usage scale, or are we enabling it simply because the underlying model supports it?"*
-2. *"Do we have an evaluation approach specifically designed for this new modality, or are we assuming our existing text-only evals will transfer automatically?"*
-3. *"Is this modality being enabled broadly by default, or scoped to the specific use cases where it demonstrably improves the user experience enough to justify its added cost?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Modality Addition Approach | Cost Awareness | Eval Coverage | User Experience Benefit |
 | :--- | :--- | :--- | :--- |
 | **Enable broadly because "the model supports it"** | Low — cost not modeled upfront | Low — relies on untested text-only evals | Unclear — not validated against actual need |
 | **Scoped rollout with cost projection and dedicated evals** | High — cost modeled before launch | High — modality-specific evaluation | Validated against specific, justified use cases |
+
+- **Dependencies:** an image or audio encoder supplied by the model vendor, storage and handling for uploaded media, and labeled multimodal test data.
+- **Failure scenario: cost surprise.** Users upload high-resolution photos at volume; spend rises well past forecast. Mitigation: resize or limit uploads, set budgets.
+- **Failure scenario: silent quality problems.** The model misreads blurry or cropped images and no text eval catches it. Mitigation: dedicated multimodal test sets including poor-quality inputs.
+- **Failure scenario: injected instructions.** Text hidden inside an image can try to steer the model (a form of prompt injection). Mitigation: treat image content as untrusted.
+- **Latency:** larger inputs increase time to first token.
+
+## Questions to Ask Engineers
+
+1. *"Have we projected the token cost difference of adding this modality at our expected usage scale, or are we enabling it simply because the underlying model supports it?"*
+2. *"Do we have an evaluation approach specifically designed for this new modality, or are we assuming our existing text-only evals will transfer automatically?"*
+3. *"Is this modality being enabled broadly by default, or scoped to the specific use cases where it demonstrably improves the user experience enough to justify its added cost?"*
+
+## Scenario Exercise
+
+Your support chatbot team wants to launch image upload for all 10,000 daily requests.
+
+1. **Easy**: In the example above, roughly how many times more expensive is the image-based request than the text-only one?
+2. **Medium**: Explain in plain English why a text-only evaluation framework cannot automatically judge whether a multimodal model described an image correctly.
+3. **Hard**: Propose a scoped rollout plan for image upload covering cost projection, eval design, which use cases justify the expense (for example damaged-product claims), and what limits or guardrails you would set.
 
 ## Key Terms
 

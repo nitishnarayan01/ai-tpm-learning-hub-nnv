@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Four UX patterns for AI-generated output",
+    "output": "diagrams/ai-output-ux-patterns.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "out",
+      "type": "external",
+      "label": "AI-Generated Output",
+      "pos": [
+        40,
+        185
+      ],
+      "size": [
+        200,
+        90
+      ]
+    },
+    {
+      "id": "stream",
+      "type": "frontend",
+      "label": "Streaming",
+      "sublabel": "(show progress, reduce perceived wait)",
+      "pos": [
+        340,
+        40
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "conf",
+      "type": "frontend",
+      "label": "Confidence Signaling",
+      "sublabel": "(visually distinguish certain vs. uncertain)",
+      "pos": [
+        340,
+        140
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "corr",
+      "type": "frontend",
+      "label": "Easy Correction",
+      "sublabel": "(let users fix/regenerate quickly)",
+      "pos": [
+        340,
+        240
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "deg",
+      "type": "frontend",
+      "label": "Graceful Degradation",
+      "sublabel": "(clear fallback when quality/capacity is low)",
+      "pos": [
+        340,
+        340
+      ],
+      "size": [
+        300,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "out-to-stream",
+      "from": "out",
+      "to": "stream"
+    },
+    {
+      "id": "out-to-conf",
+      "from": "out",
+      "to": "conf"
+    },
+    {
+      "id": "out-to-corr",
+      "from": "out",
+      "to": "corr"
+    },
+    {
+      "id": "out-to-deg",
+      "from": "out",
+      "to": "deg"
+    }
+  ]
+}

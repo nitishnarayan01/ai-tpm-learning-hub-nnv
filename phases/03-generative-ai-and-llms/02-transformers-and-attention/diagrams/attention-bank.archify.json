@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Attention: Words Informing the Meaning of \"bank\"",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/03-generative-ai-and-llms/02-transformers-and-attention/diagrams/attention-bank.html"
+  },
+  "components": [
+    {
+      "id": "w1",
+      "type": "external",
+      "label": "'The'",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "w2",
+      "type": "external",
+      "label": "'river'",
+      "pos": [
+        40,
+        150
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "w3",
+      "type": "external",
+      "label": "'near'",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "w4",
+      "type": "backend",
+      "label": "'bank'",
+      "pos": [
+        330,
+        150
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "out",
+      "type": "database",
+      "label": "Representation of 'bank' informed by",
+      "sublabel": "surrounding context (river -> riverbank, not financial bank)",
+      "pos": [
+        640,
+        150
+      ],
+      "size": [
+        360,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "b1",
+      "from": "w1",
+      "to": "w4",
+      "label": "attends to",
+      "variant": "dashed"
+    },
+    {
+      "id": "b2",
+      "from": "w2",
+      "to": "w4",
+      "label": "attends to",
+      "variant": "dashed"
+    },
+    {
+      "id": "b3",
+      "from": "w3",
+      "to": "w4",
+      "label": "attends to",
+      "variant": "dashed"
+    },
+    {
+      "id": "b4",
+      "from": "w4",
+      "to": "out",
+      "variant": "emphasis"
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Text, image and audio feed one shared backbone",
+    "output": "diagrams/multimodal-shared-backbone.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "text",
+      "type": "external",
+      "label": "Text Input",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "image",
+      "type": "external",
+      "label": "Image Input",
+      "pos": [
+        40,
+        160
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "audio",
+      "type": "external",
+      "label": "Audio Input",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "tenc",
+      "type": "frontend",
+      "label": "Text Tokenizer",
+      "sublabel": "(Level 3)",
+      "pos": [
+        300,
+        40
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "ienc",
+      "type": "frontend",
+      "label": "Image Encoder",
+      "sublabel": "(converts image into tokens/embeddings)",
+      "pos": [
+        300,
+        160
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "aenc",
+      "type": "frontend",
+      "label": "Audio Encoder",
+      "sublabel": "(converts audio into tokens/embeddings)",
+      "pos": [
+        300,
+        280
+      ],
+      "size": [
+        250,
+        60
+      ]
+    },
+    {
+      "id": "bb",
+      "type": "backend",
+      "label": "Shared Transformer Backbone",
+      "sublabel": "(same attention mechanism, Level 3)",
+      "pos": [
+        660,
+        150
+      ],
+      "size": [
+        250,
+        80
+      ]
+    },
+    {
+      "id": "out",
+      "type": "external",
+      "label": "Unified Output",
+      "sublabel": "(text, and sometimes other modalities)",
+      "pos": [
+        1020,
+        160
+      ],
+      "size": [
+        250,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "text-to-tenc",
+      "from": "text",
+      "to": "tenc"
+    },
+    {
+      "id": "image-to-ienc",
+      "from": "image",
+      "to": "ienc"
+    },
+    {
+      "id": "audio-to-aenc",
+      "from": "audio",
+      "to": "aenc"
+    },
+    {
+      "id": "tenc-to-bb",
+      "from": "tenc",
+      "to": "bb"
+    },
+    {
+      "id": "ienc-to-bb",
+      "from": "ienc",
+      "to": "bb"
+    },
+    {
+      "id": "aenc-to-bb",
+      "from": "aenc",
+      "to": "bb"
+    },
+    {
+      "id": "bb-to-out",
+      "from": "bb",
+      "to": "out"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Three Ways Models Learn",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/02-ai-ml-fundamentals/02-supervised-vs-unsupervised-learning/diagrams/learning-types.html"
+  },
+  "components": [
+    {
+      "id": "s",
+      "type": "backend",
+      "label": "Supervised Learning",
+      "sublabel": "Learn from labeled examples (input -> correct output)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "se",
+      "type": "external",
+      "label": "e.g. Spam detection,",
+      "sublabel": "sentiment classification",
+      "pos": [
+        500,
+        40
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "u",
+      "type": "backend",
+      "label": "Unsupervised Learning",
+      "sublabel": "Find patterns in unlabeled data (no 'correct answer' given)",
+      "pos": [
+        40,
+        170
+      ],
+      "size": [
+        340,
+        64
+      ]
+    },
+    {
+      "id": "ue",
+      "type": "external",
+      "label": "e.g. Customer segmentation,",
+      "sublabel": "clustering similar documents",
+      "pos": [
+        500,
+        170
+      ],
+      "size": [
+        240,
+        64
+      ]
+    },
+    {
+      "id": "r",
+      "type": "backend",
+      "label": "Reinforcement Learning",
+      "sublabel": "Learn from trial, error, and reward (no fixed dataset, learns by acting)",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        400,
+        64
+      ]
+    },
+    {
+      "id": "re",
+      "type": "external",
+      "label": "e.g. Game-playing agents,",
+      "sublabel": "RLHF fine-tuning of LLMs",
+      "pos": [
+        560,
+        300
+      ],
+      "size": [
+        240,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "s-to-se",
+      "from": "s",
+      "to": "se"
+    },
+    {
+      "id": "u-to-ue",
+      "from": "u",
+      "to": "ue"
+    },
+    {
+      "id": "r-to-re",
+      "from": "r",
+      "to": "re"
+    }
+  ]
+}

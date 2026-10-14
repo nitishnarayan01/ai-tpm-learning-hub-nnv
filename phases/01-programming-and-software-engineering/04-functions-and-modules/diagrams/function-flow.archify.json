@@ -1,0 +1,8 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"Anatomy of a Function","locale":"en","quality_profile":"showcase","output":"diagrams/function-flow.html"},
+"components":[
+{"id":"i","type":"external","label":"Inputs","sublabel":"(arguments)","pos":[40,60],"size":[190,64]},
+{"id":"f","type":"backend","label":"Function","sublabel":"(named block of logic)","pos":[300,60],"size":[210,64]},
+{"id":"o","type":"external","label":"Output","sublabel":"(return value)","pos":[580,60],"size":[190,64]}],
+"boundaries":[],
+"connections":[{"id":"i-f","from":"i","to":"f"},{"id":"f-o","from":"f","to":"o"}]}

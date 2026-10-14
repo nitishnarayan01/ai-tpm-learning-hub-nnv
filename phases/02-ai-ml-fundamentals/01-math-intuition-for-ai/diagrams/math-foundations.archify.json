@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Math Behind AI: Vectors, Gradients, Probability",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/02-ai-ml-fundamentals/01-math-intuition-for-ai/diagrams/math-foundations.html"
+  },
+  "components": [
+    {
+      "id": "v",
+      "type": "backend",
+      "label": "Vectors",
+      "sublabel": "Lists of numbers representing data/meaning",
+      "pos": [
+        40,
+        60
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "g",
+      "type": "backend",
+      "label": "Gradients",
+      "sublabel": "Direction to adjust the model to reduce error",
+      "pos": [
+        440,
+        60
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "p",
+      "type": "backend",
+      "label": "Probability",
+      "sublabel": "The model outputs likelihoods, not certainties",
+      "pos": [
+        840,
+        60
+      ],
+      "size": [
+        300,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "v-to-g",
+      "from": "v",
+      "to": "g"
+    },
+    {
+      "id": "g-to-p",
+      "from": "g",
+      "to": "p"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Chunking: One Document, Many Embedded Chunks",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "phases/05-rag-and-vector-databases/01-chunking-strategies/diagrams/chunking-fan-out.html"
+  },
+  "lanes": [
+    {
+      "id": "l1",
+      "label": "Chunk 1 path"
+    },
+    {
+      "id": "l2",
+      "label": "Document path"
+    },
+    {
+      "id": "l3",
+      "label": "Chunk 3 path"
+    }
+  ],
+  "mainPath": [
+    "doc",
+    "chunk",
+    "c2",
+    "embed"
+  ],
+  "nodes": [
+    {
+      "id": "doc",
+      "lane": "l2",
+      "col": 0,
+      "type": "external",
+      "label": "Full Document",
+      "sublabel": "e.g. a 50-page policy manual",
+      "width": 148
+    },
+    {
+      "id": "chunk",
+      "lane": "l2",
+      "col": 1,
+      "type": "backend",
+      "label": "Chunking Strategy",
+      "width": 130
+    },
+    {
+      "id": "c1",
+      "lane": "l1",
+      "col": 2,
+      "type": "database",
+      "label": "Chunk 1",
+      "width": 130
+    },
+    {
+      "id": "c2",
+      "lane": "l2",
+      "col": 2,
+      "type": "database",
+      "label": "Chunk 2",
+      "width": 130
+    },
+    {
+      "id": "c3",
+      "lane": "l3",
+      "col": 2,
+      "type": "database",
+      "label": "Chunk 3",
+      "width": 130
+    },
+    {
+      "id": "embed",
+      "lane": "l2",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Each chunk gets its own embedding",
+      "width": 238
+    }
+  ],
+  "edges": [
+    {
+      "id": "doc-chunk",
+      "from": "doc",
+      "to": "chunk"
+    },
+    {
+      "id": "chunk-c1",
+      "from": "chunk",
+      "to": "c1"
+    },
+    {
+      "id": "chunk-c2",
+      "from": "chunk",
+      "to": "c2"
+    },
+    {
+      "id": "chunk-c3",
+      "from": "chunk",
+      "to": "c3"
+    },
+    {
+      "id": "c1-embed",
+      "from": "c1",
+      "to": "embed"
+    },
+    {
+      "id": "c2-embed",
+      "from": "c2",
+      "to": "embed"
+    },
+    {
+      "id": "c3-embed",
+      "from": "c3",
+      "to": "embed"
+    }
+  ]
+}

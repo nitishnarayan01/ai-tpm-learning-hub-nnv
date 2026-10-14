@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "From user base to a capacity plan with headroom",
+    "output": "diagrams/capacity-plan-flow.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "users",
+      "type": "external",
+      "label": "Expected User Base",
+      "sublabel": "+ Growth Projection",
+      "pos": [
+        40,
+        130
+      ],
+      "size": [
+        200,
+        60
+      ]
+    },
+    {
+      "id": "conc",
+      "type": "backend",
+      "label": "Peak Concurrency Estimate",
+      "sublabel": "(not just daily average)",
+      "pos": [
+        340,
+        130
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "rate",
+      "type": "cloud",
+      "label": "RPM/TPM Requirements",
+      "sublabel": "(Level 0)",
+      "pos": [
+        670,
+        40
+      ],
+      "size": [
+        210,
+        60
+      ]
+    },
+    {
+      "id": "cost",
+      "type": "database",
+      "label": "Cost Projection",
+      "sublabel": "(Level 4's token economics)",
+      "pos": [
+        670,
+        220
+      ],
+      "size": [
+        210,
+        60
+      ]
+    },
+    {
+      "id": "plan",
+      "type": "security",
+      "label": "Capacity Plan with Headroom",
+      "sublabel": "+ Escalation Path for Tier Increases",
+      "pos": [
+        980,
+        130
+      ],
+      "size": [
+        250,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "users-to-conc",
+      "from": "users",
+      "to": "conc"
+    },
+    {
+      "id": "conc-to-rate",
+      "from": "conc",
+      "to": "rate"
+    },
+    {
+      "id": "conc-to-cost",
+      "from": "conc",
+      "to": "cost"
+    },
+    {
+      "id": "rate-to-plan",
+      "from": "rate",
+      "to": "plan"
+    },
+    {
+      "id": "cost-to-plan",
+      "from": "cost",
+      "to": "plan"
+    }
+  ]
+}

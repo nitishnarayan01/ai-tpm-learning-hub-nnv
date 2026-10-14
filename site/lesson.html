@@ -1207,6 +1207,47 @@
       background: var(--bg-surface);
     }
 
+    .diagram-switch { margin: 24px 0; }
+    .diagram-switch > .archify-block,
+    .diagram-switch > .mermaid-container { margin-top: 0; }
+    .diagram-switch-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+    .diagram-switch-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-right: 4px;
+    }
+    .diagram-switch-btn {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--rule-soft);
+      color: var(--ink-soft);
+      background: transparent;
+      cursor: pointer;
+    }
+    .diagram-switch-btn:hover:not(:disabled) { border-color: var(--blueprint); color: var(--blueprint); }
+    .diagram-switch-btn[aria-pressed="true"] { border-color: var(--blueprint); color: var(--blueprint); background: var(--bg-surface); }
+    .diagram-switch-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .diagram-switch-btn:focus-visible { outline: 2px solid var(--blueprint); outline-offset: 2px; }
+    .diagram-switch-note { font-size: 0.8rem; color: var(--ink-mute); font-style: italic; }
+    .diagram-switch .archify-block[hidden],
+    .diagram-switch .mermaid-container[hidden] { display: none; }
+    .archify-scroll { overflow-x: auto; }
+    @media (max-width: 767px) {
+      .archify-block.loaded .archify-frame { min-width: 720px; }
+    }
+
     .archify-mobile-note { display: none; margin: 12px 0 0 !important; color: var(--ink-mute); font-size: 0.8rem; }
     .archify-error { color: var(--ink-mute); font-style: italic; }
 
@@ -3911,51 +3952,6 @@
         return html;
       }
 
-      function lessonActionRunFile(files) {
-        if (!Array.isArray(files)) return null;
-        var supported = /\.(py|ts|js|rs|jl|sh)$/i;
-        for (var i = 0; i < files.length; i++) {
-          var name = files[i] && String(files[i].name || '').trim();
-          if (/^main\.(py|ts|js|rs|jl|sh)$/i.test(name)) return files[i];
-        }
-        for (var j = 0; j < files.length; j++) {
-          var fallbackName = files[j] && String(files[j].name || '').trim();
-          if (files.length === 1 && supported.test(fallbackName)) return files[j];
-        }
-        return null;
-      }
-
-      function setLessonActionRun(panel, files) {
-        if (!panel || !panel.isConnected) return;
-        var commandEl = panel.querySelector('.lesson-action-command');
-        var copyBtn = panel.querySelector('.lesson-action-copy');
-        var note = panel.querySelector('.lesson-action-note');
-        var file = lessonActionRunFile(files);
-        if (!file) {
-          panel._lessonRunCommand = '';
-          if (commandEl) commandEl.textContent = 'No standalone main file detected';
-          if (copyBtn) copyBtn.hidden = true;
-          if (note) note.textContent = 'Use the worked examples as guidance. Mark Run only after you execute an appropriate example or exercise. A code fence is not automatically a runnable program.';
-          return;
-        }
-        var filePath = file.path || file.file || (lessonPath + '/code/' + file.name);
-        var command = repoRootCommand(file.name, filePath);
-        panel._lessonRunCommand = command;
-        if (commandEl) commandEl.textContent = command;
-        if (copyBtn) copyBtn.hidden = false;
-        if (note) note.textContent = 'Run from the repository root, the folder containing README.md.';
-      }
-
-      function resolveLessonActionRun(panel) {
-        if (certificationLesson && certificationLesson.files) {
-          setLessonActionRun(panel, certificationLesson.files.code || []);
-          return;
-        }
-        repositoryDirectoryFetch(lessonPath + '/code', function (err, files) {
-          setLessonActionRun(panel, err ? [] : files);
-        });
-      }
-
       function renderLessonActionPanel(article) {
         if (!article || !window.AIFSProgress) return;
         var entry = currentFocusedPathEntry();
@@ -3976,14 +3972,11 @@
           '<div class="lesson-action-status" role="status" aria-live="polite">0 of 5 checkpoints</div></div>' +
           '<div class="lesson-action-loop" aria-label="Lesson workflow checkpoints">' +
           '<button class="lesson-action-step" type="button" data-checkpoint="read"><span class="lesson-action-step-num">01</span><span class="lesson-action-step-title">Read</span><span class="lesson-action-step-copy">Understand the claim and constraints.</span></button>' +
-          '<button class="lesson-action-step" type="button" data-checkpoint="built"><span class="lesson-action-step-num">02</span><span class="lesson-action-step-title">Build</span><span class="lesson-action-step-copy">Create or modify the lesson artifact.</span></button>' +
-          '<button class="lesson-action-step" type="button" data-checkpoint="ran"><span class="lesson-action-step-num">03</span><span class="lesson-action-step-title">Run</span><span class="lesson-action-step-copy">Execute the relevant program or exercise.</span></button>' +
-          '<button class="lesson-action-step" type="button" data-checkpoint="evidence"><span class="lesson-action-step-num">04</span><span class="lesson-action-step-title">Prove</span><span class="lesson-action-step-copy">Capture output that supports the claim.</span></button>' +
+          '<button class="lesson-action-step" type="button" data-checkpoint="built"><span class="lesson-action-step-num">02</span><span class="lesson-action-step-title">Apply</span><span class="lesson-action-step-copy">Work through the scenario exercise.</span></button>' +
+          '<button class="lesson-action-step" type="button" data-checkpoint="ran"><span class="lesson-action-step-num">03</span><span class="lesson-action-step-title">Discuss</span><span class="lesson-action-step-copy">Take the engineer questions to your team.</span></button>' +
+          '<button class="lesson-action-step" type="button" data-checkpoint="evidence"><span class="lesson-action-step-num">04</span><span class="lesson-action-step-title">Prove</span><span class="lesson-action-step-copy">Capture a note or decision that shows you understood.</span></button>' +
           '<button class="lesson-action-step" type="button" data-lesson-complete="true"><span class="lesson-action-step-num">05</span><span class="lesson-action-step-title">Continue</span><span class="lesson-action-step-copy">Mark the lesson complete when you are ready.</span></button>' +
           '</div><div class="lesson-action-body"><div class="lesson-action-tags">' + tags + '</div>' +
-          '<div class="lesson-action-run"><div class="lesson-action-label">Run from the repository</div>' +
-          '<div class="lesson-action-command-row"><code class="lesson-action-command">Checking for a standalone runnable file</code><button class="lesson-action-copy" type="button" hidden>Copy command</button></div>' +
-          '<p class="lesson-action-note">The page is checking the lesson code directory for a standalone entry point.</p></div>' +
           lessonActionPathHtml() + '</div>';
 
         var metaTags = article.querySelectorAll('.lesson-meta-tag');
@@ -4003,20 +3996,7 @@
             else window.AIFSProgress.markLessonComplete(lessonPath, 'learner');
           });
         }
-        var copyButton = panel.querySelector('.lesson-action-copy');
-        if (copyButton) {
-          copyButton.addEventListener('click', function () {
-            if (!panel._lessonRunCommand || !navigator.clipboard) return;
-            navigator.clipboard.writeText(panel._lessonRunCommand).then(function () {
-              copyButton.textContent = 'Copied';
-              window.setTimeout(function () {
-                if (copyButton.isConnected) copyButton.textContent = 'Copy command';
-              }, 1200);
-            });
-          });
-        }
         syncLessonActionProgress();
-        resolveLessonActionRun(panel);
       }
 
       function syncLessonActionProgress() {
@@ -4701,36 +4681,160 @@
         return url + '?' + (embed ? 'embed=1&' : '') + 'theme=' + theme;
       }
 
+      var DIAGRAM_VIEW_KEY = 'aifs-diagram-view';
+      var ARCHIFY_LOAD_TIMEOUT_MS = 15000;
+
+      function readDiagramView() {
+        try { return window.localStorage.getItem(DIAGRAM_VIEW_KEY) === 'mermaid' ? 'mermaid' : 'archify'; }
+        catch (_) { return 'archify'; }
+      }
+
+      function saveDiagramView(view) {
+        try { window.localStorage.setItem(DIAGRAM_VIEW_KEY, view); } catch (_) {}
+      }
+
+      // Loads the Archify diagram into its block. Calls onFail (once) if the file is
+      // missing or the frame never finishes loading, so the caller can fall back.
+      function loadArchifyFrame(block, onFail) {
+        if (block._archifyState === 'loading' || block._archifyState === 'loaded') return;
+        block._archifyState = 'loading';
+        var open = block.querySelector('.archify-open');
+        var settled = false;
+        function fail() {
+          if (settled) return;
+          settled = true;
+          block._archifyState = 'failed';
+          var f = block.querySelector('.archify-scroll');
+          if (f && f.parentNode) f.parentNode.removeChild(f);
+          if (onFail) onFail();
+        }
+        function mountFrame() {
+          var stage = block.querySelector('.archify-stage');
+          if (!stage) { fail(); return; }
+          var frame = document.createElement('iframe');
+          frame.className = 'archify-frame';
+          frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
+          frame.setAttribute('title', block.querySelector('.archify-title').textContent);
+          frame.style.aspectRatio = block.getAttribute('data-archify-aspect');
+          var timer = window.setTimeout(fail, ARCHIFY_LOAD_TIMEOUT_MS);
+          frame.addEventListener('load', function () {
+            if (settled) return;
+            settled = true;
+            window.clearTimeout(timer);
+            block._archifyState = 'loaded';
+          });
+          frame.addEventListener('error', function () { window.clearTimeout(timer); fail(); });
+          frame.src = archifyUrl(block, true);
+          var footer = document.createElement('div');
+          footer.className = 'archify-footer';
+          var tip = document.createElement('span');
+          tip.className = 'archify-tip';
+          tip.textContent = 'Click any box to highlight its connections. Click it again, click empty space, or press Esc to clear. Open full screen to trace routes.';
+          footer.appendChild(tip);
+          if (open) footer.appendChild(open);
+          stage.innerHTML = '';
+          var scroller = document.createElement('div');
+          scroller.className = 'archify-scroll';
+          scroller.appendChild(frame);
+          stage.appendChild(scroller);
+          stage.appendChild(footer);
+          block.classList.add('loaded');
+        }
+        // A missing file still yields a loadable 404 page in an iframe, so check first.
+        if (window.fetch) {
+          window.fetch(archifyUrl(block, true), { method: 'HEAD' }).then(function (res) {
+            if (!res.ok) { fail(); return; }
+            mountFrame();
+          }).catch(fail);
+        } else {
+          mountFrame();
+        }
+      }
+
+      function setDiagramView(group, view) {
+        var archifyBlock = group.querySelector('.archify-block');
+        var mermaidBox = group.querySelector('.mermaid-container');
+        group.setAttribute('data-view', view);
+        if (archifyBlock) archifyBlock.hidden = view !== 'archify';
+        if (mermaidBox) mermaidBox.hidden = view !== 'mermaid';
+        group.querySelectorAll('.diagram-switch-btn').forEach(function (btn) {
+          btn.setAttribute('aria-pressed', btn.getAttribute('data-view') === view ? 'true' : 'false');
+        });
+      }
+
+      function fallBackToMermaid(group) {
+        var btn = group.querySelector('.diagram-switch-btn[data-view="archify"]');
+        if (btn) { btn.disabled = true; btn.title = 'Interactive diagram could not be loaded'; }
+        var note = group.querySelector('.diagram-switch-note');
+        if (note) note.hidden = false;
+        setDiagramView(group, 'mermaid');
+      }
+
       function mountArchifyBlocks(root) {
         (root || document).querySelectorAll('.archify-block').forEach(function (block) {
           var open = block.querySelector('.archify-open');
           var load = block.querySelector('.archify-load');
           if (open) open.href = archifyUrl(block, false);
-          if (!load) return;
-          load.addEventListener('click', function () {
-            var stage = block.querySelector('.archify-stage');
-            var frame = document.createElement('iframe');
-            frame.className = 'archify-frame';
-            frame.setAttribute('sandbox', 'allow-scripts allow-downloads');
-            frame.setAttribute('title', block.querySelector('.archify-title').textContent);
-            frame.setAttribute('loading', 'lazy');
-            frame.style.aspectRatio = block.getAttribute('data-archify-aspect');
-            frame.src = archifyUrl(block, true);
-            // Loading replaces the intro text, so keep a visible hint: nothing else
-            // tells the reader that the diagram is clickable (or that a second
-            // click on the same box clears the highlight).
-            var footer = document.createElement('div');
-            footer.className = 'archify-footer';
-            var tip = document.createElement('span');
-            tip.className = 'archify-tip';
-            tip.textContent = 'Click any box to highlight its connections. Click it again, click empty space, or press Esc to clear. Open full screen to trace routes.';
-            footer.appendChild(tip);
-            footer.appendChild(open);
-            stage.innerHTML = '';
-            stage.appendChild(frame);
-            stage.appendChild(footer);
-            block.classList.add('loaded');
+          var prev = block.previousElementSibling;
+          var mermaidBox = prev && prev.classList && prev.classList.contains('mermaid-container') ? prev : null;
+
+          if (!mermaidBox) {
+            // Archify-only block: keep the on-demand loader.
+            if (!load) return;
+            load.addEventListener('click', function () {
+              loadArchifyFrame(block, function () {
+                var stage = block.querySelector('.archify-stage');
+                if (stage) stage.innerHTML = '<p class="archify-error">Interactive diagram could not be loaded.</p>';
+              });
+            });
+            return;
+          }
+
+          // Paired with its Mermaid version: wrap both behind a switcher.
+          var group = document.createElement('div');
+          group.className = 'diagram-switch';
+          var bar = document.createElement('div');
+          bar.className = 'diagram-switch-bar';
+          bar.setAttribute('role', 'group');
+          bar.setAttribute('aria-label', 'Diagram format');
+          bar.innerHTML =
+            '<span class="diagram-switch-label">Diagram</span>' +
+            '<button type="button" class="diagram-switch-btn" data-view="archify" aria-pressed="true">Archify</button>' +
+            '<button type="button" class="diagram-switch-btn" data-view="mermaid" aria-pressed="false">Mermaid (Traditional)</button>' +
+            '<span class="diagram-switch-note" role="status" hidden>Interactive diagram unavailable, showing Mermaid.</span>';
+          mermaidBox.parentNode.insertBefore(group, mermaidBox);
+          group.appendChild(bar);
+          group.appendChild(block);
+          group.appendChild(mermaidBox);
+
+          // Archify is the default and loads straight away; no manual load step.
+          var desc = block.querySelector('.archify-desc');
+          if (desc) desc.textContent = 'Loading interactive diagram\u2026';
+          var actions = block.querySelector('.archify-actions');
+          if (actions) actions.hidden = true;
+          var mobileNote = block.querySelector('.archify-mobile-note');
+          if (mobileNote) mobileNote.hidden = true;
+
+          bar.querySelectorAll('.diagram-switch-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var view = btn.getAttribute('data-view');
+              if (btn.disabled) return;
+              saveDiagramView(view);
+              document.querySelectorAll('.diagram-switch').forEach(function (g) {
+                var archBtn = g.querySelector('.diagram-switch-btn[data-view="archify"]');
+                if (view === 'archify' && archBtn && archBtn.disabled) return;
+                setDiagramView(g, view);
+                if (view === 'archify') {
+                  var blk = g.querySelector('.archify-block');
+                  if (blk) loadArchifyFrame(blk, function () { fallBackToMermaid(g); });
+                }
+              });
+            });
           });
+
+          var initial = readDiagramView();
+          setDiagramView(group, initial);
+          if (initial === 'archify') loadArchifyFrame(block, function () { fallBackToMermaid(group); });
         });
       }
 
@@ -5002,7 +5106,7 @@
         var article = document.querySelector('.lesson-article');
         if (!article) return;
 
-        var conceptH2 = article.querySelector('#the-concept, #concept');
+        var conceptH2 = article.querySelector('#what-it-is, #the-concept, #concept');
         var buildH2 = article.querySelector('#build-it, #build');
         var keyTermsH2 = article.querySelector('#key-terms');
 
@@ -5028,9 +5132,9 @@
           buildH2.insertAdjacentHTML('beforebegin', preQuizHtml);
         }
 
-        // Mid-lesson check: land between Build It and Use It if possible,
+        // Mid-lesson check: land before "What a TPM Needs to Understand" if possible,
         // otherwise fall back to before Use It / Ship It / Key Terms.
-        var useH2 = article.querySelector('#use-it, #use');
+        var useH2 = article.querySelector('#what-a-tpm-needs-to-understand, #use-it, #use');
         var shipH2 = article.querySelector('#ship-it, #ship');
         if (checkQuizHtml && useH2) {
           useH2.insertAdjacentHTML('beforebegin', checkQuizHtml);
@@ -5277,7 +5381,6 @@
         if (!container || !lessonPath) return;
 
         renderOutputsPanel(container);
-        renderCodePanel(container);
         renderQuizPanel(container);
         renderLessonCompletionPanel(container);
         renderLearningPathPanel(container);
@@ -5348,27 +5451,6 @@
         if (type === 'agent') return 'Agent';
         var extension = String(filename || '').match(/\.([a-z0-9]+)$/i);
         return extension ? extension[1].toUpperCase() + ' output' : 'Output';
-      }
-
-      function langIcon(filename) {
-        var ext = filename.split('.').pop().toLowerCase();
-        var map = { py: 'PY', python: 'PY', ts: 'TS', js: 'JS', rust: 'RS', rs: 'RS', jl: 'JL', julia: 'JL', sh: 'SH', bash: 'SH' };
-        return map[ext] || '··';
-      }
-
-      function repoRootCommand(filename, path) {
-        var ext = filename.split('.').pop().toLowerCase();
-        var relativePath = String(path).replace(/^\/+/, '');
-        var pathArg = /^[A-Za-z0-9_./-]+$/.test(relativePath)
-          ? relativePath
-          : "'" + relativePath.replace(/'/g, "'\\''") + "'";
-        if (ext === 'py') return 'python3 ' + pathArg;
-        if (ext === 'ts') return 'npx tsx ' + pathArg;
-        if (ext === 'js') return 'node ' + pathArg;
-        if (ext === 'rs') return 'rustc ' + pathArg + ' -o /tmp/aiefs-lesson-main && /tmp/aiefs-lesson-main';
-        if (ext === 'jl') return 'julia ' + pathArg;
-        if (ext === 'sh') return 'bash ' + pathArg;
-        return 'test -e ' + pathArg;
       }
 
       function formatSize(bytes) {
@@ -5546,62 +5628,6 @@
             return;
           }
           renderOutputFiles(outputsEl, outputs);
-        });
-      }
-
-      function renderCodeFiles(codeEl, data) {
-        codeEl.classList.remove('panel-loading');
-        if (!data || !Array.isArray(data) || data.length === 0) {
-          renderPanelFallback(codeEl, 'This lesson has no separate runnable file. Use the worked examples in the lesson.', '', '');
-          return;
-        }
-
-        var html = '<div class="code-cards' + (data.length === 1 ? ' single' : '') + '">';
-        data.forEach(function (file) {
-          var icon = langIcon(file.name);
-          var filePath = file.path || (lessonPath + '/code/' + file.name);
-          var runCmd = repoRootCommand(file.name, filePath);
-          html += '<div class="code-card">';
-          html += '<div class="code-card-header"><span class="code-lang-icon">' + icon + '</span><span class="code-card-name">' + escapeHtml(file.name) + '</span><span class="code-card-size">' + formatSize(Number(file.size || 0)) + '</span></div>';
-          html += '<div class="code-card-run">' + escapeHtml(runCmd) + '</div>';
-          html += '<div class="code-card-actions">';
-          html += '<a class="code-card-btn" href="' + escapeAttr(lessonFileViewUrl(file)) + '" target="_blank" rel="noopener">Open file</a>';
-          html += '<button class="code-card-btn code-card-copy" data-command="' + escapeAttr(runCmd) + '">Copy command</button>';
-          html += '</div>';
-          html += '</div>';
-        });
-        html += '</div>';
-        codeEl.innerHTML = html;
-        codeEl.querySelectorAll('.code-card-copy').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var command = btn.getAttribute('data-command');
-            navigator.clipboard.writeText(command).then(function () {
-              btn.textContent = 'Copied!';
-              setTimeout(function () { btn.textContent = 'Copy command'; }, 1500);
-            });
-          });
-        });
-      }
-
-      function renderCodePanel(container) {
-        var panel = document.createElement('div');
-        panel.className = 'ai-panel ai-panel--compact ai-panel--code';
-        panel.innerHTML = '<div class="ai-panel-header"><div class="ai-panel-icon">C</div><div class="ai-panel-title">Run the Code</div></div><div class="ai-panel-subtitle">Requires a local clone. Run copied commands from the repository root, the directory containing README.md and phases/.</div><div id="codeContent" class="panel-loading">Loading code files...</div>';
-        container.appendChild(panel);
-
-        var codeEl = panel.querySelector('#codeContent');
-        if (certificationLesson && certificationLesson.files) {
-          renderCodeFiles(codeEl, certificationLesson.files.code || []);
-          return;
-        }
-
-        repositoryDirectoryFetch(lessonPath + '/code', function (err, data) {
-          if (!codeEl || !codeEl.parentNode) return;
-          if (err || !data || !Array.isArray(data) || data.length === 0) {
-            renderPanelFallback(codeEl, 'No separate runnable files were found for this lesson.', REPO_TREE + lessonPath, 'View lesson source');
-            return;
-          }
-          renderCodeFiles(codeEl, data);
         });
       }
 

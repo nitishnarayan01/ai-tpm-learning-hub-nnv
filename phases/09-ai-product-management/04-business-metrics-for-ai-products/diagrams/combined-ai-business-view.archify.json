@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Three metric families combine into one business view",
+    "output": "diagrams/combined-ai-business-view.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "eng",
+      "type": "external",
+      "label": "Traditional Engagement Metrics",
+      "sublabel": "(usage, retention, satisfaction)",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        290,
+        60
+      ]
+    },
+    {
+      "id": "cost",
+      "type": "cloud",
+      "label": "Cost Metrics",
+      "sublabel": "(cost per interaction, margin per user)",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        290,
+        60
+      ]
+    },
+    {
+      "id": "qual",
+      "type": "backend",
+      "label": "Quality Metrics",
+      "sublabel": "(from Level 8's evals)",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        290,
+        60
+      ]
+    },
+    {
+      "id": "comb",
+      "type": "backend",
+      "label": "Combined AI Business View",
+      "pos": [
+        450,
+        125
+      ],
+      "size": [
+        220,
+        90
+      ]
+    },
+    {
+      "id": "dec",
+      "type": "security",
+      "label": "Is this feature actually",
+      "sublabel": "successful and sustainable?",
+      "pos": [
+        790,
+        140
+      ],
+      "size": [
+        230,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "eng-to-comb",
+      "from": "eng",
+      "to": "comb"
+    },
+    {
+      "id": "cost-to-comb",
+      "from": "cost",
+      "to": "comb"
+    },
+    {
+      "id": "qual-to-comb",
+      "from": "qual",
+      "to": "comb"
+    },
+    {
+      "id": "comb-to-dec",
+      "from": "comb",
+      "to": "dec"
+    }
+  ]
+}

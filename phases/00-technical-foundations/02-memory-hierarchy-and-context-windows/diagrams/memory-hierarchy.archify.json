@@ -1,0 +1,13 @@
+{"schema_version":1,"diagram_type":"architecture",
+"meta":{"title":"Memory Hierarchy: Fast and Small to Slow and Large","locale":"en","quality_profile":"showcase","output":"diagrams/memory-hierarchy.html"},
+"components":[
+{"id":"r","type":"backend","label":"CPU/GPU Registers","sublabel":"~1 KB \u00b7 sub-nanosecond","pos":[40,60],"size":[220,64]},
+{"id":"l1","type":"backend","label":"L1/L2/L3 Cache","sublabel":"~MBs \u00b7 nanoseconds","pos":[330,60],"size":[220,64]},
+{"id":"v","type":"database","label":"VRAM / HBM","sublabel":"~10s-100s of GB \u00b7 microseconds","pos":[620,60],"size":[240,64]},
+{"id":"ram","type":"database","label":"System RAM (DRAM)","sublabel":"~100s of GB \u00b7 ~100 nanoseconds","pos":[620,230],"size":[240,64]},
+{"id":"d","type":"database","label":"SSD / Disk Storage","sublabel":"~TBs \u00b7 milliseconds","pos":[330,230],"size":[220,64]},
+{"id":"n","type":"cloud","label":"Network Storage / Object Store","sublabel":"~PBs \u00b7 10s-100s of milliseconds","pos":[40,230],"size":[240,64]}],
+"boundaries":[],
+"connections":[
+{"id":"r-l1","from":"r","to":"l1"},{"id":"l1-v","from":"l1","to":"v"},{"id":"v-ram","from":"v","to":"ram"},
+{"id":"ram-d","from":"ram","to":"d"},{"id":"d-n","from":"d","to":"n"}]}

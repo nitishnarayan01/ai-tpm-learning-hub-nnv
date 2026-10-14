@@ -95,7 +95,7 @@ function buildCurriculum() {
           name: lessonName,
           status: fs.existsSync(docPath) ? "complete" : "planned",
           type: "Learn",
-          lang: "Python",
+          lang: "Concept",
           url: relUrl,
           summary: summary || "Master the concepts and TPM implications for this topic.",
           keywords: "AI Architecture · Engineering Evaluation · TPM Leadership"

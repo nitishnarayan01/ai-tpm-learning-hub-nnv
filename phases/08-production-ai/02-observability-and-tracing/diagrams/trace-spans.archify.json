@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Trace and Spans for One Request",
+    "output": "diagrams/trace-spans.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "trace",
+      "type": "messagebus",
+      "label": "Full Trace for One Request",
+      "pos": [
+        40,
+        182
+      ],
+      "size": [
+        240,
+        140
+      ]
+    },
+    {
+      "id": "span1",
+      "type": "database",
+      "label": "Span: Retrieval",
+      "sublabel": "query, retrieved chunks, latency, cost",
+      "pos": [
+        400,
+        40
+      ],
+      "size": [
+        300,
+        64
+      ]
+    },
+    {
+      "id": "span2",
+      "type": "database",
+      "label": "Span: Reranking",
+      "sublabel": "input candidates, reordered output, latency",
+      "pos": [
+        400,
+        130
+      ],
+      "size": [
+        300,
+        64
+      ]
+    },
+    {
+      "id": "span3",
+      "type": "backend",
+      "label": "Span: Agent Reasoning Step 1",
+      "sublabel": "thought, action, observation",
+      "pos": [
+        400,
+        220
+      ],
+      "size": [
+        300,
+        64
+      ]
+    },
+    {
+      "id": "span4",
+      "type": "backend",
+      "label": "Span: Agent Reasoning Step 2",
+      "sublabel": "thought, action, observation",
+      "pos": [
+        400,
+        310
+      ],
+      "size": [
+        300,
+        64
+      ]
+    },
+    {
+      "id": "span5",
+      "type": "cloud",
+      "label": "Span: Final Generation",
+      "sublabel": "final prompt, output, tokens, cost",
+      "pos": [
+        400,
+        400
+      ],
+      "size": [
+        300,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "trace-to-span1",
+      "from": "trace",
+      "to": "span1"
+    },
+    {
+      "id": "trace-to-span2",
+      "from": "trace",
+      "to": "span2"
+    },
+    {
+      "id": "trace-to-span3",
+      "from": "trace",
+      "to": "span3"
+    },
+    {
+      "id": "trace-to-span4",
+      "from": "trace",
+      "to": "span4"
+    },
+    {
+      "id": "trace-to-span5",
+      "from": "trace",
+      "to": "span5"
+    }
+  ]
+}

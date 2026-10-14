@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "How an AI PRD extends the traditional PRD",
+    "output": "diagrams/prd-ai-additions.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "trad",
+      "type": "external",
+      "label": "Traditional PRD Sections",
+      "sublabel": "Problem, Goals, Scope, UX",
+      "pos": [
+        40,
+        200
+      ],
+      "size": [
+        230,
+        60
+      ]
+    },
+    {
+      "id": "ai",
+      "type": "backend",
+      "label": "AI-Specific Additions",
+      "pos": [
+        350,
+        185
+      ],
+      "size": [
+        200,
+        90
+      ]
+    },
+    {
+      "id": "quality",
+      "type": "backend",
+      "label": "Quality Threshold",
+      "sublabel": "(what score, on what eval, is 'good enough'?)",
+      "pos": [
+        650,
+        40
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "failure",
+      "type": "backend",
+      "label": "Failure Mode Handling",
+      "sublabel": "(what happens when the model gets it wrong?)",
+      "pos": [
+        650,
+        140
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "eval",
+      "type": "backend",
+      "label": "Eval Criteria",
+      "sublabel": "(how will we measure this before and after launch?)",
+      "pos": [
+        650,
+        240
+      ],
+      "size": [
+        300,
+        60
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "Guardrail Requirements",
+      "sublabel": "(what must NEVER happen, enforced how?)",
+      "pos": [
+        650,
+        340
+      ],
+      "size": [
+        300,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "trad-to-ai",
+      "from": "trad",
+      "to": "ai"
+    },
+    {
+      "id": "ai-to-quality",
+      "from": "ai",
+      "to": "quality"
+    },
+    {
+      "id": "ai-to-failure",
+      "from": "ai",
+      "to": "failure"
+    },
+    {
+      "id": "ai-to-eval",
+      "from": "ai",
+      "to": "eval"
+    },
+    {
+      "id": "ai-to-guard",
+      "from": "ai",
+      "to": "guard"
+    }
+  ]
+}

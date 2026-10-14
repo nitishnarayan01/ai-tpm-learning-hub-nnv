@@ -3,24 +3,40 @@
 > "Does the agent remember?" is really three separate questions: remember this turn, this session, or forever?
 
 **Type:** Learn
-**Languages:** Python, Concept
 **Prerequisites:** Autonomous Planning
-**Time:** ~30 minutes
+**Time:** ~25 minutes
 
 ## Learning Objectives
 
-- Understand the three common tiers of agent memory: short-term (context), session, and long-term
-- Understand why long-term memory usually relies on the same RAG/embedding concepts from Level 5, not magic
+- Describe the three common tiers of agent memory: short-term (context), session, and long-term
+- Explain why long-term memory usually relies on the same RAG/embedding concepts from Level 5, not magic
 - Recognize the cost and staleness trade-offs of storing and retrieving different kinds of memory
 - Formulate the right questions when reviewing what an agent actually remembers between interactions
 
-## The Problem
+## What It Is
 
-A user tells a support agent "I already explained this yesterday" and the agent has no idea what they're referring to. A product manager assumes this is a simple bug, when in reality it reflects a specific, common architectural choice: the agent's memory doesn't persist across sessions at all, or does but wasn't designed to retrieve the relevant prior conversation. "Does it remember" requires knowing exactly what kind of memory was actually built.
+Agent memory is built from three tiers, each with different scope, persistence and retrieval mechanism:
 
-## The Concept
+| Tier | Scope | How it works |
+| :--- | :--- | :--- |
+| **Short-term** | The current context window only | Whatever is in the model's context now: the conversation and recent tool results. Gone when the window fills or the session ends. |
+| **Session** | Many turns within one session | Often the conversation so far is periodically summarized; only the summary plus recent turns stay in context. |
+| **Long-term** | Across sessions | Facts (preferences, past issues) stored as embeddings in a vector database and retrieved by relevance at the start of a new session. |
 
-Agent memory is usually built from three distinct tiers, each with different scope, persistence, and retrieval mechanisms:
+## Why It Matters
+
+A user tells a support agent "I already explained this yesterday" and the agent has no idea what they mean. A product manager assumes a simple bug, but it usually reflects a specific architectural choice: memory does not persist across sessions at all, or it does but retrieval was not designed to surface the relevant prior conversation. Answering "does it remember?" requires knowing exactly which kind of memory was built.
+
+## How It Works
+
+1. Each turn, the current conversation and tool results sit in the context window (short-term).
+2. As a session grows, older turns are compressed into a summary so the window does not overflow (session memory, building on the summarization ideas in Level 0).
+3. At the start of a new session, the system searches the long-term store for memories relevant to the user's current query and adds only those to context.
+4. After the session, new facts worth keeping are written back to the long-term store.
+
+"Remember everything" does not scale. Like the KV cache growth problem in Level 0, resending an ever-growing history is unsustainable, so long-term memory faces the same "retrieve only what is relevant" pressure that motivated RAG. It is not a fundamentally new problem.
+
+## Architecture and Workflow
 
 ```mermaid
 graph TD
@@ -28,97 +44,54 @@ graph TD
     Sess --> LT["Long-Term Memory<br/>Persists across sessions,<br/>usually stored in a database + retrieved via RAG"]
 ```
 
-### Short-Term Memory (Context Window)
-
-The simplest form: everything currently in the model's context window (from Level 0's memory hierarchy lesson) — the current conversation, including recent tool results. This "memory" disappears the moment the context window fills up or the session ends, unless explicitly saved elsewhere.
-
-### Session Memory
-
-Information that needs to persist across many turns within a single session, but doesn't need to be sent as raw, full context every time — often implemented by periodically summarizing the conversation so far (connecting to summarization strategies from the memory hierarchy lesson) and keeping only the summary plus recent turns in context, rather than the entire raw history.
-
-### Long-Term Memory
-
-Information that should persist across sessions entirely — e.g. a user's stated preferences, past resolved issues, or facts learned in a previous conversation. This is almost always implemented using the same RAG mechanisms from Level 5: relevant memories are stored as embeddings in a vector database and retrieved at the start of a new session based on relevance to the current query, not simply dumped in wholesale.
-
-### Why "Remembering Everything" Doesn't Scale
-
-Just like the KV cache growth problem from Level 0, storing and re-sending an ever-growing raw history isn't sustainable — long-term agent memory faces the exact same "retrieve only what's relevant" pressure that motivated RAG in the first place, rather than a fundamentally new problem.
-
-## Build It
-
-A simplified illustration of the three memory tiers working together for a returning user:
-
-```python
-long_term_memory_store = {
-    "user_42": [
-        "User prefers email responses over phone calls.",
-        "User previously reported a billing issue with invoice #881, resolved on 2026-08-10.",
-    ]
-}
-
-def retrieve_relevant_long_term_memories(user_id, current_query):
-    memories = long_term_memory_store.get(user_id, [])
-    return [m for m in memories if any(word in m.lower() for word in current_query.lower().split())]
-
-def summarize_session_so_far(session_turns):
-    if len(session_turns) <= 2:
-        return session_turns
-    return [f"[Summary of {len(session_turns) - 1} earlier turns]"] + session_turns[-1:]
-
-session_turns = [
-    "User: I'm following up on my billing issue.",
-    "Agent: Can you give me more details?",
-    "User: It's about invoice 881 again, it's happening again.",
-]
-
-current_query = "billing issue invoice"
-relevant_long_term = retrieve_relevant_long_term_memories("user_42", current_query)
-session_summary = summarize_session_so_far(session_turns)
-
-print("Relevant long-term memories retrieved:")
-for m in relevant_long_term:
-    print(f"  - {m}")
-
-print("\nSession memory (summarized):")
-for turn in session_summary:
-    print(f"  {turn}")
-
-print(f"\nShort-term memory (current context): the user's latest message: '{session_turns[-1]}'")
+```archify
+src: diagrams/memory-tiers.html
+title: How agent memory tiers build on each other
+aspect: 500/392
 ```
 
-This mirrors a real system: long-term memory is retrieved selectively (only relevant items, via search), session memory is compressed rather than sent in full, and short-term memory is just whatever is immediately in context — three distinct mechanisms working together, not one magic "remember everything" feature.
+## A Real-World Example
 
-## Use It
+A returning customer writes: "I'm following up on my billing issue... it's about invoice 881 again."
 
-Real agent products make explicit memory design choices:
+| Tier | What the agent does |
+| :--- | :--- |
+| **Long-term** | Searches the stored memories for this user, retrieves two relevant ones: prefers email over phone, and had a billing issue on invoice 881 that was resolved in August. Unrelated memories are not loaded. |
+| **Session** | Earlier turns of today's chat are compressed to a short summary, keeping only the latest turn in full. |
+| **Short-term** | The model sees the retrieved memories, the summary and the latest message together in its context. |
 
-- **Customer support agents**: often use long-term memory to recall a customer's history and preferences across sessions, retrieved via RAG at the start of each new conversation.
-- **Coding assistants**: often use session memory (summarized conversation) to stay within context limits during a long working session, without needing to resend the entire history each turn.
-- **Personal assistants**: often combine all three tiers — immediate context, session summary, and retrieved long-term facts about user preferences.
+Three distinct mechanisms cooperate; none is a single "remember everything" feature. In real products, support agents lean on long-term memory for customer history, coding assistants lean on session summaries to stay within context limits, and personal assistants combine all three.
 
-## Exercises
+## What a TPM Needs to Understand
 
-1. **Easy**: A user says "as I mentioned earlier in this same conversation," and the agent has no idea what they mean. Which memory tier most likely failed?
-2. **Medium**: Explain in plain English why long-term memory retrieval uses the same "relevant items only" approach as RAG, rather than sending a user's entire history every time.
-3. **Hard**: Propose a policy for what should and shouldn't be stored in long-term memory for a customer support agent, considering both usefulness and privacy/data retention concerns.
+- "Does it remember?" is not yes/no. It is a design choice across three tiers, and a "doesn't remember" complaint should be diagnosed against them: which tier is missing or failing?
+- Memory is retrieval, so it can fail silently: the right memory exists but is not surfaced, or a stale memory is surfaced as if current.
+- Summaries lose detail. Session compression saves cost but may drop the one fact the user later needs.
+- Long-term memory is stored personal data. Retention, privacy, consent and deletion are product requirements, not afterthoughts.
 
-## TPM Perspective
-
-### Strategic Executive Summary
-"Does the agent remember" is not a single yes/no feature — it's a specific architectural choice across three tiers (short-term, session, long-term), each with different persistence, cost, and retrieval mechanisms. A user complaint about the agent "not remembering" should be diagnosed against this framework to identify exactly which tier is missing or malfunctioning, rather than treated as one generic bug.
-
-### Questions to Challenge Engineering
-1. *"When a user says the agent doesn't remember something from a previous session, is that because we don't have long-term memory at all, or because retrieval didn't surface the relevant memory?"*
-2. *"For session memory, are we summarizing the conversation as it grows, or resending the full raw history every turn — and what's the cost/context impact of that choice?"*
-3. *"What's our data retention and privacy policy for long-term memory — what gets stored, for how long, and can users request deletion?"*
-
-### Trade-Off Matrix
+## Risks, Dependencies, and Trade-Offs
 
 | Memory Tier | Persistence | Typical Mechanism | Cost Impact |
 | :--- | :--- | :--- | :--- |
 | **Short-term (context window)** | Current turn/session only | Raw context, no special storage | Grows with conversation length (KV cache, Level 0) |
 | **Session memory** | Within one session | Periodic summarization | Reduces cost vs. raw full history |
 | **Long-term memory** | Across sessions | RAG-style retrieval from a vector database | Storage + retrieval cost, but avoids resending everything |
+
+Dependencies: the embedding and retrieval quality from the RAG lessons, plus a data store with proper access control. Failure scenarios: missed retrieval, stale or wrong facts persisted forever, summaries dropping key details, and sensitive data stored without a retention policy.
+
+## Questions to Ask Engineers
+
+1. *"When a user says the agent doesn't remember something from a previous session, is that because we don't have long-term memory at all, or because retrieval didn't surface the relevant memory?"*
+2. *"For session memory, are we summarizing the conversation as it grows, or resending the full raw history every turn — and what's the cost/context impact of that choice?"*
+3. *"What's our data retention and privacy policy for long-term memory — what gets stored, for how long, and can users request deletion?"*
+
+## Scenario Exercise
+
+Your support agent gets complaints that it "forgets" customers. Some complaints are from mid-chat, others from the next day.
+
+1. **Easy**: A user says "as I mentioned earlier in this same conversation" and the agent has no idea. Which memory tier most likely failed?
+2. **Medium**: Explain in plain English why long-term memory retrieval uses the same "relevant items only" approach as RAG, rather than sending a user's entire history every time.
+3. **Hard**: Propose a policy for what should and should not be stored in long-term memory for a customer support agent, balancing usefulness against privacy and retention concerns.
 
 ## Key Terms
 
